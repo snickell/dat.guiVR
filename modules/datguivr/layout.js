@@ -74,6 +74,7 @@ export function createDownArrow(){
 
 export const PANEL_WIDTH = 1.0;
 export const PANEL_HEIGHT = 0.08;
+export const ALT_HEIGHT = 0.12; //pjt experimenting with non-uniform element heights.
 export const PANEL_DEPTH = 0.01;
 export const PANEL_SPACING = 0.001;
 export const PANEL_MARGIN = 0.015;

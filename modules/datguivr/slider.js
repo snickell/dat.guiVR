@@ -33,7 +33,7 @@ export default function createSlider( {
   min = 0.0, max = 1.0,
   step = 0.1,
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_HEIGHT,
+  height = Layout.ALT_HEIGHT,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -61,6 +61,8 @@ export default function createSlider( {
   state.alpha = getAlphaFromValue( state.value, state.min, state.max );
 
   const group = new THREE.Group();
+  //PJT: hacking in an extra property for non-uniform panel height
+  group.spacing = height + Layout.PANEL_SPACING;
 
   //  filled volume
   const rect = new THREE.BoxGeometry( SLIDER_WIDTH, SLIDER_HEIGHT, SLIDER_DEPTH );

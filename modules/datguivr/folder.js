@@ -97,6 +97,7 @@ export default function createFolder({
   group.addController = function( ...args ){
     args.forEach( function( obj ){
       const container = new THREE.Group();
+      if (obj.spacing) container.spacing = obj.spacing;
       container.add( obj );
       collapseGroup.add( container );
       obj.folder = group;
@@ -106,8 +107,13 @@ export default function createFolder({
   };
 
   function performLayout(){
+    var y = 0, lastHeight = spacingPerController;
     collapseGroup.children.forEach( function( child, index ){
-      child.position.y = -(index+1) * spacingPerController ;
+      var h = child.spacing ? child.spacing : spacingPerController;
+      var spacing = 0.5 * (lastHeight + h);
+      y -= spacing;
+      lastHeight = h;
+      child.position.y = y;
       child.position.x = 0.026;
       if( state.collapsed ){
         child.children[0].visible = false;

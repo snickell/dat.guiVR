@@ -49,15 +49,17 @@ export default function createFolder({
   const group = new THREE.Group();
   const collapseGroup = new THREE.Group();
   group.add( collapseGroup );
-  function addDebugBox() {
-    const box = Layout.createPanel(0.01, 0.01, 0.02, true);
-    box.material.color.setHex(0x00ff00);
-    //Colors.colorizeGeometry( box.geometry,  );
-    group.add(box);
-  }
-  addDebugBox();
+  // function addDebugBox() {
+  //   const box = Layout.createPanel(0.01, 0.01, 0.02, true);
+  //   box.material.color.setHex(0x00ff00);
+  //   //Colors.colorizeGeometry( box.geometry,  );
+  //   group.add(box);
+  // }
+  // addDebugBox();
+  
   //expose as public interface so that children can call it when spacing changes
   group.performLayout = performLayout;
+
 
   //  Yeah. Gross.  
   //PJT: Would probably be better to have the THREE object be a member

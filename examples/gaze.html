@@ -80,6 +80,26 @@
       gui.add( cubeMaterial, 'wireframe' );
       gui.add( cube, 'castShadow' );
 
+      const settings = {speed: 20, friction: 0.1};
+
+      const g2 = dat.GUIVR.create('child');
+      g2.add(settings, 'speed');
+      g2.add(settings, 'friction');
+
+      const nestedGui = dat.GUIVR.create('grandchild');
+      nestedGui.addButton(() => {});
+      g2.addController(nestedGui);
+
+      gui.addController(g2);
+      gui.add(settings, 'speed');
+
+      // note that there are currently some issues when folders are collapsed
+      // clicking on areas that are within the hit area of what would be the
+      // folder causes something very bad to happen to layout.
+      const g3 = dat.GUIVR.create('younger child');
+      g3.add(settings, 'friction');
+      gui.addController(g3);
+
 
 
     </script>

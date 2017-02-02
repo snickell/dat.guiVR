@@ -22,7 +22,7 @@ node_modules
 
 # Visual Studio Code
 .settings
+.vscode/
 
 # Builds
 public/dist/*
-.vscode/

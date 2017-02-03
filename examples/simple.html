@@ -42,8 +42,10 @@
       function initApp(){
 
         gui = dat.GUIVR.create( 'Parent' );
-        gui.position.set(-0.5, 0, 0);
-
+        gui.position.set(-0.5, 0.5, 0);
+        
+        gui.addImageButton({fn:()=>{console.log("imagePressed");}}, 'fn')
+        
         gui.add(settings, 'speed');
         gui.addButton(() => {console.log("button pressed")});
         gui.add(settings, 'friction');
@@ -57,7 +59,11 @@
 
         nestedGui = dat.GUIVR.create('grandchild');
         nestedGui.addButton(() => {});
+        nestedGui.addButton(() => {});
+        nestedGui.addButton(() => {});
         g2.addController(nestedGui);
+        gui.addImageButton({fn:()=>{console.log("imagePressed");}}, 'fn')
+        gui.addButton();
 
         gui.addController(g2);
         gui.add(settings, 'speed');
@@ -68,6 +74,8 @@
         g3 = dat.GUIVR.create('younger child');
         g3.add(settings, 'friction');
         gui.addController(g3);
+        gui.addButton();
+        gui.addImageButton({fn:()=>{console.log("imagePressed");}}, 'fn')
         
         gui.scale.set(0.5, 0.5, 0.5);
 

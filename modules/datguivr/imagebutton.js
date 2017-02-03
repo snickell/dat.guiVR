@@ -6,6 +6,9 @@
  * bit about how to structure that etc.  Very un-DRY, but I'm starting by just
  * copying existing button.js in its entirety.
  * 
+ * TODO: not just simple 'bang' function but callbacks for hover / etc.
+ * 
+ * 
  * Copyright  Data Arts Team, Google inc. 2016 / Peter Todd, 2017
  * 
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,29 +37,35 @@ export default function createImageButton( {
   textCreator,
   object,
   propertyName = 'undefined',
-  image,
+  image = "textures/spotlight.jpg", //TODO better default
   width = Layout.PANEL_WIDTH,
   height = Layout.PANEL_WIDTH / 3,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
-  function getTextureForImage(image, targetMaterial) {
-      //determine what type has been passed in:
-      //string (filename), THREE.Image, THREE.Texture, THREE.RenderTarget?
-      if (image === undefined) image = "textures/spotlight.jpg"; //TODO
+  function applyImageToMaterial(image, targetMaterial) {
       if (typeof image === "string") {
-        new THREE.TextureLoader().load(image, (texture) => {targetMaterial.map = texture});
-      } else if (image.__proto__.isTexture) {
+        //TODO cache.  Does TextureLoader already cache?
+        //TODO Image only on front face of button.
+        new THREE.TextureLoader().load(image, (texture) => {
+            texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+            targetMaterial.map = texture;
+            targetMaterial.update();
+        });
+      } else if (image.isTexture) {
           targetMaterial.map = image;
-      }
+      } else if (image.isWebGLRenderTarget) {
+          targetMaterial.map = image.texture;
+      } else throw "not sure how to interpret image " + image;
+      targetMaterial.update();
   }
-
 
   const BUTTON_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
   const group = new THREE.Group();
+  group.spacing = height;
 
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );
@@ -77,21 +86,12 @@ export default function createImageButton( {
   hitscanVolume.position.z = BUTTON_DEPTH * 0.5;
   hitscanVolume.position.x = width * 0.5;
 
-  const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-  getTextureForImage(undefined, material);
+  const material = new THREE.MeshBasicMaterial();
+  applyImageToMaterial(image, material);
   const filledVolume = new THREE.Mesh( rect.clone(), material );
   hitscanVolume.add( filledVolume );
 
-
-  const buttonLabel = textCreator.create( propertyName, { scale: 0.866 } );
-
-  //  This is a real hack since we need to fit the text position to the font scaling
-  //  Please fix me.
-  buttonLabel.position.x = BUTTON_WIDTH * 0.5 - buttonLabel.layout.width * 0.000011 * 0.5;
-  buttonLabel.position.z = BUTTON_DEPTH * 1.2;
-  buttonLabel.position.y = -0.025;
-  filledVolume.add( buttonLabel );
-
+  //button label removed.
 
   const descriptorLabel = textCreator.create( propertyName );
   descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;

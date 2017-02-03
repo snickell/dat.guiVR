@@ -23,6 +23,8 @@ import createCheckbox from './checkbox';
 import createButton from './button';
 import createFolder from './folder';
 import createDropdown from './dropdown';
+//PJT: I'd rather inject custom extensions like this, but will work that out later.
+import createImageButton from './imagebutton';
 import * as SDFText from './sdftext';
 
 const GUIVR = (function DATGUIVR(){
@@ -255,6 +257,19 @@ const GUIVR = (function DATGUIVR(){
     hitscanObjects.push( ...button.hitscan );
     return button;
   }
+  
+  function addImageButton(object, propertyName, image) {
+    //see also folder.js where this is added to group object...
+    //as such this function also needs to be passed as an argument to createFolder.
+    //perhaps all of these 'addX' functions could be initially put onto an object so that
+    //new additions could be added slightly more easily.
+    const button = createImageButton({
+      textCreator, object, propertyName, image
+    });
+    controllers.push( button );
+    hitscanObjects.push( ...button.hitscan ); //PJT: what does this ... actually mean?
+    return button;
+  }
 
   function addDropdown( object, propertyName, options ){
     const dropdown = createDropdown({
@@ -360,6 +375,7 @@ const GUIVR = (function DATGUIVR(){
   }
 
 
+
   /*
     Creates a folder with the name.
 
@@ -378,7 +394,8 @@ const GUIVR = (function DATGUIVR(){
       addSlider: addSimpleSlider,
       addDropdown: addSimpleDropdown,
       addCheckbox: addSimpleCheckbox,
-      addButton: addSimpleButton
+      addButton: addSimpleButton,
+      addImageButton: addImageButton
     });
 
     controllers.push( folder );

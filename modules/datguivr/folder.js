@@ -33,7 +33,8 @@ export default function createFolder({
   addSlider,
   addDropdown,
   addCheckbox,
-  addButton
+  addButton,
+  addImageButton
 } = {} ){
 
   const width = Layout.FOLDER_WIDTH;
@@ -247,6 +248,16 @@ export default function createFolder({
   };
   group.addButton = (...args)=>{
     const controller = addButton(...args);
+    if( controller ){
+      group.addController( controller );
+      return controller;
+    }
+    else{
+      return new THREE.Group();
+    }
+  };
+  group.addImageButton = (...args)=>{
+    const controller = addImageButton(...args);
     if( controller ){
       group.addController( controller );
       return controller;

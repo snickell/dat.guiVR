@@ -1,9 +1,13 @@
-/**
-* dat-guiVR Javascript Controller Library for VR
-* https://github.com/dataarts/dat.guiVR
-*
-* Copyright 2016 Data Arts Team, Google Inc.
-*
+/** 
+ * Big button with an image on (which might come from a file or existing texture,
+ * the texture might be from a RenderTarget...).
+ * 
+ * I'd put this more separate from the datgui modules but need to think a little
+ * bit about how to structure that etc.  Very un-DRY, but I'm starting by just
+ * copying existing button.js in its entirety.
+ * 
+ * Copyright  Data Arts Team, Google inc. 2016 / Peter Todd, 2017
+ * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -15,7 +19,7 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*/
+ */
 
 import * as SubdivisionModifier from '../thirdparty/SubdivisionModifier';
 
@@ -26,15 +30,28 @@ import * as Layout from './layout';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
 
-export default function createButton( {
+export default function createImageButton( {
   textCreator,
   object,
   propertyName = 'undefined',
+  image,
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_HEIGHT,
+  height = Layout.PANEL_WIDTH / 3,
   depth = Layout.PANEL_DEPTH
 } = {} ){
-  
+
+  function getTextureForImage(image, targetMaterial) {
+      //determine what type has been passed in:
+      //string (filename), THREE.Image, THREE.Texture, THREE.RenderTarget?
+      if (image === undefined) image = "textures/spotlight.jpg"; //TODO
+      if (typeof image === "string") {
+        new THREE.TextureLoader().load(image, (texture) => {targetMaterial.map = texture});
+      } else if (image.__proto__.isTexture) {
+          targetMaterial.map = image;
+      }
+  }
+
+
   const BUTTON_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
@@ -60,7 +77,8 @@ export default function createButton( {
   hitscanVolume.position.z = BUTTON_DEPTH * 0.5;
   hitscanVolume.position.x = width * 0.5;
 
-  const material = new THREE.MeshBasicMaterial({ color: Colors.BUTTON_COLOR });
+  const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+  getTextureForImage(undefined, material);
   const filledVolume = new THREE.Mesh( rect.clone(), material );
   hitscanVolume.add( filledVolume );
 

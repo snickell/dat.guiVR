@@ -96,7 +96,7 @@ export default function createFolder({
   const grabBar = Graphic.grabBar();
   grabBar.position.set( width * 0.5, 0, depth * 1.001 );
   grabber.add( grabBar );
-  
+  group.isFolder = true;
   group.hideGrabber = function() { grabber.visible = false };
 
   group.add = function( ...args ){
@@ -129,18 +129,18 @@ export default function createFolder({
   };
 
   function performLayout(){
-    var y = 0, lastHeight = spacingPerController;
+    var y = 0, lastHeight = spacingPerController, totalSpacing = spacingPerController;
     collapseGroup.children.forEach( function( child, index ){
       var h = child.spacing ? child.spacing : spacingPerController;
       var spacing = 0.5 * (lastHeight + h);
       var lastY = y;
       // for the next child to be in right place, y needs to move by full spacing...
       y -= spacing; 
+      
       lastHeight = h;
       // but for folders, the origin needs to be in the middle of the top row,
       // not the middle of the whole object...
-      // for now, I'm using the existence of hideGrabber to identify folders.
-      child.position.y = child.hideGrabber ? lastY - 0.08 : y;
+      child.position.y = child.isFolder ? lastY - spacingPerController : y;
       child.position.x = 0.026;
       if( state.collapsed ){
         //child.children[0].visible = false;
@@ -148,6 +148,7 @@ export default function createFolder({
       }
       else{
         //child.children[0].visible = true;
+        totalSpacing += h;
         child.visible = true;
       }
     });
@@ -159,15 +160,10 @@ export default function createFolder({
       downArrow.rotation.z = 0;
     }
     
-    //trying to add spacing property to folder.
-    //maybe better to add a getter so that it can get it programatically
-    //crucially, though, the spacing ends up wrong - blank space above 
-    //and overlapping below.
-    const top = 0.298; //XXX: magic number reached by trial and error...
-    group.spacing = top -y * lastHeight;
-    if (state.collapsed) group.spacing = 0.08;
+    group.spacing = totalSpacing; //XXX: why is this going wrong with deep nesting?
+    if (state.collapsed) group.spacing = spacingPerController;
 
-    //TODO: make sure parent folder also performs layout.
+    //make sure parent folder also performs layout.
     if (group.folder !== group) group.folder.performLayout();
   }
 

@@ -40,8 +40,6 @@ export default function createFolder({
   const width = Layout.FOLDER_WIDTH;
   const depth = Layout.PANEL_DEPTH;
 
-  const spacingPerController = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
-
   const state = {
     collapsed: false,
     previousParent: undefined
@@ -58,7 +56,7 @@ export default function createFolder({
   // }
   // addDebugBox();
   
-  //expose as public interface so that children can call it when spacing changes
+  //expose as public interface so that children can call it when their spacing changes
   group.performLayout = performLayout;
 
 
@@ -129,6 +127,7 @@ export default function createFolder({
   };
 
   function performLayout(){
+    const spacingPerController = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
     var y = 0, lastHeight = spacingPerController, totalSpacing = spacingPerController;
     collapseGroup.children.forEach( function( child, index ){
       var h = child.spacing ? child.spacing : spacingPerController;
@@ -143,11 +142,9 @@ export default function createFolder({
       child.position.y = child.isFolder ? lastY - spacingPerController : y;
       child.position.x = 0.026;
       if( state.collapsed ){
-        //child.children[0].visible = false;
         child.visible = false;
       }
       else{
-        //child.children[0].visible = true;
         totalSpacing += h;
         child.visible = true;
       }
@@ -160,7 +157,7 @@ export default function createFolder({
       downArrow.rotation.z = 0;
     }
     
-    group.spacing = totalSpacing; //XXX: why is this going wrong with deep nesting?
+    group.spacing = totalSpacing;
     if (state.collapsed) group.spacing = spacingPerController;
 
     //make sure parent folder also performs layout.

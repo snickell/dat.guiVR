@@ -50,14 +50,14 @@ export default function createImageButton( {
         new THREE.TextureLoader().load(image, (texture) => {
             texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
             targetMaterial.map = texture;
-            targetMaterial.update();
+            targetMaterial.needsUpdate = true;
         });
       } else if (image.isTexture) {
           targetMaterial.map = image;
       } else if (image.isWebGLRenderTarget) {
           targetMaterial.map = image.texture;
       } else throw "not sure how to interpret image " + image;
-      targetMaterial.update();
+      targetMaterial.needsUpdate = true;
   }
 
   const BUTTON_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;

@@ -44,10 +44,10 @@
 
         gui.add(settings, 'speed')
         gui.add(settings, 'friction')
-        gui.addImageButton({a: ()=>{console.log("image button pressed")}}, "a", "textures/bin.png")
-        gui.addImageButton({a: ()=>{console.log("image button pressed")}}, "a", "textures/branches_white.png")
-        gui.addImageButton({a: ()=>{console.log("image button pressed")}}, "a", "textures/butterfly_white.png")
-        gui.addImageButton({a: ()=>{console.log("image button pressed")}}, "a", "textures/mag_white.png")
+        gui.addImageButton(()=>{console.log("image button pressed")}, "textures/bin.png")
+        gui.addImageButton(()=>{console.log("image button pressed")}, "textures/branches_white.png")
+        gui.addImageButton(()=>{console.log("image button pressed")}, "textures/butterfly_white.png")
+        gui.addImageButton(()=>{console.log("image button pressed")}, "textures/mag_white.png")
 
         scene.add( gui );
 

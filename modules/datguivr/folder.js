@@ -33,7 +33,8 @@ export default function createFolder({
   addSlider,
   addDropdown,
   addCheckbox,
-  addButton
+  addButton,
+  addImageButton
 } = {} ){
 
   const width = Layout.FOLDER_WIDTH;
@@ -76,7 +77,7 @@ export default function createFolder({
   panel.add( downArrow );
 
   const grabber = Layout.createPanel( width, Layout.FOLDER_GRAB_HEIGHT, depth, true );
-  grabber.position.y = Layout.FOLDER_HEIGHT * 0.86;
+  grabber.position.y = Layout.FOLDER_HEIGHT * 0.86; //XXX: magic number
   grabber.name = 'grabber';
   addImpl( grabber );
 
@@ -102,6 +103,7 @@ export default function createFolder({
     args.forEach( function( obj ){
       collapseGroup.add( obj );
       obj.folder = group;
+      if (obj.hideGrabber) obj.hideGrabber();
     });
 
     performLayout();
@@ -233,6 +235,16 @@ export default function createFolder({
   };
   group.addButton = (...args)=>{
     const controller = addButton(...args);
+    if( controller ){
+      group.addController( controller );
+      return controller;
+    }
+    else{
+      return new THREE.Group();
+    }
+  };
+  group.addImageButton = (...args)=>{
+    const controller = addImageButton(...args);
     if( controller ){
       group.addController( controller );
       return controller;

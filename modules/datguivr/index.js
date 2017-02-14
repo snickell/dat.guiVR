@@ -284,6 +284,8 @@ const GUIVR = (function DATGUIVR(){
   }
   
   function addImageButton(object, propertyName, image) {
+    //note: I'm keeping close to the addButton syntax although I'd rather just pass (function, image)
+
     //see also folder.js where this is added to group object...
     //as such this function also needs to be passed as an argument to createFolder.
     //perhaps all of these 'addX' functions could be initially put onto an object so that

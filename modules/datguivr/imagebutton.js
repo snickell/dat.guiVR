@@ -39,7 +39,7 @@ export default function createImageButton( {
   propertyName = 'undefined',
   image = "textures/spotlight.jpg", //TODO better default
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_WIDTH / 3,
+  height = Layout.PANEL_WIDTH / 2,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -73,10 +73,10 @@ export default function createImageButton( {
   //  base checkbox
   const divisions = 4;
   const aspectRatio = BUTTON_WIDTH / BUTTON_HEIGHT;
-  const rect = new THREE.BoxGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_DEPTH, Math.floor( divisions * aspectRatio ), divisions, divisions );
+  const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
   const modifier = new THREE.SubdivisionModifier( 1 );
-  modifier.modify( rect );
-  rect.translate( BUTTON_WIDTH * 0.5, 0, 0 );
+  //modifier.modify( rect );
+  rect.translate( BUTTON_WIDTH * 0.5, 0, BUTTON_DEPTH );
 
   //  hitscan volume
   const hitscanMaterial = new THREE.MeshBasicMaterial();
@@ -87,11 +87,12 @@ export default function createImageButton( {
   hitscanVolume.position.x = width * 0.5;
 
   const material = new THREE.MeshBasicMaterial();
+  material.transparent = true;
   applyImageToMaterial(image, material);
   const filledVolume = new THREE.Mesh( rect.clone(), material );
   hitscanVolume.add( filledVolume );
 
-  //button label removed.
+  //button label removed; might want options like a hover label in future.
 
   const descriptorLabel = textCreator.create( propertyName );
   descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
@@ -128,10 +129,10 @@ export default function createImageButton( {
   function updateView(){
 
     if( interaction.hovering() ){
-      material.color.setHex( Colors.BUTTON_HIGHLIGHT_COLOR );
+      material.color.setHex( 0xFFFFFF );
     }
     else{
-      material.color.setHex( Colors.BUTTON_COLOR );
+      material.color.setHex( 0xCCCCCC );
     }
 
   }

@@ -103,7 +103,10 @@ export default function createFolder({
     args.forEach( function( obj ){
       collapseGroup.add( obj );
       obj.folder = group;
-      if (obj.hideGrabber) obj.hideGrabber();
+      if (obj.isFolder) {
+        obj.hideGrabber();
+        obj.close();
+      }
     });
 
     performLayout();
@@ -114,6 +117,7 @@ export default function createFolder({
       collapseGroup.add( obj );
       obj.folder = group;
       obj.hideGrabber();
+      obj.close();
     });
     
     performLayout();
@@ -180,6 +184,19 @@ export default function createFolder({
     performLayout();
     p.locked = true;
   });
+
+  group.open = function() {
+    //should we consider checking if parents are open and automatically open them if not?
+    if (!state.collapsed) return;
+    state.collapsed = false;
+    performLayout();
+  }
+
+  group.close = function() {
+    if (state.collapsed) return;
+    state.collapsed = true;
+    performLayout();
+  }
 
   group.folder = group;
 

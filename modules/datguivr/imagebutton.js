@@ -39,7 +39,7 @@ export default function createImageButton( {
   propertyName = 'undefined',
   image = "textures/spotlight.jpg", //TODO better default
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_WIDTH / 2,
+  height = Layout.PANEL_WIDTH / 3,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -62,7 +62,7 @@ export default function createImageButton( {
 
   const BUTTON_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
-  const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
+  const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
 
   const group = new THREE.Group();
   group.spacing = height;
@@ -71,7 +71,6 @@ export default function createImageButton( {
   group.add( panel );
 
   //  base checkbox
-  const divisions = 4;
   const aspectRatio = BUTTON_WIDTH / BUTTON_HEIGHT;
   const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
   const modifier = new THREE.SubdivisionModifier( 1 );
@@ -83,7 +82,7 @@ export default function createImageButton( {
   hitscanMaterial.visible = false;
 
   const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
-  hitscanVolume.position.z = BUTTON_DEPTH * 0.5;
+  hitscanVolume.position.z = BUTTON_DEPTH;
   hitscanVolume.position.x = width * 0.5;
 
   const material = new THREE.MeshBasicMaterial();

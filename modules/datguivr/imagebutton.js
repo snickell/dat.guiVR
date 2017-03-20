@@ -148,7 +148,7 @@ export default function createImageButton( {
   };
 
   group.name = function( str ){
-    descriptorLabel.update( str );
+    descriptorLabel.updateLabel( str );
     return group;
   };
 

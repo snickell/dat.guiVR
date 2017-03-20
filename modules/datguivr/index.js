@@ -58,7 +58,7 @@ const GUIVR = (function DATGUIVR(){
     while (folder.folder !== folder){
       folder = folder.folder;
       if (folder.isCollapsed() || !folder.visible) return false;
-    } 
+    }
     return true;
   }
   function getVisibleControllers() {
@@ -83,8 +83,6 @@ const GUIVR = (function DATGUIVR(){
   function disableMouse(){
     mouseEnabled = false;
   }
-
-
 
 
   /*
@@ -484,7 +482,7 @@ const GUIVR = (function DATGUIVR(){
     controllers.forEach( function( controller ){
       //nb, we could do a more thorough check for visibilty, not sure how important
       //this bit is at this stage...
-      if (controller.visible) controller.update( inputs );
+      if (controller.visible) controller.updateControl( inputs );
     });
   }
 

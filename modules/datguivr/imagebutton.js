@@ -141,7 +141,7 @@ export default function createImageButton( {
 
   const grabInteraction = Grab.create( { group, panel } );
 
-  group.update = function( inputObjects ){
+  group.updateControl = function( inputObjects ){
     interaction.update( inputObjects );
     grabInteraction.update( inputObjects );
     updateView();

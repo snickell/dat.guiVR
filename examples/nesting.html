@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Example</title>
+    <title>Nesting Folders Example</title>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui" name="viewport" />
     <meta name="mobile-web-app-capable" content="yes">
@@ -22,17 +22,16 @@
         'speed':20,
         'friction':0.1,
         'mass':5,
+        'alive':true,
         'advanced settings': {
             'restitution' : 0.9,
+            'discombobulation' : false,
             'spring' : {
                 'compression':0.6,
                 'expansion':0.2
-            },
-            'discombobulation' : false
-        }
-        ,'alive':true
-        ,'sds':"true"
-        ,'more': {
+            }
+        },
+        'more': {
           'ok':true
         }
       }
@@ -48,11 +47,7 @@
                 const newFolder = dat.GUIVR.create(k);
                 addToFolder(object[k], newFolder);
                 folder.addFolder(newFolder);
-            } else if (typeof object[k] === 'string') {
-              folder.addImageButton(()=>{});
-            } else {
-              folder.add(object, k);
-            }
+            } else folder.add(object, k);
         }
       }
 
@@ -64,6 +59,7 @@
 
         renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor(0xeebbbb);
         document.body.appendChild( renderer.domElement );
       }
       
@@ -71,8 +67,6 @@
 
         gui = dat.GUIVR.create( 'settings' );
         gui.position.set(-0.5, 0.5, 0);
-        const s = 0.7;
-        gui.scale.set(s, s, s);
 
         addToFolder(settings, gui);
         scene.add(gui);

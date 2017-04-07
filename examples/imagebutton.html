@@ -51,10 +51,18 @@
         //f.add(settings, 'speed');
         gui.addFolder(f);
         gui.add(settings, 'speed');
-        f = dat.GUIVR.create("Folder2");
-        f.addImageButton(()=>{console.log("image button pressed")}, "textures/butterfly_white.png")
-        f.addImageButton(()=>{console.log("image button pressed")}, "textures/mag_white.png")
-        gui.addFolder(f);
+        
+        let fn = ()=>{console.log("image button pressed")};
+        
+        // f = dat.GUIVR.create("Folder2");
+        // f.addImageButton(()=>{console.log("image button pressed")}, "textures/butterfly_white.png")
+        // f.addImageButton(()=>{console.log("image button pressed")}, "textures/mag_white.png")
+        // gui.addFolder(f);
+        f = gui.addImageButtonPanel(
+          {func: fn, image: "textures/butterfly_white.png" }
+          , {func: fn, image: "textures/mag_white.png" }
+          , {func: fn, image: "textures/butterfly_white.png" }
+        )
         
 
         scene.add( gui );

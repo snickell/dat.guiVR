@@ -292,6 +292,18 @@ const GUIVR = (function DATGUIVR(){
     return button;
   }
 
+  /*
+  For now, I'm adding this starting at the top level interface, to think about how I want the
+  syntax to work.
+  */
+  function addImageButtonPanel(...args) {
+    const panel = create("image button panel");
+    args.forEach(a=>{
+      panel.addImageButton(a.func, a.image);
+    });
+    return panel;
+  }
+
   function addDropdown( object, propertyName, options ){
     const dropdown = createDropdown({
       textCreator, propertyName, object, options
@@ -461,7 +473,9 @@ const GUIVR = (function DATGUIVR(){
         addSlider: addSimpleSlider,
         addDropdown: addSimpleDropdown,
         addCheckbox: addSimpleCheckbox,
-        addButton: addSimpleButton
+        addButton: addSimpleButton,
+        addImageButton: addImageButton,
+        addImageButtonPanel: addImageButtonPanel
       }
     });
 

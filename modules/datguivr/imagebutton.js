@@ -65,6 +65,8 @@ export default function createImageButton( {
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
 
   const group = new THREE.Group();
+  group.guiType = "imagebutton";
+  group.toString = () => `[${group.guiType}: ${propertyName}]`;
   group.spacing = height;
 
   const panel = Layout.createPanel( width, height, depth );

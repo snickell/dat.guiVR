@@ -49,6 +49,9 @@ export default function createCheckbox( {
   const DROPDOWN_MARGIN = Layout.PANEL_MARGIN * -0.4;
 
   const group = new THREE.Group();
+  group.guiType = "dropdown";
+  group.toString = () => `[${group.guiType}: ${propertyName}]`;
+
 
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );

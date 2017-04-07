@@ -47,6 +47,9 @@ export default function createFolder({
   };
 
   const group = new THREE.Group();
+  group.guiType = "folder";
+  group.toString = () => `[${group.guiType}: ${name}]`;
+
   const collapseGroup = new THREE.Group();
   group.add( collapseGroup );
 

@@ -40,6 +40,8 @@ export default function createButton( {
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
   const group = new THREE.Group();
+  group.guiType = "button";
+  group.toString = () => `[${group.guiType}: ${propertyName}]`;
 
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );

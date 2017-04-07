@@ -61,6 +61,8 @@ export default function createSlider( {
   state.alpha = getAlphaFromValue( state.value, state.min, state.max );
 
   const group = new THREE.Group();
+  group.guiType = "slider";
+  group.toString = () => `[${group.guiType}: ${propertyName}]`;
 
   //  filled volume
   const rect = new THREE.BoxGeometry( SLIDER_WIDTH, SLIDER_HEIGHT, SLIDER_DEPTH );

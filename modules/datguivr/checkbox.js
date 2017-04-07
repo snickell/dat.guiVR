@@ -48,6 +48,8 @@ export default function createCheckbox( {
   };
 
   const group = new THREE.Group();
+  group.guiType = "checkbox";
+  group.toString = () => `[${group.guiType}: ${propertyName}]`;
 
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );

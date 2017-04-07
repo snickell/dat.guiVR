@@ -23,6 +23,9 @@ import * as SharedMaterials from './sharedmaterials';
 export default function createTextLabel( textCreator, str, width = 0.4, depth = 0.029, fgColor = 0xffffff, bgColor = Colors.DEFAULT_BACK, scale = 1.0 ){
 
   const group = new THREE.Group();
+  group.guiType = "textlabel";
+  group.toString = () => `[${group.guiType}: ${str}]`;
+
   const internalPositioning = new THREE.Group();
   group.add( internalPositioning );
 

@@ -39,7 +39,7 @@ export default function createImageButton( {
   propertyName = 'undefined',
   image = "textures/spotlight.jpg", //TODO better default
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_WIDTH / 3,
+  height = Layout.PANEL_WIDTH / 4,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -60,7 +60,7 @@ export default function createImageButton( {
       targetMaterial.needsUpdate = true;
   }
 
-  const BUTTON_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
+  const BUTTON_WIDTH = width * 0.25 - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
 

@@ -49,6 +49,21 @@ export default function createFolder({
   const collapseGroup = new THREE.Group();
   group.add( collapseGroup );
 
+  var isAccordion = false;
+  /** When true, will keep only one child folder of this folder open at a time.
+   * Siblings automatically close.
+   */
+  Object.defineProperty( group, 'accordion', {
+    get: () => {
+      return isAccordion;
+    },
+    set: ( newValue ) => {
+      if ( newValue && !isAccordion ) group.guiChildren.filter( c=>c.isFolder ).map( c=>c.close() );
+      isAccordion = newValue;
+      performLayout();
+    }
+  });
+
   //expose as public interface so that children can call it when their spacing changes
   group.performLayout = performLayout;
   group.isCollapsed = () => { return state.collapsed }
@@ -227,14 +242,16 @@ export default function createFolder({
 
   const interaction = createInteraction( panel );
   interaction.events.on( 'onPressed', function( p ){
-    state.collapsed = !state.collapsed;
-    performLayout();
+    if (state.collapsed) group.open();
+    else group.close();
     p.locked = true;
   });
 
   group.open = function() {
-    //should we consider checking if parents are open and automatically open them if not?
     if (!state.collapsed) return;
+    if (group.folder !== group && group.folder.accordion) {
+      group.folder.guiChildren.filter(c=>c.isFolder && c !== group).forEach(c=>c.close());
+    }
     state.collapsed = false;
     performLayout();
   }

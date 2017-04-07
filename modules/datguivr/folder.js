@@ -31,11 +31,7 @@ export default function createFolder({
   name,
   guiAdd,
   guiRemove,
-  addSlider,
-  addDropdown,
-  addCheckbox,
-  addButton,
-  addImageButton
+  addControllerFuncs
 } = {} ){
 
   const width = Layout.FOLDER_WIDTH;
@@ -290,56 +286,18 @@ export default function createFolder({
 
   group.beingMoved = false;
 
-  group.addSlider = (...args)=>{
-    const controller = addSlider(...args);
-    if( controller ){
-      group.addController( controller );
-      return controller;
+  for (let k in addControllerFuncs) {
+    group[k] = (...args) => {
+      const controller = addControllerFuncs[k](...args);
+      if ( controller ){
+        group.addController( controller );
+        return controller;
+      }
+      else {
+        return new THREE.Group();
+      }
     }
-    else{
-      return new THREE.Group();
-    }
-  };
-  group.addDropdown = (...args)=>{
-    const controller = addDropdown(...args);
-    if( controller ){
-      group.addController( controller );
-      return controller;
-    }
-    else{
-      return new THREE.Group();
-    }
-  };
-  group.addCheckbox = (...args)=>{
-    const controller = addCheckbox(...args);
-    if( controller ){
-      group.addController( controller );
-      return controller;
-    }
-    else{
-      return new THREE.Group();
-    }
-  };
-  group.addButton = (...args)=>{
-    const controller = addButton(...args);
-    if( controller ){
-      group.addController( controller );
-      return controller;
-    }
-    else{
-      return new THREE.Group();
-    }
-  };
-  group.addImageButton = (...args)=>{
-    const controller = addImageButton(...args);
-    if( controller ){
-      group.addController( controller );
-      return controller;
-    }
-    else{
-      return new THREE.Group();
-    }
-  };
+  }
 
   return group;
 }

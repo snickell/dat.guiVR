@@ -457,11 +457,12 @@ const GUIVR = (function DATGUIVR(){
       name,
       guiAdd: add,
       guiRemove: remove,
-      addSlider: addSimpleSlider,
-      addDropdown: addSimpleDropdown,
-      addCheckbox: addSimpleCheckbox,
-      addButton: addSimpleButton,
-      addImageButton: addImageButton
+      addControllerFuncs: {
+        addSlider: addSimpleSlider,
+        addDropdown: addSimpleDropdown,
+        addCheckbox: addSimpleCheckbox,
+        addButton: addSimpleButton
+      }
     });
 
     controllers.push( folder );

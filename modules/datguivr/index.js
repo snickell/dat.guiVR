@@ -25,6 +25,7 @@ import createFolder from './folder';
 import createDropdown from './dropdown';
 //PJT: I'd rather inject custom extensions like this, but will work that out later.
 import createImageButton from './imagebutton';
+import createImageButtonGrid from './imagebuttongrid';
 import * as SDFText from './sdftext';
 
 const GUIVR = (function DATGUIVR(){
@@ -296,12 +297,16 @@ const GUIVR = (function DATGUIVR(){
   For now, I'm adding this starting at the top level interface, to think about how I want the
   syntax to work.
   */
-  function addImageButtonPanel(...args) {
-    const panel = create("image button panel");
-    args.forEach(a=>{
-      panel.addImageButton(a.func, a.image);
-    });
-    return panel;
+  function addImageButtonGrid(...args) {
+    // const panel = create("image button panel");
+    // args.forEach(a=>{
+    //   panel.addImageButton(a.func, a.image);
+    // });
+    // return panel;
+    const objects = args;
+    const grid = createImageButtonGrid({textCreator, objects}); //Why is args not getting through to objects?
+    controllers.push(grid);
+    return grid;
   }
 
   function addDropdown( object, propertyName, options ){
@@ -475,7 +480,7 @@ const GUIVR = (function DATGUIVR(){
         addCheckbox: addSimpleCheckbox,
         addButton: addSimpleButton,
         addImageButton: addImageButton,
-        addImageButtonPanel: addImageButtonPanel
+        addImageButtonPanel: addImageButtonGrid
       }
     });
 

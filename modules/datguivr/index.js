@@ -298,11 +298,6 @@ const GUIVR = (function DATGUIVR(){
   syntax to work.
   */
   function addImageButtonGrid(...args) {
-    // const panel = create("image button panel");
-    // args.forEach(a=>{
-    //   panel.addImageButton(a.func, a.image);
-    // });
-    // return panel;
     const objects = args;
     const grid = createImageButtonGrid({textCreator, objects}); //Why is args not getting through to objects?
     controllers.push(grid);

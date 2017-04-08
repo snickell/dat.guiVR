@@ -24,8 +24,6 @@
 * limitations under the License.
  */
 
-import * as SubdivisionModifier from '../thirdparty/SubdivisionModifier';
-
 import createTextLabel from './textlabel';
 import createInteraction from './interaction';
 import * as Colors from './colors';
@@ -35,7 +33,7 @@ import * as Grab from './grab';
 
 export default function createImageButtonGrid( {
   textCreator,
-  objects,
+  objects, // array of {func, image}
   width = Layout.PANEL_WIDTH,
   height = Layout.PANEL_WIDTH / 4, //will depend on rows, computed later
   depth = Layout.PANEL_DEPTH,
@@ -87,16 +85,12 @@ export default function createImageButtonGrid( {
     buttons.push(subgroup);
 
     const col = i % columns;
-    //const y = (BUTTON_WIDTH * 0.5) + height * row/rows;
     const x = (BUTTON_WIDTH * col) - colOffset;
     const row = Math.floor(i / columns);
-    //const x = (BUTTON_HEIGHT * 0.5) + width * col/columns;
     const y = (height/2) - (BUTTON_HEIGHT * row) - rowOffset;
 
     //  base checkbox
     const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
-    const modifier = new THREE.SubdivisionModifier( 1 );
-    //modifier.modify( rect );
     rect.translate( x, y, BUTTON_DEPTH );
 
     //  hitscan volume
@@ -106,8 +100,6 @@ export default function createImageButtonGrid( {
     const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
     hitscanVolume.position.z = BUTTON_DEPTH;
     hitscanVolume.position.x = width * 0.5;
-    //hitscanVolume.position.x = (BUTTON_WIDTH * 0.5) + width * row;
-    //hitscanVolume.position.y = (BUTTON_HEIGHT * 0.5) + col * row;
 
     const material = new THREE.MeshBasicMaterial();
     material.transparent = true;
@@ -165,6 +157,7 @@ export default function createImageButtonGrid( {
   });
 
   group.hitscan = buttons.map(b=>b.hitscan);//.push(panel);
+  group.hitscan.push(panel);
 
   const grabInteraction = Grab.create( { group, panel } );
 

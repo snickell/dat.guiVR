@@ -48,6 +48,8 @@
         var f = dat.GUIVR.create("Folder")
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/bin.png")
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/branches_white.png")
+        f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshNormalMaterial(), true)
+        f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
         //f.add(settings, 'speed');
         gui.addFolder(f);
         gui.add(settings, 'speed');

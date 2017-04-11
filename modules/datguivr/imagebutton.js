@@ -38,8 +38,8 @@ export default function createImageButton( {
   object,
   propertyName = 'undefined',
   image = "textures/spotlight.jpg", //TODO better default
+  wide = false,
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_WIDTH / 4,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -60,7 +60,10 @@ export default function createImageButton( {
       targetMaterial.needsUpdate = true;
   }
 
-  const BUTTON_WIDTH = width * 0.25 - Layout.PANEL_MARGIN;
+   //XXX magic numbers...
+  const height = Layout.PANEL_WIDTH  * (wide ? 0.94 : 0.25);
+  
+  const BUTTON_WIDTH = width * (wide ? 0.94 : 0.25) - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
 
@@ -85,20 +88,30 @@ export default function createImageButton( {
 
   const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
   hitscanVolume.position.z = BUTTON_DEPTH;
-  hitscanVolume.position.x = width * 0.5;
+  if (!wide) hitscanVolume.position.x = width * 0.5;
+  else {
+    hitscanVolume.position.x = Layout.PANEL_LABEL_TEXT_MARGIN * 0.75;
+    hitscanVolume.position.y = 0.01; //XXX magic number
+  }
 
-  const material = new THREE.MeshBasicMaterial();
-  material.transparent = true;
-  applyImageToMaterial(image, material);
+  var material;
+  if (image.isMaterial) {
+    material = image;
+  } else {
+    material = new THREE.MeshBasicMaterial();
+    material.transparent = true;
+    applyImageToMaterial(image, material);
+  }
   const filledVolume = new THREE.Mesh( rect.clone(), material );
   hitscanVolume.add( filledVolume );
 
   //button label removed; might want options like a hover label in future.
 
   const descriptorLabel = textCreator.create( propertyName );
-  descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
+  descriptorLabel.position.x = 0.03;
   descriptorLabel.position.z = depth;
   descriptorLabel.position.y = -0.03;
+  if (wide) descriptorLabel.visible = false;
 
   const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
   controllerID.position.z = depth;
@@ -128,7 +141,7 @@ export default function createImageButton( {
   }
 
   function updateView(){
-
+    if (!material.color) return;
     if( interaction.hovering() ){
       material.color.setHex( 0xFFFFFF );
     }

@@ -58,12 +58,21 @@
         // f.addImageButton(()=>{console.log("image button pressed")}, "textures/butterfly_white.png")
         // f.addImageButton(()=>{console.log("image button pressed")}, "textures/mag_white.png")
         // gui.addFolder(f);
+        let i = 0;
+        let t = ()=> {return `tip ${i++}`};
+
         f = gui.addImageButtonPanel(
-          {func: fn, image: "textures/butterfly_white.png" }
-          , {func: fn, image: "textures/mag_white.png" }
-          , {func: fn, image: "textures/mag_white.png" }
-          , {func: fn, image: "textures/butterfly_white.png" }
-          , {func: fn, image: "textures/mag_white.png" }
+          {func: fn, image: "textures/butterfly_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/butterfly_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/butterfly_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
+          , {func: fn, image: "textures/butterfly_white.png", tip: t() }
+          , {func: fn, image: "textures/mag_white.png", tip: t() }
         )
         
 

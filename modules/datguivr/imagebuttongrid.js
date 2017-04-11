@@ -33,7 +33,7 @@ import * as Grab from './grab';
 
 export default function createImageButtonGrid( {
   textCreator,
-  objects, // array of {func, image}
+  objects, // array of {func, image, tip(optional)}
   width = Layout.PANEL_WIDTH,
   height = Layout.PANEL_WIDTH / 4, //will depend on rows, computed later
   depth = Layout.PANEL_DEPTH,
@@ -108,6 +108,16 @@ export default function createImageButtonGrid( {
     hitscanVolume.add( filledVolume );
 
     //button label & descriptor label removed; might want options like a hover label in future.
+    if (obj.tip) {
+        const tipText = textCreator.create(obj.tip);
+        subgroup.add(tipText);
+        subgroup.tipText = tipText;
+        //TODO: compute text geometry and adjust
+        tipText.position.x = (col+0.5) * BUTTON_WIDTH;
+        tipText.position.y = -row * BUTTON_HEIGHT + 0.1;
+        tipText.position.z = BUTTON_DEPTH * 2;
+        tipText.visible = false;
+    }
     
     const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
     controllerID.position.z = depth;
@@ -141,9 +151,11 @@ export default function createImageButtonGrid( {
 
         if( interaction.hovering() ){
             material.color.setHex( 0xFFFFFF );
+            if (subgroup.tipText) subgroup.tipText.visible = true;
         }
         else{
             material.color.setHex( 0xCCCCCC );
+            if (subgroup.tipText) subgroup.tipText.visible = false;
         }
 
     }

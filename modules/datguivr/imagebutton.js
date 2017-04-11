@@ -129,7 +129,9 @@ export default function createImageButton( {
       return;
     }
 
-    object[ propertyName ]();
+    //compute x & y as normalised coordinates from p.point
+    var point = hitscanVolume.worldToLocal(p.point)
+    object[ propertyName ](point.x, point.y+0.5);
 
     hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
 

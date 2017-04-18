@@ -26,6 +26,7 @@ import createDropdown from './dropdown';
 //PJT: I'd rather inject custom extensions like this, but will work that out later.
 import createImageButton from './imagebutton';
 import createImageButtonGrid from './imagebuttongrid';
+import createKeyboard from './keyboard';
 import * as SDFText from './sdftext';
 
 const GUIVR = (function DATGUIVR(){
@@ -300,14 +301,20 @@ const GUIVR = (function DATGUIVR(){
   }
 
   /*
-  For now, I'm adding this starting at the top level interface, to think about how I want the
-  syntax to work.
+  This interface may be subject to change.
   */
   function addImageButtonGrid(...args) {
     const objects = args;
-    const grid = createImageButtonGrid({textCreator, objects}); //Why is args not getting through to objects?
+    const grid = createImageButtonGrid({textCreator, objects});
     controllers.push(grid);
     return grid;
+  }
+
+  function addKeyboard(keyListener) {
+    if (!keyListener) keyListener = (k) => console.log(`keyDown ${k}`);
+    const kb = createKeyboard({keyListener, textCreator});
+    controllers.push(kb);
+    return kb;
   }
 
   function addDropdown( object, propertyName, options ){
@@ -481,7 +488,8 @@ const GUIVR = (function DATGUIVR(){
         addCheckbox: addSimpleCheckbox,
         addButton: addSimpleButton,
         addImageButton: addImageButton,
-        addImageButtonPanel: addImageButtonGrid
+        addImageButtonPanel: addImageButtonGrid,
+        addKeyboard: addKeyboard
       }
     });
 

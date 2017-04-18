@@ -35,7 +35,6 @@ export default function createImageButtonGrid( {
   textCreator,
   objects, // array of {func, image | text, tip(optional)}
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_WIDTH / 4, //will depend on rows, computed later
   depth = Layout.PANEL_DEPTH,
   columns = 4
 } = {} ){
@@ -59,8 +58,8 @@ export default function createImageButtonGrid( {
       targetMaterial.needsUpdate = true;
   }
 
-  const BUTTON_WIDTH = width * 0.25 - Layout.PANEL_MARGIN;
-  const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
+  const BUTTON_WIDTH = width * (1/columns) - Layout.PANEL_MARGIN;
+  const BUTTON_HEIGHT = BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
 
   const group = new THREE.Group();
@@ -69,7 +68,7 @@ export default function createImageButtonGrid( {
   group.guiChildren = buttons;
   
   const rows = Math.ceil(objects.length / columns);
-  height *= rows;
+  const height = Layout.PANEL_MARGIN + BUTTON_HEIGHT * rows;
   group.spacing = height; 
 
   const panel = Layout.createPanel( width, height, depth );
@@ -107,9 +106,9 @@ export default function createImageButtonGrid( {
     if (obj.text) {
         const text = textCreator.create(obj.text);
         subgroup.add(text);
-        text.position.x = (col+0.5) * BUTTON_WIDTH;
-        text.position.y = -(row-0.5) * BUTTON_HEIGHT + 0.1;
-        text.position.z = BUTTON_DEPTH * 2;
+        text.position.x = (col+1) * BUTTON_WIDTH;
+        text.position.y = -(row-1) * BUTTON_HEIGHT;
+        text.position.z = BUTTON_DEPTH * 2.2;
     }
     const filledVolume = new THREE.Mesh( rect.clone(), material );
     hitscanVolume.add( filledVolume );
@@ -122,7 +121,7 @@ export default function createImageButtonGrid( {
         //TODO: compute text geometry and adjust
         tipText.position.x = (col+0.5) * BUTTON_WIDTH;
         tipText.position.y = -row * BUTTON_HEIGHT + 0.1;
-        tipText.position.z = BUTTON_DEPTH * 2;
+        tipText.position.z = BUTTON_DEPTH * 2.5;
         tipText.visible = false;
     }
     
@@ -153,15 +152,17 @@ export default function createImageButtonGrid( {
     function handleOnRelease(){
         hitscanVolume.position.z = BUTTON_DEPTH * 0.5;
     }
-
+    //quick hack...
+    const hoverCol = obj.text ? 0x888 : 0xFFFFFF;
+    const noHoverCol = obj.text ? 0x111 : 0xCCCCCC;
     subgroup.updateView = () => {
 
         if( interaction.hovering() ){
-            material.color.setHex( 0xFFFFFF );
+            material.color.setHex( hoverCol );
             if (subgroup.tipText) subgroup.tipText.visible = true;
         }
         else{
-            material.color.setHex( 0xCCCCCC );
+            material.color.setHex( noHoverCol );
             if (subgroup.tipText) subgroup.tipText.visible = false;
         }
 

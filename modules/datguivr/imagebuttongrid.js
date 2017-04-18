@@ -33,7 +33,7 @@ import * as Grab from './grab';
 
 export default function createImageButtonGrid( {
   textCreator,
-  objects, // array of {func, image, tip(optional)}
+  objects, // array of {func, image | text, tip(optional)}
   width = Layout.PANEL_WIDTH,
   height = Layout.PANEL_WIDTH / 4, //will depend on rows, computed later
   depth = Layout.PANEL_DEPTH,
@@ -103,7 +103,14 @@ export default function createImageButtonGrid( {
 
     const material = new THREE.MeshBasicMaterial();
     material.transparent = true;
-    applyImageToMaterial(obj.image, material);
+    if (obj.image) applyImageToMaterial(obj.image, material);
+    if (obj.text) {
+        const text = textCreator.create(obj.text);
+        subgroup.add(text);
+        text.position.x = (col+0.5) * BUTTON_WIDTH;
+        text.position.y = -(row-0.5) * BUTTON_HEIGHT + 0.1;
+        text.position.z = BUTTON_DEPTH * 2;
+    }
     const filledVolume = new THREE.Mesh( rect.clone(), material );
     hitscanVolume.add( filledVolume );
 

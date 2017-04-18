@@ -75,7 +75,13 @@
           , {func: fn, image: "textures/mag_white.png", tip: t() }
           , {func: fn, image: "textures/butterfly_white.png", tip: t() }
           , {func: fn, image: "textures/mag_white.png", tip: t() }
-        )
+        );
+
+        let key = (c) => {
+          return () => console.log(c);
+        }
+        let keys = "qwertyuiop".split('').map(c => {return {func: key(c), text: c}});
+        gui.addImageButtonPanel(...keys);
         
 
         scene.add( gui );

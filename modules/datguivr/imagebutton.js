@@ -37,6 +37,7 @@ export default function createImageButton( {
   textCreator,
   object,
   propertyName = 'undefined',
+  pressing = undefined,
   image = "textures/spotlight.jpg", //TODO better default
   wide = false,
   width = Layout.PANEL_WIDTH,
@@ -46,7 +47,6 @@ export default function createImageButton( {
   function applyImageToMaterial(image, targetMaterial) {
       if (typeof image === "string") {
         //TODO cache.  Does TextureLoader already cache?
-        //TODO Image only on front face of button.
         new THREE.TextureLoader().load(image, (texture) => {
             texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
             targetMaterial.map = texture;
@@ -119,7 +119,9 @@ export default function createImageButton( {
   panel.add( descriptorLabel, hitscanVolume, controllerID );
 
   const interaction = createInteraction( hitscanVolume );
+  //TODO: drag and hover
   interaction.events.on( 'onPressed', handleOnPress );
+  interaction.events.on( 'pressing', handlePressing );
   interaction.events.on( 'onReleased', handleOnRelease );
 
   updateView();
@@ -130,12 +132,18 @@ export default function createImageButton( {
     }
 
     //compute x & y as normalised coordinates from p.point
-    var point = hitscanVolume.worldToLocal(p.point)
+    var point = hitscanVolume.worldToLocal(p.point);
     object[ propertyName ](point.x, point.y+0.5);
 
     hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
 
     p.locked = true;
+  }
+
+  function handlePressing( p ) {
+    var point = hitscanVolume.worldToLocal(p.point);
+    //nb, likely to need a different strategy for dual wielding
+    if (pressing) pressing(point.x, point.y+0.5);
   }
 
   function handleOnRelease(){

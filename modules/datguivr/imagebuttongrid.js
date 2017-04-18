@@ -60,7 +60,7 @@ export default function createImageButtonGrid( {
 
   const BUTTON_WIDTH = width * (1/columns) - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
-  const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
+  const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
   const group = new THREE.Group();
   group.guiType = "imagebuttongrid";
@@ -74,9 +74,14 @@ export default function createImageButtonGrid( {
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );
 
+  const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
+  controllerID.position.z = depth;
+  panel.add(controllerID);
+
+  const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
+  rect.translate( BUTTON_WIDTH / 2, -BUTTON_HEIGHT / 2, BUTTON_DEPTH ); 
+
   var i = 0;
-  const colOffset = (0.5 * Layout.PANEL_WIDTH) - (0.5 * BUTTON_WIDTH) - 0.043;
-  const rowOffset = 0.5 * BUTTON_WIDTH;
   objects.forEach(obj => {
     let subgroup = new THREE.Group();
     subgroup.guiType = "imageButtonGridElement";
@@ -84,21 +89,20 @@ export default function createImageButtonGrid( {
     buttons.push(subgroup);
 
     const col = i % columns;
-    const x = (BUTTON_WIDTH * col) - colOffset;
+    const x = 0.04 + Layout.PANEL_MARGIN + BUTTON_WIDTH * col;
     const row = Math.floor(i / columns);
-    const y = (height/2) - (BUTTON_HEIGHT * row) - rowOffset;
+    const y = (height/2) -BUTTON_HEIGHT * row;
 
-    //  base checkbox
-    const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
-    rect.translate( x, y, BUTTON_DEPTH );
+
+    subgroup.position.x = x;
+    subgroup.position.y = y;
+    subgroup.position.z = BUTTON_DEPTH;
 
     //  hitscan volume
     const hitscanMaterial = new THREE.MeshBasicMaterial();
     hitscanMaterial.visible = false;
 
     const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
-    hitscanVolume.position.z = BUTTON_DEPTH;
-    hitscanVolume.position.x = width * 0.5;
 
     const material = new THREE.MeshBasicMaterial();
     material.transparent = true;
@@ -106,30 +110,30 @@ export default function createImageButtonGrid( {
     if (obj.text) {
         const text = textCreator.create(obj.text);
         subgroup.add(text);
-        text.position.x = (col+1) * BUTTON_WIDTH;
-        text.position.y = -(row-1) * BUTTON_HEIGHT;
-        text.position.z = BUTTON_DEPTH * 2.2;
+        subgroup.text = text;
+        text.position.x = 0.3 * BUTTON_WIDTH;
+        text.position.y = -BUTTON_HEIGHT;
+        text.position.z = BUTTON_DEPTH * 1.2;
     }
     const filledVolume = new THREE.Mesh( rect.clone(), material );
     hitscanVolume.add( filledVolume );
 
-    //button label & descriptor label removed; might want options like a hover label in future.
+    //button label & descriptor label removed.
+    //Tooltip text option added.  Might want to be able to pass in richer things...
+    //maybe an arbitrary THREE object would work well...
     if (obj.tip) {
         const tipText = textCreator.create(obj.tip);
         subgroup.add(tipText);
         subgroup.tipText = tipText;
-        //TODO: compute text geometry and adjust
-        tipText.position.x = (col+0.5) * BUTTON_WIDTH;
-        tipText.position.y = -row * BUTTON_HEIGHT + 0.1;
-        tipText.position.z = BUTTON_DEPTH * 2.5;
+        //TODO: compute text geometry and adjust. Add background.
+        tipText.position.x = 0.5 * BUTTON_WIDTH;
+        tipText.position.y = 0;//BUTTON_HEIGHT;
+        tipText.position.z = BUTTON_DEPTH * 0.5;
         tipText.visible = false;
     }
     
-    const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
-    controllerID.position.z = depth;
-
     //panel.add( descriptorLabel, hitscanVolume, controllerID );
-    subgroup.add( hitscanVolume, controllerID );
+    subgroup.add( hitscanVolume );
     panel.add(subgroup);
 
     const interaction = createInteraction( hitscanVolume );
@@ -143,16 +147,14 @@ export default function createImageButtonGrid( {
         }
 
         obj.func();
-
-        hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
-
+        subgroup.position.z = BUTTON_DEPTH * 0.4;
         p.locked = true;
     }
 
     function handleOnRelease(){
-        hitscanVolume.position.z = BUTTON_DEPTH * 0.5;
+        subgroup.position.z = BUTTON_DEPTH;
     }
-    //quick hack...
+    //quick color hack...
     const hoverCol = obj.text ? 0x888 : 0xFFFFFF;
     const noHoverCol = obj.text ? 0x111 : 0xCCCCCC;
     subgroup.updateView = () => {

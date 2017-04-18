@@ -126,9 +126,10 @@ export default function createImageButtonGrid( {
         subgroup.add(tipText);
         subgroup.tipText = tipText;
         //TODO: compute text geometry and adjust. Add background.
-        tipText.position.x = 0.5 * BUTTON_WIDTH;
-        tipText.position.y = 0;//BUTTON_HEIGHT;
-        tipText.position.z = BUTTON_DEPTH * 0.5;
+        const w = obj.tip.length * BUTTON_WIDTH / 15; //estimate of string width...
+        tipText.position.x = 0.5 * (BUTTON_WIDTH - w);
+        tipText.position.y = -1.2 * BUTTON_HEIGHT;
+        tipText.position.z = BUTTON_DEPTH * 1.5;
         tipText.visible = false;
     }
     

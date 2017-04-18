@@ -79,7 +79,12 @@ export default function createImageButtonGrid( {
   panel.add(controllerID);
 
   const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
-  rect.translate( BUTTON_WIDTH / 2, -BUTTON_HEIGHT / 2, BUTTON_DEPTH ); 
+  rect.translate( BUTTON_WIDTH / 2, -BUTTON_HEIGHT / 2, BUTTON_DEPTH );
+
+  const tipBackgroundMaterial = new THREE.MeshBasicMaterial();
+  tipBackgroundMaterial.color.setHex( 0x202060 );
+  tipBackgroundMaterial.transparent = true;
+  tipBackgroundMaterial.opacity = 0.8;
 
   var i = 0;
   objects.forEach(obj => {
@@ -123,14 +128,31 @@ export default function createImageButtonGrid( {
     //maybe an arbitrary THREE object would work well...
     if (obj.tip) {
         const tipText = textCreator.create(obj.tip);
-        subgroup.add(tipText);
-        subgroup.tipText = tipText;
-        //TODO: compute text geometry and adjust. Add background.
-        const w = obj.tip.length * BUTTON_WIDTH / 15; //estimate of string width...
-        tipText.position.x = 0.5 * (BUTTON_WIDTH - w);
-        tipText.position.y = -1.2 * BUTTON_HEIGHT;
-        tipText.position.z = BUTTON_DEPTH * 1.5;
-        tipText.visible = false;
+        const tipGroup = new THREE.Group();
+        tipGroup.position.x  = 0.5 * BUTTON_WIDTH;
+        tipGroup.position.y = -1.2 * BUTTON_HEIGHT;
+        tipGroup.position.z = BUTTON_DEPTH * 2.5;
+        tipGroup.visible = false;
+
+        subgroup.add(tipGroup);
+        tipGroup.add(tipText);
+        subgroup.tipText = tipGroup;
+        //TODO: compute text geometry and adjust.
+        //Estimate for now. Width is dodgy especially as font is not monospace.
+        const w = 0.01 + obj.tip.length * BUTTON_WIDTH / 10, h = Layout.PANEL_HEIGHT * 0.8;
+        const paddedW = w + 0.03;
+        const tipRect = new THREE.PlaneGeometry(paddedW, Layout.PANEL_HEIGHT, 1, 1);
+        const tipBackground = new THREE.Mesh(tipRect, tipBackgroundMaterial);
+        tipBackground.position.x = 0; //paddedW / 2;
+        tipBackground.position.y = h / 2;
+        tipBackground.position.z = -BUTTON_DEPTH * 0.5;
+        tipGroup.add(tipBackground);
+
+        // tipText.position.x = 0.5 * (BUTTON_WIDTH - w);
+        tipText.position.x = -0.5 * w;
+        // tipText.position.y = -1.2 * BUTTON_HEIGHT;
+        // tipText.position.z = BUTTON_DEPTH * 2.5;
+        // tipText.visible = false;
     }
     
     //panel.add( descriptorLabel, hitscanVolume, controllerID );

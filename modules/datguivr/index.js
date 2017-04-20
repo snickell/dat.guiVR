@@ -27,6 +27,7 @@ import createDropdown from './dropdown';
 import createImageButton from './imagebutton';
 import createImageButtonGrid from './imagebuttongrid';
 import createKeyboard from './keyboard';
+import createTextbox from './textbox';
 import * as SDFText from './sdftext';
 
 const GUIVR = (function DATGUIVR(){
@@ -317,6 +318,12 @@ const GUIVR = (function DATGUIVR(){
     return kb;
   }
 
+  function addTextbox( object, propertyName ) {
+    const box = createTextbox({textCreator, object, propertyName});
+    controllers.push(box);
+    return box;
+  }
+
   function addDropdown( object, propertyName, options ){
     const dropdown = createDropdown({
       textCreator, propertyName, object, options
@@ -489,7 +496,8 @@ const GUIVR = (function DATGUIVR(){
         addButton: addSimpleButton,
         addImageButton: addImageButton,
         addImageButtonPanel: addImageButtonGrid,
-        addKeyboard: addKeyboard
+        addKeyboard: addKeyboard,
+        addTextbox: addTextbox
       }
     });
 

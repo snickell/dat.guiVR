@@ -59,7 +59,8 @@ export default function createImageButtonGrid( {
       targetMaterial.needsUpdate = true;
   }
 
-  const BUTTON_WIDTH = width * (1/columns) - Layout.PANEL_MARGIN;
+  const margin = Layout.PANEL_MARGIN * 3;
+  const BUTTON_WIDTH = (width - margin) * (1/columns);
   const BUTTON_HEIGHT = rowHeight > 0 ? rowHeight : BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
@@ -92,7 +93,7 @@ export default function createImageButtonGrid( {
     const col = i % columns;
     const row = Math.floor(i / columns);
 
-    subgroup.position.x = 0.025 + Layout.PANEL_MARGIN + BUTTON_WIDTH * col;
+    subgroup.position.x = (2*Layout.PANEL_MARGIN) + BUTTON_WIDTH * col;
     subgroup.position.y = (height/2) -BUTTON_HEIGHT * row;
     subgroup.position.z = BUTTON_DEPTH;
 

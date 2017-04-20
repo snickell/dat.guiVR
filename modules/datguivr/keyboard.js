@@ -1,6 +1,6 @@
 /**
  * 
- * TODO: Shift, return, backspace... cursors...
+ * TODO: cursors...
  * Maybe something like mobile input where you switch between letters & numbers / symbols
  * 
  * Something like a split keyboard ala https://medium.com/aaronn/vr-text-input-split-keyboard-e5bf3fd87a4c
@@ -17,6 +17,8 @@ export default function createKeyboard( {
     textCreator
 } = {}) {
     const group = new THREE.Group();
+    const offsetTransform = new THREE.Group();
+    group.add(offsetTransform);
 
     const events = new Emitter();
     events.on('keyDown', keyListener);
@@ -26,7 +28,7 @@ export default function createKeyboard( {
         return { func: () => events.emit('keyDown', k), text: k };
     });
     const lowerKeys = createImageButtonGrid({textCreator, objects, columns: 12});
-    group.add(lowerKeys);
+    offsetTransform.add(lowerKeys);
 
     const upperChars = "!\"£$%^&*()_+QWERTYUIOP{}ASDFGHJKL:@~|ZXCVBNM<>? ".split('');
     objects = upperChars.map(k => {
@@ -34,7 +36,7 @@ export default function createKeyboard( {
     });
     const upperKeys = createImageButtonGrid({textCreator, objects, columns: 12});
     upperKeys.visible = false;
-    group.add(upperKeys);
+    offsetTransform.add(upperKeys);
 
     let shift = false;
     function shiftToggle() {
@@ -47,11 +49,13 @@ export default function createKeyboard( {
         { text: "shift", func: shiftToggle },
         { text: "backspace", func: () => events.emit('keyDown', '\b') },
         { text: "enter", func: () => events.emit('keyDown', '\n') }
-    ]
+    ];
     const specialKeys = createImageButtonGrid({textCreator, objects, columns: 3, rowHeight: 0.1});
-    group.add(specialKeys);
+    offsetTransform.add(specialKeys);
     specialKeys.position.y = -0.5 * (lowerKeys.spacing + specialKeys.spacing);
     group.spacing = lowerKeys.spacing + specialKeys.spacing;
+    //this looks right, must admit I haven't thought through exactly why it should be.
+    offsetTransform.position.y = specialKeys.spacing / 2;
 
     Object.defineProperty(group, 'hitscan', {
         get: () => [

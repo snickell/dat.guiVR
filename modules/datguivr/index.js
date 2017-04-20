@@ -305,7 +305,7 @@ const GUIVR = (function DATGUIVR(){
   */
   function addImageButtonGrid(...args) {
     const objects = args;
-    const grid = createImageButtonGrid({textCreator, objects, columns: 5});
+    const grid = createImageButtonGrid({textCreator, objects, columns: 4});
     controllers.push(grid);
     return grid;
   }

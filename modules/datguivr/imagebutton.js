@@ -37,10 +37,12 @@ export default function createImageButton( {
   textCreator,
   object,
   propertyName = 'undefined',
+  func,
   pressing = undefined,
   image = "textures/spotlight.jpg", //TODO better default
   wide = false,
   width = Layout.PANEL_WIDTH,
+  height,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
@@ -61,7 +63,7 @@ export default function createImageButton( {
   }
 
    //XXX magic numbers...
-  const height = Layout.PANEL_WIDTH  * (wide ? 0.94 : 0.25);
+  if (!height) height = Layout.PANEL_WIDTH  * (wide ? 0.94 : 0.25);
   
   const BUTTON_WIDTH = width * (wide ? 0.94 : 0.25) - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
@@ -133,7 +135,8 @@ export default function createImageButton( {
 
     //compute x & y as normalised coordinates from p.point
     var point = hitscanVolume.worldToLocal(p.point);
-    object[ propertyName ](point.x, point.y+0.5);
+    if (object) object[ propertyName ](point.x, point.y+0.5);
+    if (func) func(point.x, point.y+0.5);
 
     hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
 

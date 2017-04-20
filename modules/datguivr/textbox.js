@@ -6,8 +6,9 @@
  * In order to make it appear, it can be added as a child of the texbox node itself...
  * This'll mean that it gets dragged around by the parent GUI as it moves....
  * Makes for relatively clean, simple implementation at least.
+ * At the moment, keyboard positioning is messed up by this arrangement.
+ * Removing grabber makes it less likely a user will do this, but might be worth fixing the basic bug.
  * 
- * TODO: watch
  */
 
 import * as GUI from './index';

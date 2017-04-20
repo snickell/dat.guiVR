@@ -384,6 +384,9 @@ const GUIVR = (function DATGUIVR(){
       return addButton( object, propertyName );
     }
 
+    if ( isString( object[ propertyName ] ) ){
+      return addTextbox( object, propertyName );
+    }
     //  add couldn't figure it out, pass it back to folder
     return undefined
   }
@@ -674,7 +677,9 @@ function isArray( o ){
   return Array.isArray( o );
 }
 
-
+function isString( o ){
+  return typeof o === 'string';
+}
 
 
 

@@ -11,6 +11,7 @@
 
 import Emitter from 'events';
 import createImageButtonGrid from './imagebuttongrid';
+import createImageButton from './imagebutton';
 
 export default function createKeyboard( { 
     keyListener,
@@ -44,6 +45,12 @@ export default function createKeyboard( {
         lowerKeys.visible = !shift;
         upperKeys.visible = shift;
    }
+
+   const spaceBar = createImageButtonGrid({ textCreator, columns: 1, rowHeight: 0.1, objects: [
+       {func: ()=>events.emit('keyDown', ' '), text: 'space'}
+    ]});
+    offsetTransform.add(spaceBar);
+    var y = spaceBar.position.y = -0.5 * (lowerKeys.spacing + spaceBar.spacing);
     
     objects = [
         { text: "shift", func: shiftToggle },
@@ -52,14 +59,14 @@ export default function createKeyboard( {
     ];
     const specialKeys = createImageButtonGrid({textCreator, objects, columns: 3, rowHeight: 0.1});
     offsetTransform.add(specialKeys);
-    specialKeys.position.y = -0.5 * (lowerKeys.spacing + specialKeys.spacing);
-    group.spacing = lowerKeys.spacing + specialKeys.spacing;
+    specialKeys.position.y = y-0.5 * (spaceBar.spacing + specialKeys.spacing);
+    group.spacing = lowerKeys.spacing + spaceBar.spacing + specialKeys.spacing;
     //this looks right, must admit I haven't thought through exactly why it should be.
-    offsetTransform.position.y = specialKeys.spacing / 2;
+    offsetTransform.position.y = specialKeys.spacing;
 
     Object.defineProperty(group, 'hitscan', {
         get: () => [
-            specialKeys.hitscan, shift ? upperKeys.hitscan : lowerKeys.hitscan
+            specialKeys.hitscan, spaceBar.hitscan, shift ? upperKeys.hitscan : lowerKeys.hitscan
         ].reduce((a, b) => { return a.concat(b)}, [])
     });
 
@@ -67,6 +74,7 @@ export default function createKeyboard( {
     group.updateControl = (inputs) => {
         specialKeys.updateControl(inputs);
         lowerKeys.updateControl(inputs);
+        spaceBar.updateControl(inputs);
         upperKeys.updateControl(inputs);
     };
 

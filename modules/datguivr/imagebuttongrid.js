@@ -33,8 +33,9 @@ import * as Grab from './grab';
 
 export default function createImageButtonGrid( {
   textCreator,
-  objects, // array of {func, image | text, tip(optional)}
+  objects, // array of {func, image | text, tip(optional), release(optional)}
   width = Layout.PANEL_WIDTH,
+  rowHeight,
   depth = Layout.PANEL_DEPTH,
   columns = 4
 } = {} ){
@@ -59,7 +60,7 @@ export default function createImageButtonGrid( {
   }
 
   const BUTTON_WIDTH = width * (1/columns) - Layout.PANEL_MARGIN;
-  const BUTTON_HEIGHT = BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
+  const BUTTON_HEIGHT = rowHeight > 0 ? rowHeight : BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
   const group = new THREE.Group();
@@ -81,11 +82,6 @@ export default function createImageButtonGrid( {
   const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
   rect.translate( BUTTON_WIDTH / 2, -BUTTON_HEIGHT / 2, BUTTON_DEPTH );
 
-  const tipBackgroundMaterial = new THREE.MeshBasicMaterial();
-  tipBackgroundMaterial.color.setHex( 0x202060 );
-  tipBackgroundMaterial.transparent = true;
-  tipBackgroundMaterial.opacity = 0.8;
-
   var i = 0;
   objects.forEach(obj => {
     let subgroup = new THREE.Group();
@@ -94,16 +90,14 @@ export default function createImageButtonGrid( {
     buttons.push(subgroup);
 
     const col = i % columns;
-    const x = 0.04 + Layout.PANEL_MARGIN + BUTTON_WIDTH * col;
     const row = Math.floor(i / columns);
-    const y = (height/2) -BUTTON_HEIGHT * row;
 
-
-    subgroup.position.x = x;
-    subgroup.position.y = y;
+    subgroup.position.x = 0.025 + Layout.PANEL_MARGIN + BUTTON_WIDTH * col;
+    subgroup.position.y = (height/2) -BUTTON_HEIGHT * row;
     subgroup.position.z = BUTTON_DEPTH;
 
-    //  hitscan volume
+    //  hitscan volume.
+    // This material could probably be reused.
     const hitscanMaterial = new THREE.MeshBasicMaterial();
     hitscanMaterial.visible = false;
 
@@ -142,7 +136,7 @@ export default function createImageButtonGrid( {
         const w = 0.01 + obj.tip.length * BUTTON_WIDTH / 10, h = Layout.PANEL_HEIGHT * 0.8;
         const paddedW = w + 0.03;
         const tipRect = new THREE.PlaneGeometry(paddedW, Layout.PANEL_HEIGHT, 1, 1);
-        const tipBackground = new THREE.Mesh(tipRect, tipBackgroundMaterial);
+        const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
         tipBackground.position.x = 0; //paddedW / 2;
         tipBackground.position.y = h / 2;
         tipBackground.position.z = -BUTTON_DEPTH * 0.5;
@@ -176,6 +170,7 @@ export default function createImageButtonGrid( {
 
     function handleOnRelease(){
         subgroup.position.z = BUTTON_DEPTH;
+        if (obj.release) obj.release();
     }
     //quick color hack...
     const hoverCol = obj.text ? 0x888 : 0xFFFFFF;

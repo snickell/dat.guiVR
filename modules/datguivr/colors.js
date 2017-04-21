@@ -38,6 +38,8 @@ export const CHECKBOX_BG_COLOR = 0xffffff;
 export const BUTTON_COLOR = 0xe61d5f;
 export const BUTTON_HIGHLIGHT_COLOR = 0xfa3173;
 export const SLIDER_BG = 0x444444;
+export const TEXTBOX_BG = 0xF0F0F0;
+export const TEXTBOX_HIGHLIGHT_BG = 0xFFFFFF;
 
 export function colorizeGeometry( geometry, color ){
   geometry.faces.forEach( function(face){

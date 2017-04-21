@@ -66,7 +66,8 @@ export default function createTextBox({
 
   //  This is a real hack since we need to fit the text position to the font scaling
   //  Please fix me.
-  buttonLabel.position.x = BUTTON_WIDTH * 0.5 - buttonLabel.layout.width * 0.000011 * 0.5;
+  //buttonLabel.position.x = BUTTON_WIDTH * 0.5 - buttonLabel.layout.width * 0.000011 * 0.5;
+  buttonLabel.position.x = 0.015;
   buttonLabel.position.z = BUTTON_DEPTH * 1.2;
   buttonLabel.position.y = -0.025;
   filledVolume.add( buttonLabel );
@@ -140,10 +141,10 @@ export default function createTextBox({
   function updateView(){
 
     if( interaction.hovering() ){
-      material.color.setHex( Colors.BUTTON_HIGHLIGHT_COLOR );
+      material.color.setHex( Colors.TEXTBOX_HIGHLIGHT_BG );
     }
     else{
-      material.color.setHex( Colors.BUTTON_COLOR );
+      material.color.setHex( Colors.TEXTBOX_BG );
     }
 
   }

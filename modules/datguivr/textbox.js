@@ -100,6 +100,7 @@ export default function createTextBox({
     } else {
         keyboard = dat.GUIVR.create("keyboard");
         group.add(keyboard);
+        keyboard.folder = group.folder;
         keyboard.position.x = width;
         keyboard.hideGrabber();
         keyboard.addKeyboard( (k) => {

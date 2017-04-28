@@ -56,6 +56,7 @@ export function create( { group, panel } = {} ){
         const hitObject = input.intersections[ 0 ].object;
         if( hitObject === panel ){
           hitObject.updateMatrixWorld();
+          //failing to account for the position not necessarily being the world position?
           tPosition.setFromMatrixPosition( hitObject.matrixWorld );
 
           input.mousePlane.setFromNormalAndCoplanarPoint( input.mouseCamera.getWorldDirection( input.mousePlane.normal ), tPosition );

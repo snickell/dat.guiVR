@@ -34,7 +34,7 @@ export function create( { group, panel } = {} ){
   
   function getTopLevelFolder(group) {
     var folder = group.folder;
-    //if (!folder) return group; //probably ok, but not tested
+    if (!folder) return group;
     while (folder.folder !== folder) folder = folder.folder;
     return folder;
   }

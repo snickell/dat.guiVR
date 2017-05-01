@@ -44,7 +44,7 @@
         gui.scale.set(0.5, 0.5, 0.5);
 
         const test = {myColor: new THREE.Color() };
-        gui.add(test, 'myColor');
+        gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
 
         // gui.add(settings, 'speed')
         // gui.add(settings, 'friction')

@@ -43,6 +43,9 @@
         gui.position.set(-0.5, 0, 0);
         gui.scale.set(0.5, 0.5, 0.5);
 
+        const test = {myColor: new THREE.Color() };
+        gui.add(test, 'myColor');
+
         // gui.add(settings, 'speed')
         // gui.add(settings, 'friction')
         var f = dat.GUIVR.create("Folder")

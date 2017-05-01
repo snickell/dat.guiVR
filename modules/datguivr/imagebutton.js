@@ -43,7 +43,8 @@ export default function createImageButton( {
   wide = false,
   width = Layout.PANEL_WIDTH,
   height,
-  depth = Layout.PANEL_DEPTH
+  depth = Layout.PANEL_DEPTH,
+  changeColorOnHover = true //quick hack: color picker wants this to be false
 } = {} ){
 
   function applyImageToMaterial(image, targetMaterial) {
@@ -156,10 +157,10 @@ export default function createImageButton( {
   function updateView(){
     if (!material.color) return;
     if( interaction.hovering() ){
-      material.color.setHex( 0xFFFFFF );
+      if (changeColorOnHover) material.color.setHex( 0xFFFFFF );
     }
     else{
-      material.color.setHex( 0xCCCCCC );
+      if (changeColorOnHover) material.color.setHex( 0xCCCCCC );
     }
 
   }

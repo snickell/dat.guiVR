@@ -28,6 +28,7 @@ import createImageButton from './imagebutton';
 import createImageButtonGrid from './imagebuttongrid';
 import createKeyboard from './keyboard';
 import createTextbox from './textbox';
+import createColorPicker from './colorpicker';
 import * as SDFText from './sdftext';
 
 const GUIVR = (function DATGUIVR(){
@@ -311,7 +312,7 @@ const GUIVR = (function DATGUIVR(){
     return grid;
   }
 
-  function addKeyboard(keyListener) {
+  function addKeyboard( keyListener ) {
     if (!keyListener) keyListener = (k) => console.log(`keyDown ${k}`);
     const kb = createKeyboard({keyListener, textCreator});
     controllers.push(kb);
@@ -320,6 +321,12 @@ const GUIVR = (function DATGUIVR(){
 
   function addTextbox( object, propertyName ) {
     const box = createTextbox({textCreator, object, propertyName});
+    controllers.push(box);
+    return box;
+  }
+  
+  function addColorPicker( object, propertyName ) {
+    const box = createColorPicker({textCreator, object, propertyName});
     controllers.push(box);
     return box;
   }
@@ -387,6 +394,11 @@ const GUIVR = (function DATGUIVR(){
     if ( isString( object[ propertyName ] ) ){
       return addTextbox( object, propertyName );
     }
+
+    if ( isColor( object[ propertyName ] ) ){
+      return addColorPicker( object, propertyName );
+    }
+
     //  add couldn't figure it out, pass it back to folder
     return undefined
   }
@@ -681,7 +693,10 @@ function isString( o ){
   return typeof o === 'string';
 }
 
-
+function isColor( o ){
+  if (typeof o !== 'object') return false;
+  return o.isColor ? true : false;
+}
 
 
 

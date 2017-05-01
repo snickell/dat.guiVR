@@ -70,7 +70,7 @@ export default function createKeyboard( {
         ].reduce((a, b) => { return a.concat(b)}, [])
     });
 
-    upperKeys.folder = lowerKeys.folder = specialKeys.folder = group;
+    spaceBar.folder = upperKeys.folder = lowerKeys.folder = specialKeys.folder = group;
     group.updateControl = (inputs) => {
         specialKeys.updateControl(inputs);
         lowerKeys.updateControl(inputs);

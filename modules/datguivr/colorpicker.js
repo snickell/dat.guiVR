@@ -31,8 +31,7 @@ export default function createColorPicker( {
     let func = toggleDetailPanel;
     const color = object[propertyName]; //for now, this'd better be a THREE.Color or we'll freak out.
     const image = new THREE.MeshBasicMaterial({color: color});
-    window.testColorMat = image;
-    window.testColorX = color;
+    const events = new Emitter();
     const changeColorOnHover = false;
     const group = createImageButton({
         textCreator, func, image, propertyName, width, height, changeColorOnHover
@@ -40,6 +39,12 @@ export default function createColorPicker( {
     group.guiType = "ColorPicker";
     
     var panel;
+
+    function changeFn() {
+        image.color.set(color);
+        events.emit('onChange', color);
+    }
+
     function toggleDetailPanel() {
         if (panel) {
             panel.visible = !panel.visible;
@@ -49,13 +54,17 @@ export default function createColorPicker( {
             // would be handy to have a way to make narrower panel
             panel = dat.GUIVR.create("Color Chooser"); 
             panel.hideGrabber();
-            panel.add(color, 'r', 0, 1).step(0.01).onChange(v=>image.color.set(color));
-            panel.add(color, 'g', 0, 1).step(0.01).onChange(v=>image.color.set(color));
-            panel.add(color, 'b', 0, 1).step(0.01).onChange(v=>image.color.set(color));
+            panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);
+            panel.add(color, 'g', 0, 1).step(0.01).onChange(changeFn);
+            panel.add(color, 'b', 0, 1).step(0.01).onChange(changeFn);
             group.add(panel);
             panel.position.x = width;
             panel.folder = group.folder;
         }
+    }
+
+    group.onChange = (callback) => {
+        events.on('onChange', callback);
     }
 
     return group;

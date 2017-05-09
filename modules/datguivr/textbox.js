@@ -96,11 +96,13 @@ export default function createTextBox({
   function toggleKeyboard() {
     if (keyboard) {
         keyboard.visible = !keyboard.visible;
+        if (keyboard.visible) group.folder.setModalEditor(keyboard);
         return;
     } else {
         keyboard = dat.GUIVR.create("keyboard");
         group.add(keyboard);
         keyboard.folder = group.folder;
+        group.folder.setModalEditor(keyboard);
         keyboard.position.x = width;
         keyboard.hideGrabber();
         keyboard.addKeyboard( (k) => {

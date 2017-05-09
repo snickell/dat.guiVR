@@ -18,6 +18,7 @@
 */
 
 import createInteraction from './interaction';
+import {getTopLevelFolder} from './utils';
 
 export function create( { group, panel } = {} ){
 
@@ -32,13 +33,6 @@ export function create( { group, panel } = {} ){
 
   let oldParent;
   
-  function getTopLevelFolder(group) {
-    var folder = group.folder;
-    if (!folder) return group;
-    while (folder.folder !== folder) folder = folder.folder;
-    return folder;
-  }
-
   function handleTick( { input } = {} ){
     const folder = getTopLevelFolder(group);
     if( folder === undefined ){

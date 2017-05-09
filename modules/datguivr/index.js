@@ -30,6 +30,7 @@ import createKeyboard from './keyboard';
 import createTextbox from './textbox';
 import createColorPicker from './colorpicker';
 import * as SDFText from './sdftext';
+import { isControllerVisible } from './utils';
 
 const GUIVR = (function DATGUIVR(){
 
@@ -54,15 +55,6 @@ const GUIVR = (function DATGUIVR(){
     This might benefit from some caching especially in cases with large complex GUIs.
     I haven't measured the impact of garbage collection etc.
   */
-  function isControllerVisible(control) {
-    if (!control.visible) return false;
-    var folder = control.folder;
-    while (folder.folder !== folder){
-      folder = folder.folder;
-      if (folder.isCollapsed() || !folder.visible) return false;
-    }
-    return true;
-  }
   function getVisibleControllers() {
     // not terribly efficient
     return controllers.filter( isControllerVisible );
@@ -568,11 +560,7 @@ const GUIVR = (function DATGUIVR(){
       inputs.push( mouseInput );
     }
 
-    controllers.forEach( function( controller ){
-      //nb, we could do a more thorough check for visibilty, not sure how important
-      //this bit is at this stage...
-      if (controller.visible) controller.updateControl( inputs );
-    });
+    getVisibleControllers().forEach( c => c.updateControl( inputs ));
   }
 
   function updateLaser( laser, point ){

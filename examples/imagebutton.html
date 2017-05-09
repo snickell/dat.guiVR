@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Example</title>
+    <title>Example of extras in xinaesthete ImageButton branch</title>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui" name="viewport" />
     <meta name="mobile-web-app-capable" content="yes">
@@ -43,8 +43,9 @@
         gui.position.set(-0.5, 0, 0);
         gui.scale.set(0.5, 0.5, 0.5);
 
-        const test = {myColor: new THREE.Color() };
+        const test = {myColor: new THREE.Color(), color2: new THREE.Color() };
         gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
+        gui.add(test, 'color2');
 
         // gui.add(settings, 'speed')
         // gui.add(settings, 'friction')

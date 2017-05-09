@@ -32,6 +32,7 @@ import * as Colors from './colors';
 import * as Layout from './layout';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
+import {isControllerVisible} from './utils';
 
 export default function createImageButton( {
   textCreator,
@@ -137,7 +138,7 @@ export default function createImageButton( {
   group.onHover = f => hoverFunc = f;
 
   function handleHover( p ){
-    if( group.visible === false ){
+    if( !isControllerVisible(group) ){
       return;
     }
 
@@ -147,6 +148,15 @@ export default function createImageButton( {
   }
   
   function handleOnPress( p ){
+    //it should be that the checks in index.js mean that methods don't get called on invisible
+    //objects, rendering these tests redundant... however, that doesn't appear to be the case.
+    //experienced some bugs particularly with 'modal editor' type panels.
+    //TODO: either make sure invisible objects aren't called in the first place,
+    //or make sure all types of object do this more thorough visibility check...
+    if( !isControllerVisible(group) ){
+      return;
+    }
+
     var point = getNormalisedLocalCoordinates(p.point);
     if (object) object[ propertyName ](point.x, point.y);
     if (func) func(point.x, point.y);
@@ -167,6 +177,10 @@ export default function createImageButton( {
   }
 
   function handlePressing( p ) {
+    if( !isControllerVisible(group) ){
+      return;
+    }
+    
     var point = hitscanVolume.worldToLocal(p.point);
     //nb, likely to need a different strategy for dual wielding
     if (pressing) pressing(point.x, point.y+0.5);

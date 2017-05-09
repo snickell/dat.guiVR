@@ -25,6 +25,7 @@ import * as Graphic from './graphic';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
 import * as Palette from './palette';
+import { getTopLevelFolder } from './utils';
 
 export default function createFolder({
   textCreator,
@@ -70,6 +71,8 @@ export default function createFolder({
   
   //useful to have access to this as well. Using in remove implementation
   Object.defineProperty(group, 'guiChildren', {
+    //perhaps modalEditor should also count as a member of this...
+    //currently can't see anything in implementation that would require that
     get: () => { return collapseGroup.children }
   });
   // returns true if all of the supplied args are members of this folder
@@ -127,6 +130,23 @@ export default function createFolder({
     }
   };
 
+  /*
+    Some controllers may bring up sub-GUIs which have the potential
+    to overlap / clash.  This ensures only one is present at a time.
+  */
+  group.setModalEditor = function(e){
+    //This could go wrong if folder hierarchy changes significantly.
+    //Should be good enough for rock'n'roll (famous last words).
+    //I could make it so that only one of these things was ever visible
+    //across the entire system.  That'd be easy to make robust, anyway...
+    //and saves headaches down the line.
+    const folder = getTopLevelFolder(group);
+    if (folder.modalEditor) folder.modalEditor.visible = false;
+    folder.modalEditor = e;
+    e.visible = true;
+  };
+
+
   /* 
   Removes the given controllers from the GUI.
 
@@ -149,7 +169,7 @@ export default function createFolder({
     //TODO: defer actual layout performance; set a flag and make sure it gets done before any rendering or hit-testing happens.
     performLayout();
     return true;
-  }
+  };
 
   group.addController = function( ...args ){
     args.forEach( function( obj ){
@@ -173,7 +193,7 @@ export default function createFolder({
     });
 
     performLayout();
-  }
+  };
 
   function performLayout(){
     const spacingPerController = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
@@ -256,13 +276,13 @@ export default function createFolder({
     }
     state.collapsed = false;
     performLayout();
-  }
+  };
 
   group.close = function() {
     if (state.collapsed) return;
     state.collapsed = true;
     performLayout();
-  }
+  };
 
   group.folder = group;
 

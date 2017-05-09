@@ -48,7 +48,7 @@ void main() {
     // might look better via separate three object, but shader is less housekeeping
     // need to know aspect ratio if I want it to be a proper circle, though.
     float d = length(selectedHSV.yz - vUv);
-    if (d < 0.02 && d > 0.01) hsv.z = 0.;
+    if (d < 0.015 && d > 0.01) hsv.z = 0.;
     gl_FragColor.rgb = hsv2rgb(hsv);
 }
 `;
@@ -165,16 +165,12 @@ export default function createColorPicker( {
     const fancyPanel = true;
 
     function toggleDetailPanel() {
-        //why is this ending up getting called twice for one click?
-        //is the event attached twice?
-        //doesn't happen with other imageButtons, get called back once as expected
         if (panel) {
             panel.visible = !panel.visible;
+            if (panel.visible) group.folder.setModalEditor(panel);
             panel.position.set(width, 0, 0);
             return;
         } else {
-            // For some reason after this is created, 
-            console.log("creating colorPicker detail panel");
             // would be handy to have a way to make narrower panel
             panel = dat.GUIVR.create("Color Chooser"); 
             panel.hideGrabber();
@@ -198,7 +194,6 @@ export default function createColorPicker( {
                 let wide = true;
                 //TODO: drag...
                 panel.addImageButton(func, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth);
-                //panel.addImageButton(func, SVMaterial, wide); // checking square aspect
                 const HMaterial = new THREE.ShaderMaterial({
                     uniforms: uniforms,
                     vertexShader: VertShader,
@@ -220,8 +215,9 @@ export default function createColorPicker( {
                 panel.add(color, 'b', 0, 1).step(0.01).onChange(changeFn);
             }
             group.add(panel);
+            group.folder.setModalEditor(panel);
             panel.position.x = width;
-            panel.folder = group.folder;
+            panel.folder = group.folder; //problem....
         }
     }
 

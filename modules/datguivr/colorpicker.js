@@ -181,7 +181,7 @@ export default function createColorPicker( {
                     vertexShader: VertShader,
                     fragmentShader: SVFragShader
                 });
-                let func = (s, v) => {
+                const setSV = (s, v) => {
                     uniforms.selectedHSV.value.y = s;
                     uniforms.selectedHSV.value.z = v;
                     
@@ -193,7 +193,7 @@ export default function createColorPicker( {
                 };
                 let wide = true;
                 //TODO: drag...
-                panel.addImageButton(func, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth);
+                panel.addXYController(setSV, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth);
                 const HMaterial = new THREE.ShaderMaterial({
                     uniforms: uniforms,
                     vertexShader: VertShader,
@@ -208,7 +208,7 @@ export default function createColorPicker( {
                     changeFn();
                     HMaterial.update();
                 };
-                panel.addImageButton(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth);
+                panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth);
             } else {
                 panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);
                 panel.add(color, 'g', 0, 1).step(0.01).onChange(changeFn);

@@ -294,6 +294,15 @@ const GUIVR = (function DATGUIVR(){
     return button;
   }
 
+  function addXYController(pressing, image, wide, height) {
+    const propertyName = '';
+    const button = createImageButton({
+      textCreator, pressing, propertyName, image, wide, height
+    });
+    controllers.push(button);
+    return button;
+  }
+
   /*
   This interface may be subject to change.
   */
@@ -502,6 +511,7 @@ const GUIVR = (function DATGUIVR(){
         addCheckbox: addSimpleCheckbox,
         addButton: addSimpleButton,
         addImageButton: addImageButton,
+        addXYController: addXYController,
         addImageButtonPanel: addImageButtonGrid,
         addKeyboard: addKeyboard,
         addTextbox: addTextbox

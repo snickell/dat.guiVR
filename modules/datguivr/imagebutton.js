@@ -2,6 +2,10 @@
  * Big button with an image on (which might come from a file or existing texture,
  * the texture might be from a RenderTarget...).
  * 
+ * Also usable as an 'xy controller' via addXYController method.
+ * 
+ * API subject to change.
+ * 
  * I'd put this more separate from the datgui modules but need to think a little
  * bit about how to structure that etc.  Very un-DRY, but I'm starting by just
  * copying existing button.js in its entirety.
@@ -38,7 +42,7 @@ export default function createImageButton( {
   textCreator,
   object,
   propertyName = 'undefined',
-  func,
+  func = undefined,
   pressing = undefined,
   image = "textures/spotlight.jpg", //TODO better default
   wide = false,
@@ -173,6 +177,8 @@ export default function createImageButton( {
     p.x /= BUTTON_WIDTH;
     p.y /= BUTTON_HEIGHT;
     p.y += 0.5;
+    p.x = Math.max(Math.min(p.x, 1), 0);
+    p.y = Math.max(Math.min(p.y, 1), 0);
     return p;
   }
 
@@ -181,9 +187,9 @@ export default function createImageButton( {
       return;
     }
     
-    var point = hitscanVolume.worldToLocal(p.point);
+    var point = getNormalisedLocalCoordinates(p.point);
     //nb, likely to need a different strategy for dual wielding
-    if (pressing) pressing(point.x, point.y+0.5);
+    if (pressing) pressing(point.x, point.y);
   }
 
   function handleOnRelease(){

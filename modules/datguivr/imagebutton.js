@@ -123,25 +123,47 @@ export default function createImageButton( {
 
   const interaction = createInteraction( hitscanVolume );
   //TODO: drag and hover
+  //interaction.events.on( 'hovering', handleHover );
   interaction.events.on( 'onPressed', handleOnPress );
   interaction.events.on( 'pressing', handlePressing );
   interaction.events.on( 'onReleased', handleOnRelease );
 
   updateView();
 
-  function handleOnPress( p ){
+  let hoverFunc = undefined;
+  // I might yet decide to change this interface.
+  // might use a different name, might want to add listeners to event
+  // rather than just set callback function.
+  group.onHover = f => hoverFunc = f;
+
+  function handleHover( p ){
     if( group.visible === false ){
       return;
     }
 
-    //compute x & y as normalised coordinates from p.point
-    var point = hitscanVolume.worldToLocal(p.point);
-    if (object) object[ propertyName ](point.x, point.y+0.5);
-    if (func) func(point.x, point.y+0.5);
+    var point = getNormalisedLocalCoordinates(p.point);
+    if (object) object[ propertyName ](point.x, point.y);
+    if (hoverFunc) hoverFunc(point.x, point.y);
+  }
+  
+  function handleOnPress( p ){
+    var point = getNormalisedLocalCoordinates(p.point);
+    if (object) object[ propertyName ](point.x, point.y);
+    if (func) func(point.x, point.y);
 
     hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
 
     p.locked = true;
+  }
+
+  //compute x & y as normalised coordinates from p.point
+  //could consider moving this computation into interaction.js performStateEvents()
+  function getNormalisedLocalCoordinates(point) {
+    const p = hitscanVolume.worldToLocal(point);
+    p.x /= BUTTON_WIDTH;
+    p.y /= BUTTON_HEIGHT;
+    p.y += 0.5;
+    return p;
   }
 
   function handlePressing( p ) {

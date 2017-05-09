@@ -45,6 +45,8 @@ export default function createInteraction( hitVolume ){
       var hover = hitVolume === hitObject;
       anyHover = anyHover || hover;
 
+      
+      
       performStateEvents({
         input,
         hover,
@@ -53,7 +55,11 @@ export default function createInteraction( hitVolume ){
         interactionName: 'press',
         downName: 'onPressed',
         holdName: 'pressing',
-        upName: 'onReleased'
+        upName: 'onReleased',
+         //inventing a 'hovering' event that only applies to 'pressed' button...
+         //this should not be considered a stable interface, but I wants it more than I
+         //want to make something totally coherent and robust just now.
+        hoverName: 'hovering'
       });
 
       performStateEvents({
@@ -95,11 +101,23 @@ export default function createInteraction( hitVolume ){
   function performStateEvents({
     input, hover,
     hitObject, hitPoint,
-    buttonName, interactionName, downName, holdName, upName
+    buttonName, interactionName, downName, holdName, upName, hoverName
   } = {} ){
 
     if( input[ buttonName ] === true && hitObject === undefined ){
       return;
+    }
+
+    // hovering and button NOT down
+    if( hoverName && hover && input[ buttonName ] === false ) {
+      const payload = {
+        input,
+        hitObject,
+        point: hitPoint,
+        inputObject: input.object,
+        locked: false
+      };
+      events.emit( hoverName, payload );
     }
 
     //  hovering and button down but no interactions active yet

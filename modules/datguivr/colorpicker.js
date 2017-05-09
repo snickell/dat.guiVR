@@ -44,8 +44,11 @@ ${hsv2rgb}
 void main() {
     vec3 hsv = vec3(selectedHSV.x, vUv);
 
-    // TODO draw a black circle around selected SV.
-    // could do this in shader, or via separate three object
+    // draw a black circle around selected SV.
+    // might look better via separate three object, but shader is less housekeeping
+    // need to know aspect ratio if I want it to be a proper circle, though.
+    float d = length(selectedHSV.yz - vUv);
+    if (d < 0.02 && d > 0.01) hsv.z = 0.;
     gl_FragColor.rgb = hsv2rgb(hsv);
 }
 `;
@@ -132,7 +135,8 @@ export default function createColorPicker( {
     propertyName, //must be a THREE.Color for now... should refer to original dat.gui to see what it takes
     textCreator,
     width = Layout.PANEL_WIDTH,
-    height = Layout.PANEL_HEIGHT
+    height = Layout.PANEL_HEIGHT,
+    depth = Layout.PANEL_DEPTH / 3.
 } = {}) {
     // make the main group be *directly* the one returned by createImageButton;
     // we'll take care of dynamically adding and removing children based on attached...
@@ -146,7 +150,7 @@ export default function createColorPicker( {
     const changeColorOnHover = false;
     //TODO make sure color patch occupies full width.  Add text label with hex value?
     const group = createImageButton({
-        textCreator, func, image, propertyName, width, height, changeColorOnHover
+        textCreator, func, image, propertyName, width, height, depth, changeColorOnHover
     });
     group.onHover((x, y)=>{console.log(`${x}, ${y}`)});
     group.guiType = "ColorPicker";
@@ -187,13 +191,14 @@ export default function createColorPicker( {
                     
                     const c = HSVtoRGB(uniforms.selectedHSV.value);
                     color.setRGB(c.r, c.g, c.b);
-                    console.log(`${c.r}, ${c.g}, ${c.b}`);
+                    //console.log(`setSV(${s}, ${v}) => [${c.r}, ${c.g}, ${c.b}]`);
                     changeFn();
                     HMaterial.update();
                 };
                 let wide = true;
                 //TODO: drag...
-                panel.addImageButton(func, SVMaterial, wide, Layout.PANEL_WIDTH / 2);
+                panel.addImageButton(func, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth);
+                //panel.addImageButton(func, SVMaterial, wide); // checking square aspect
                 const HMaterial = new THREE.ShaderMaterial({
                     uniforms: uniforms,
                     vertexShader: VertShader,
@@ -203,12 +208,12 @@ export default function createColorPicker( {
                     uniforms.selectedHSV.value.x = h;
                     const c = HSVtoRGB(uniforms.selectedHSV.value);
                     color.setRGB(c.r, c.g, c.b);
-                    console.log(`${c.r}, ${c.g}, ${c.b}`);
+                    //console.log(`setH(${h}) => [${c.r}, ${c.g}, ${c.b}]`);
                     //image.color.setHSL(uniforms.selectedHSV.value);
                     changeFn();
                     HMaterial.update();
                 };
-                panel.addImageButton(setH, HMaterial, wide, Layout.PANEL_HEIGHT);
+                panel.addImageButton(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth);
             } else {
                 panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);
                 panel.add(color, 'g', 0, 1).step(0.01).onChange(changeFn);

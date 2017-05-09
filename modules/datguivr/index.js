@@ -286,7 +286,7 @@ const GUIVR = (function DATGUIVR(){
    * @param {*} image can be filename, WebGLRenderTarget or Material
    * @param {Boolean} wide whether to make button fill entire width of panel (api subject to change)
    */
-  function addImageButton(func, image, wide) {
+  function addImageButton(func, image, wide, height) {
     const object = { f: func };
     const propertyName = 'f';
 
@@ -296,7 +296,7 @@ const GUIVR = (function DATGUIVR(){
     //perhaps all of these 'addX' functions could be initially put onto an object so that
     //new additions could be added slightly more easily.
     const button = createImageButton({
-      textCreator, object, propertyName, image, wide
+      textCreator, object, propertyName, image, wide, height
     });
     controllers.push( button );
     return button;

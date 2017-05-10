@@ -148,7 +148,6 @@ export default function createFolder({
     if (folder.modalEditor) folder.modalEditor.visible = false;
     folder.modalEditor = e;
     e.visible = true;
-    e.hideHeader();
   };
 
 

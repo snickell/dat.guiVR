@@ -104,7 +104,8 @@ export default function createTextBox({
         keyboard.folder = group.folder;
         group.folder.setModalEditor(keyboard);
         keyboard.position.x = width;
-        keyboard.hideGrabber();
+        keyboard.position.y = Layout.FOLDER_HEIGHT;
+        keyboard.hideHeader();
         keyboard.addKeyboard( (k) => {
             var str = object[propertyName];
             switch (k) {

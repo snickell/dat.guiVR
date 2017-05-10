@@ -117,6 +117,10 @@ export default function createFolder({
   grabber.add( grabBar );
   group.isFolder = true;
   group.hideGrabber = function() { grabber.visible = false };
+  group.hideHeader = function() { 
+    group.hideGrabber();
+    descriptorLabel.visible = downArrow.visible = panel.visible = false;
+  };
 
   group.add = function( ...args ){
     const newController = guiAdd( ...args );
@@ -144,6 +148,7 @@ export default function createFolder({
     if (folder.modalEditor) folder.modalEditor.visible = false;
     folder.modalEditor = e;
     e.visible = true;
+    e.hideHeader();
   };
 
 

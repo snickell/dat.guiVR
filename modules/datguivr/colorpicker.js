@@ -168,12 +168,12 @@ export default function createColorPicker( {
         if (panel) {
             panel.visible = !panel.visible;
             if (panel.visible) group.folder.setModalEditor(panel);
-            panel.position.set(width, 0, 0);
+            panel.position.set(width, Layout.FOLDER_HEIGHT, 0);
             return;
         } else {
             // would be handy to have a way to make narrower panel
             panel = dat.GUIVR.create("Color Chooser"); 
-            panel.hideGrabber();
+            panel.hideHeader();
             
             if (fancyPanel) {
                 const SVMaterial = new THREE.ShaderMaterial({
@@ -216,8 +216,8 @@ export default function createColorPicker( {
             }
             group.add(panel);
             group.folder.setModalEditor(panel);
-            panel.position.x = width;
-            panel.folder = group.folder; //problem....
+            panel.position.set(width, Layout.FOLDER_HEIGHT, 0);
+            panel.folder = group.folder; //might still want to double check folder hierarchy
         }
     }
 

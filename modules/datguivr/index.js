@@ -637,7 +637,8 @@ const GUIVR = (function DATGUIVR(){
     create,
     addInputObject,
     enableMouse,
-    disableMouse
+    disableMouse,
+    textCreator
   };
 
 }());

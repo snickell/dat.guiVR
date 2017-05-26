@@ -110,6 +110,8 @@ export default function createTextBox({
             var str = object[propertyName];
             switch (k) {
                 case '\n':
+                    //XXX: For some reason, this is now leaving the rest of the GUI unresponsive
+                    //Likely related somehow to the folder.setModalEditor() business...
                     keyboard.visible = false;
                     break;
                 case '\b':

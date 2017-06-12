@@ -35,7 +35,7 @@ export function create( { group, panel } = {} ){
   
   function handleTick( { input } = {} ){
     const folder = getTopLevelFolder(group);
-    if( folder === undefined ){
+    if( folder === undefined  || folder.grabDisabled ){
       return;
     }
 
@@ -86,6 +86,8 @@ export function create( { group, panel } = {} ){
 
           input.selected = folder;
 
+          if (folder.grabDisabled) return;
+
           input.selected.updateMatrixWorld();
           tPosition.setFromMatrixPosition( input.selected.matrixWorld );
 
@@ -97,13 +99,16 @@ export function create( { group, panel } = {} ){
     }
 
     else{
+      if (folder.grabDisabled) return;
+      
       tempMatrix.getInverse( inputObject.matrixWorld );
 
       folder.matrix.premultiply( tempMatrix );
       folder.matrix.decompose( folder.position, folder.quaternion, folder.scale );
 
       oldParent = folder.parent;
-      inputObject.add( folder );
+      //failing to account for the position not necessarily being the world position?
+      inputObject.add( folder ); 
     }
 
     p.locked = true;

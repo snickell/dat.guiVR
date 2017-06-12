@@ -45,7 +45,6 @@ export default function createImageButtonGrid( {
   function applyImageToMaterial(image, targetMaterial) {
       if (typeof image === "string") {
         //TODO cache.  Does TextureLoader already cache?
-        //TODO Image only on front face of button.
         new THREE.TextureLoader().load(image, (texture) => {
             texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
             targetMaterial.map = texture;

@@ -133,7 +133,8 @@ export default function createImageButtonGrid( {
         subgroup.tipText = tipGroup;
         //TODO: compute text geometry and adjust.
         //Estimate for now. Width is dodgy especially as font is not monospace.
-        const w = 0.01 + obj.tip.length * BUTTON_WIDTH / 10, h = Layout.PANEL_HEIGHT * 0.8;
+        const w = obj.tipWidth || 0.01 + obj.tip.length * BUTTON_WIDTH / 10;
+        const h = Layout.PANEL_HEIGHT * 0.8;
         const paddedW = w + 0.03;
         const tipRect = new THREE.PlaneGeometry(paddedW, Layout.PANEL_HEIGHT, 1, 1);
         const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);

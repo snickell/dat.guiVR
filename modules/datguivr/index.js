@@ -304,11 +304,14 @@ const GUIVR = (function DATGUIVR(){
   }
 
   /*
-  This interface may be subject to change.
+  This interface may be subject to change.  Arguments are objects describing buttons
+  First object may be an integer for the number of columns to use.
   */
-  function addImageButtonGrid(...args) {
+  function addImageButtonPanel(cols, ...args) {
+    let columns = Number.isInteger(cols) ? cols : 4;
     const objects = args;
-    const grid = createImageButtonGrid({textCreator, objects, columns: 4});
+    if (!Number.isInteger(cols)) objects.unshift(cols)
+    const grid = createImageButtonGrid({textCreator, objects, columns: columns});
     controllers.push(grid);
     return grid;
   }
@@ -512,7 +515,7 @@ const GUIVR = (function DATGUIVR(){
         addButton: addSimpleButton,
         addImageButton: addImageButton,
         addXYController: addXYController,
-        addImageButtonPanel: addImageButtonGrid,
+        addImageButtonPanel: addImageButtonPanel,
         addKeyboard: addKeyboard,
         addTextbox: addTextbox
       }

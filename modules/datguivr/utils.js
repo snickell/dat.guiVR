@@ -7,7 +7,8 @@ export function isControllerVisible(control) {
         if (folder.isCollapsed() || !folder.visible) return false;
         folder = folder.folder;
     }
-    return true;
+    if (!folder.parent) return false;
+    return folder.visible;
 }
 
 export function getTopLevelFolder(group) {

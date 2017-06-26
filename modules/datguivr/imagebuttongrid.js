@@ -79,8 +79,10 @@ export default function createImageButtonGrid( {
   controllerID.position.z = depth;
   panel.add(controllerID);
 
-  const rect = new THREE.PlaneGeometry( BUTTON_WIDTH, BUTTON_HEIGHT, 1, 1 );
-  rect.translate( BUTTON_WIDTH / 2, -BUTTON_HEIGHT / 2, BUTTON_DEPTH );
+  //TODO: padding
+  const buttonWPadded = BUTTON_WIDTH * 0.99, buttonHPadded = BUTTON_HEIGHT * 0.99;
+  const rect = new THREE.PlaneGeometry( buttonWPadded, buttonHPadded, 1, 1 );
+  rect.translate( buttonWPadded / 2, -buttonHPadded / 2, BUTTON_DEPTH );
 
   var i = 0;
   objects.forEach(obj => {
@@ -110,8 +112,8 @@ export default function createImageButtonGrid( {
         const text = textCreator.create(obj.text);
         subgroup.add(text);
         subgroup.text = text;
-        text.position.x = 0.3 * BUTTON_WIDTH;
-        text.position.y = -BUTTON_HEIGHT;
+        text.position.x = obj.textX || 0.3 * BUTTON_WIDTH;
+        text.position.y = obj.textY || -(BUTTON_HEIGHT+0.07) / 2;
         text.position.z = BUTTON_DEPTH * 1.2;
     }
     const filledVolume = new THREE.Mesh( rect.clone(), material );

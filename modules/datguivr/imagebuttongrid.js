@@ -72,6 +72,15 @@ export default function createImageButtonGrid( {
   const height = Layout.PANEL_MARGIN + BUTTON_HEIGHT * rows;
   group.spacing = height; 
 
+  let highlightLastPressed = false;
+  let lastPressed = null;
+  let lastPressedCol;
+  group.highlightLastPressed = (col = 0x3355EE) => {
+      highlightLastPressed = col !== false;
+      lastPressedCol = col;
+      return group;
+  }
+  
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );
 
@@ -85,6 +94,7 @@ export default function createImageButtonGrid( {
   rect.translate( buttonWPadded / 2, -buttonHPadded / 2, BUTTON_DEPTH );
 
   var i = 0;
+  //TODO: toggles rather than triggers...
   objects.forEach(obj => {
     let subgroup = new THREE.Group();
     subgroup.guiType = "imageButtonGridElement";
@@ -167,6 +177,7 @@ export default function createImageButtonGrid( {
         }
 
         obj.func();
+        lastPressed = obj;
         subgroup.position.z = BUTTON_DEPTH * 0.4;
         p.locked = true;
     }
@@ -179,16 +190,12 @@ export default function createImageButtonGrid( {
     const hoverCol = obj.text ? 0x888 : 0xFFFFFF;
     const noHoverCol = obj.text ? 0x111 : 0xCCCCCC;
     subgroup.updateView = () => {
-
-        if( interaction.hovering() ){
-            material.color.setHex( hoverCol );
-            if (subgroup.tipText) subgroup.tipText.visible = true;
+        if (highlightLastPressed && lastPressed === obj) {
+            material.color.setHex( lastPressedCol );
         }
-        else{
-            material.color.setHex( noHoverCol );
-            if (subgroup.tipText) subgroup.tipText.visible = false;
-        }
+        else material.color.setHex( interaction.hovering() ? hoverCol : noHoverCol );
 
+        if (subgroup.tipText) subgroup.tipText.visible = interaction.hovering();
     }
     
     subgroup.updateView();

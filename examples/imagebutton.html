@@ -16,7 +16,7 @@
 
     <script type="text/javascript">
 
-      var camera, scene, renderer;
+      var camera, scene, renderer, gui;
       var settings = {
         'speed':20,
         'friction':0.1
@@ -39,8 +39,12 @@
       
       function initApp(){
 
-        const gui = dat.GUIVR.create( 'Empty GUI' );
-        gui.position.set(-0.5, 0, 0);
+        const parent = new THREE.Group();
+        parent.position.set(-0.5, 0, 0);
+        scene.add(parent);
+
+        gui = dat.GUIVR.create( 'Empty GUI' );
+        parent.add(gui);
         gui.scale.set(0.5, 0.5, 0.5);
 
         const test = {myColor: new THREE.Color(0, 0.7, 0.6), color2: new THREE.Color() };
@@ -86,10 +90,6 @@
         
         gui.addKeyboard();
         
-
-        scene.add( gui );
-
-
         dat.GUIVR.enableMouse( camera );
       }
 

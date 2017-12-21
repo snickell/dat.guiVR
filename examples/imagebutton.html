@@ -51,12 +51,24 @@
         gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
         gui.add(test, 'color2');
 
-        // gui.add(settings, 'speed')
-        // gui.add(settings, 'friction')
-        var f = dat.GUIVR.create("Folder")
+        //creating lots of stuff just to take up space and test layout.
+        let f = dat.GUIVR.create("Long Folder");
+        for (let i=0; i<52; i++) {
+          f.add(test, 'myColor');
+          if (i % 20 === 0) {
+            f.addImageButton(()=>{}, "textures/branches_white.png");
+          } 
+        }
+        gui.addFolder(f);
+
+        f = dat.GUIVR.create("pictures / materials");
+        //addImageButton currently takes a callback function followed by filename string or THREE Texture / RenderTarget / Material object
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/bin.png")
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/branches_white.png")
-        f.addImageButton((x, y)=>{console.log(`${x}, ${y}`)}, new THREE.MeshNormalMaterial(), true)
+        //callback taking clicked position, third argument 'true' to use full-width.
+        //interface may be liable to change on a whim at a later date to allow distinguishing between click / drag / release
+        //and to change size specification.
+        f.addImageButton((x, y)=>{console.log(`${x}, ${y}`)}, new THREE.MeshNormalMaterial(), true) 
         f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
         //f.add(settings, 'speed');
         gui.addFolder(f);

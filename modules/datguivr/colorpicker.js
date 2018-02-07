@@ -189,7 +189,7 @@ export default function createColorPicker( {
                     color.setRGB(c.r, c.g, c.b);
                     //console.log(`setSV(${s}, ${v}) => [${c.r}, ${c.g}, ${c.b}]`);
                     changeFn();
-                    HMaterial.update();
+                    HMaterial.needsUpdate = true;
                 };
                 let wide = true;
                 //TODO: drag...
@@ -206,7 +206,7 @@ export default function createColorPicker( {
                     //console.log(`setH(${h}) => [${c.r}, ${c.g}, ${c.b}]`);
                     //image.color.setHSL(uniforms.selectedHSV.value);
                     changeFn();
-                    HMaterial.update();
+                    HMaterial.needsUpdate = true;
                 };
                 panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth);
             } else {

@@ -48,7 +48,7 @@ export function create( { group, panel } = {} ){
           input.selected.parent.worldToLocal(input.mouseIntersection);
 
           folder.position.copy(input.mouseIntersection);
-
+          folder.updateMatrix();
           return;
         }
       }

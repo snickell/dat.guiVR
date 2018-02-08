@@ -49,7 +49,8 @@ export default function createImageButton( {
   width = Layout.PANEL_WIDTH,
   height,
   depth = Layout.PANEL_DEPTH,
-  changeColorOnHover = true //quick hack: color picker wants this to be false
+  changeColorOnHover = true, //quick hack: color picker wants this to be false
+  buttonDepth = Layout.BUTTON_DEPTH
 } = {} ){
 
   function applyImageToMaterial(image, targetMaterial) {
@@ -73,7 +74,7 @@ export default function createImageButton( {
   
   const BUTTON_WIDTH = width * (wide ? 0.94 : 0.25) - Layout.PANEL_MARGIN;
   const BUTTON_HEIGHT = height - Layout.PANEL_MARGIN;
-  const BUTTON_DEPTH = Layout.BUTTON_DEPTH * 2;
+  const BUTTON_DEPTH = buttonDepth;
 
   const group = new THREE.Group();
   group.guiType = "imagebutton";

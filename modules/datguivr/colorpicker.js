@@ -164,11 +164,16 @@ export default function createColorPicker( {
 
     const fancyPanel = true;
 
+    function setPanelPosition() {
+        if (!panel) return;
+        panel.position.set(0, 0, 5*depth);
+    }
+
     function toggleDetailPanel() {
         if (panel) {
             panel.visible = !panel.visible;
             if (panel.visible) group.folder.setModalEditor(panel);
-            panel.position.set(width, Layout.FOLDER_HEIGHT, 0);
+            setPanelPosition();
             return;
         } else {
             // would be handy to have a way to make narrower panel
@@ -191,9 +196,8 @@ export default function createColorPicker( {
                     changeFn();
                     HMaterial.needsUpdate = true;
                 };
-                let wide = true;
-                //TODO: drag...
-                panel.addXYController(setSV, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth);
+                let wide = true, buttonDepth = Layout.BUTTON_DEPTH/10;
+                panel.addXYController(setSV, SVMaterial, wide, Layout.PANEL_WIDTH / 2, depth, buttonDepth);
                 const HMaterial = new THREE.ShaderMaterial({
                     uniforms: uniforms,
                     vertexShader: VertShader,
@@ -208,7 +212,7 @@ export default function createColorPicker( {
                     changeFn();
                     HMaterial.needsUpdate = true;
                 };
-                panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth);
+                panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth, buttonDepth);
             } else {
                 panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);
                 panel.add(color, 'g', 0, 1).step(0.01).onChange(changeFn);
@@ -216,7 +220,7 @@ export default function createColorPicker( {
             }
             group.add(panel);
             group.folder.setModalEditor(panel);
-            panel.position.set(width, Layout.FOLDER_HEIGHT, 0);
+            setPanelPosition();
             panel.folder = group.folder; //might still want to double check folder hierarchy
         }
     }

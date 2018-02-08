@@ -153,6 +153,10 @@ export default function createCheckbox( {
   }
 
   function openOptions(){
+    //TODO: think about relation to folder.setModalEditor()
+    //label.isOption seems mostly redundant.
+    //labels & backs should be added to a group to be used as 'modal editor', 
+    //making everything visible / invisible with one property
     optionLabels.forEach( function( label ){
       if( label.isOption ){
         label.visible = true;

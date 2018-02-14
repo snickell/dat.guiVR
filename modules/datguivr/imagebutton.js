@@ -129,7 +129,7 @@ export default function createImageButton( {
 
   const interaction = createInteraction( hitscanVolume );
   //TODO: drag and hover
-  //interaction.events.on( 'hovering', handleHover );
+  interaction.events.on( 'hovering', handleHover );
   interaction.events.on( 'onPressed', handleOnPress );
   interaction.events.on( 'pressing', handlePressing );
   interaction.events.on( 'onReleased', handleOnRelease );
@@ -147,9 +147,9 @@ export default function createImageButton( {
       return;
     }
 
-    var point = getNormalisedLocalCoordinates(p.point);
-    if (object) object[ propertyName ](point.x, point.y);
-    if (hoverFunc) hoverFunc(point.x, point.y);
+    p.localPoint = getNormalisedLocalCoordinates(p.point);
+    if (object) object[ propertyName ](p);
+    if (hoverFunc) hoverFunc(p);
   }
   
   function handleOnPress( p ){
@@ -162,9 +162,9 @@ export default function createImageButton( {
       return;
     }
 
-    var point = getNormalisedLocalCoordinates(p.point);
-    if (object) object[ propertyName ](point.x, point.y);
-    if (func) func(point.x, point.y);
+    p.localPoint = getNormalisedLocalCoordinates(p.point);
+    if (object) object[ propertyName ](p);
+    if (func) func(p);
 
     hitscanVolume.position.z = BUTTON_DEPTH * 0.1;
 
@@ -188,9 +188,10 @@ export default function createImageButton( {
       return;
     }
     
-    var point = getNormalisedLocalCoordinates(p.point);
+    p.localPoint = getNormalisedLocalCoordinates(p.point);
+    //console.log(`pressing at (${point.x}, ${point.y})`); //first instance of 'pressing' is always at (1, 1)
     //nb, likely to need a different strategy for dual wielding
-    if (pressing) pressing(point.x, point.y);
+    if (pressing) pressing(p);
   }
 
   function handleOnRelease(){

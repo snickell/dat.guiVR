@@ -152,7 +152,6 @@ export default function createColorPicker( {
     const group = createImageButton({
         textCreator, func, image, propertyName, width, height, depth, changeColorOnHover
     });
-    group.onHover((x, y)=>{console.log(`${x}, ${y}`)});
     group.guiType = "ColorPicker";
     
     var panel;
@@ -186,13 +185,12 @@ export default function createColorPicker( {
                     vertexShader: VertShader,
                     fragmentShader: SVFragShader
                 });
-                const setSV = (s, v) => {
-                    uniforms.selectedHSV.value.y = s;
-                    uniforms.selectedHSV.value.z = v;
+                const setSV = (p) => {
+                    uniforms.selectedHSV.value.y = p.localPoint.x;
+                    uniforms.selectedHSV.value.z = p.localPoint.y;
                     
                     const c = HSVtoRGB(uniforms.selectedHSV.value);
                     color.setRGB(c.r, c.g, c.b);
-                    //console.log(`setSV(${s}, ${v}) => [${c.r}, ${c.g}, ${c.b}]`);
                     changeFn();
                     HMaterial.needsUpdate = true;
                 };
@@ -203,12 +201,10 @@ export default function createColorPicker( {
                     vertexShader: VertShader,
                     fragmentShader: HSliderFragShader
                 });
-                function setH(h) {
-                    uniforms.selectedHSV.value.x = h;
+                function setH(p) {
+                    uniforms.selectedHSV.value.x = p.localPoint.x;
                     const c = HSVtoRGB(uniforms.selectedHSV.value);
                     color.setRGB(c.r, c.g, c.b);
-                    //console.log(`setH(${h}) => [${c.r}, ${c.g}, ${c.b}]`);
-                    //image.color.setHSL(uniforms.selectedHSV.value);
                     changeFn();
                     HMaterial.needsUpdate = true;
                 };

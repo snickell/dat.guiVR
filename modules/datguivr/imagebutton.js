@@ -140,15 +140,20 @@ export default function createImageButton( {
   // I might yet decide to change this interface.
   // might use a different name, might want to add listeners to event
   // rather than just set callback function.
-  group.onHover = f => hoverFunc = f;
-
+  group.onHover = f => {
+    hoverFunc = f;
+    return group;
+  }
+  group.onPressing = f => {
+    pressing = f;
+    return group;
+  }
   function handleHover( p ){
     if( !isControllerVisible(group) ){
       return;
     }
 
     p.localPoint = getNormalisedLocalCoordinates(p.point);
-    if (object) object[ propertyName ](p);
     if (hoverFunc) hoverFunc(p);
   }
   

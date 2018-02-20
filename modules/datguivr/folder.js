@@ -123,6 +123,9 @@ export default function createFolder({
     group.hideGrabber();
     descriptorLabel.visible = downArrow.visible = panel.visible = false;
   };
+  group.showHeader = () => {
+    grabber.visible = descriptorLabel.visible = downArrow.visible = panel.visible = true;
+  };
 
   group.add = function( ...args ){
     const newController = guiAdd( ...args );
@@ -158,7 +161,9 @@ export default function createFolder({
 
 
   /* 
-  Removes the given controllers from the GUI.
+  Removes the given controllers from the GUI.  Once removed, the controllers will effectively be invalid for use
+  as they will also be removed from the global list of all dat.GUIVR controllers.  Use 'detach' instead if it is
+  desired to reuse GUI elements elsewhere.
 
   If the arguments are invalid, it will attempt to detect this before making any changes, 
   aborting the process and returning false from this method.
@@ -179,6 +184,20 @@ export default function createFolder({
     //TODO: defer actual layout performance; set a flag and make sure it gets done before any rendering or hit-testing happens.
     performLayout();
     return true;
+  };
+
+  /**
+   * Detach a child folder from this folder hierarchy, such that it can be used elsewhere in scene hierarchy.
+   */
+  //detach(child / ...children) vs detachFromParent()?
+  group.detach = (child) => {
+    if (!child.isFolder || child.folder !== group) return false;
+    child.showHeader();
+    child.folder = child;
+    collapseGroup.remove(child);
+    THREE.Object3D.prototype.remove.call(group, child);
+    performLayout();
+    return group; //or child?
   };
 
   group.addController = function( ...args ){

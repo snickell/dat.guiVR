@@ -26,6 +26,7 @@ import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
 import * as Palette from './palette';
 import { getTopLevelFolder } from './utils';
+import { FOLDER_WIDTH } from './layout';
 
 export default function createFolder({
   textCreator,
@@ -188,8 +189,9 @@ export default function createFolder({
 
   /**
    * Detach a child folder from this folder hierarchy, such that it can be used elsewhere in scene hierarchy.
+   * 
+   * (will not be visible until user explicitly adds elsewhere)
    */
-  //detach(child / ...children) vs detachFromParent()?
   group.detach = (child) => {
     if (!child.isFolder || child.folder !== group) return false;
     child.showHeader();
@@ -199,6 +201,23 @@ export default function createFolder({
     performLayout();
     return group; //or child?
   };
+
+  /*
+    Detach this object from its parent, and reattach to scenegraph as a sibling of the 'top level' folder in
+    the hierarchy this previously was a member of.
+  */
+  group.detachFromParent = () => {
+    if (group.folder === group) return false;
+    //automatically add to THREE parent of top level folder and try to set appropriate scale / transform...
+    const topFolder = getTopLevelFolder(group);
+    group.folder.detach(group);
+    topFolder.parent.add(group);
+    const s = topFolder.scale;
+    group.applyMatrix(topFolder.matrix.clone());
+    group.position.x += Layout.FOLDER_WIDTH * s.x;
+    group.open();
+    return group;
+  }
 
   group.addController = function( ...args ){
     args.forEach( function( obj ){

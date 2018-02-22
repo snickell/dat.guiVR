@@ -239,8 +239,9 @@ export default function createFolder({
     group.folder.detach(group);
     topFolder.parent.add(group);
     const s = topFolder.scale;
-    group.applyMatrix(topFolder.matrix.clone());
-    group.position.x += Layout.FOLDER_WIDTH * s.x;
+    group.applyMatrix(topFolder.matrix);
+    const t = new THREE.Vector3(Layout.FOLDER_WIDTH, 0, 0).applyMatrix4(topFolder.matrix);
+    group.position.add(t);
     group.open();
     group.detachable = false;
     return group;

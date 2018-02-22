@@ -238,7 +238,6 @@ export default function createFolder({
     const topFolder = getTopLevelFolder(group);
     group.folder.detach(group);
     topFolder.parent.add(group);
-    const s = topFolder.scale;
     const m = topFolder.matrix.clone();
     group.applyMatrix(m);
     m.setPosition(new THREE.Vector3());

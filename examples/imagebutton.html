@@ -54,6 +54,7 @@
 
         //creating lots of stuff just to take up space and test layout.
         let f = dat.GUIVR.create("Long Folder");
+        f.detachable = true;
         for (let i=0; i<52; i++) {
           f.add(test, 'myColor');
           if (i % 20 === 0) {

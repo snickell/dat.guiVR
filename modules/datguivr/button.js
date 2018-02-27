@@ -135,7 +135,10 @@ export default function createButton( {
     descriptorLabel.updateLabel( str );
     return group;
   };
-
+  group.buttonLabel = function( str ){
+    buttonLabel.updateLabel( str );
+    return group;
+  };
 
   return group;
 }

@@ -120,7 +120,7 @@ export default function createImageButtonGrid( {
     if (obj.image) applyImageToMaterial(obj.image, material);
     if (obj.text) {
         const text = textCreator.create(obj.text);
-        const numLines = obj.text.split("\n").length;
+        const h = Layout.TEXT_SCALE * text.layout.height;
         subgroup.add(text);
         subgroup.text = text;
         text.position.x = obj.textX || 0.3 * BUTTON_WIDTH;
@@ -144,8 +144,12 @@ export default function createImageButtonGrid( {
         subgroup.add(tipGroup);
         tipGroup.add(tipText);
         subgroup.tipText = tipGroup;
-        const tipMetrics = tipText.layout.computeMetrics(obj.tip, 0, obj.tip.length);
-        const w = obj.tipWidth || tipMetrics.width * Layout.TEXT_SCALE;
+        let textWidth = 0;
+        obj.tip.split("\n").forEach(line => {
+            const lineWidth = tipText.layout.computeMetrics(line, 0, line.length).width;
+            textWidth = Math.max(textWidth, lineWidth);
+        });
+        const w = obj.tipWidth || textWidth * Layout.TEXT_SCALE;
         const h = Layout.TEXT_SCALE * tipText.layout.height;
         const paddedW = w + 0.03, paddedH = h + 0.03;
         const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);

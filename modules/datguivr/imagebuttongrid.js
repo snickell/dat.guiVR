@@ -146,10 +146,9 @@ export default function createImageButtonGrid( {
         subgroup.tipText = tipGroup;
         const tipMetrics = tipText.layout.computeMetrics(obj.tip, 0, obj.tip.length);
         const w = obj.tipWidth || tipMetrics.width * Layout.TEXT_SCALE;
-        //TODO: compute height and adjust layout appropriately.
-        const h = Layout.PANEL_HEIGHT * 0.8;
-        const paddedW = w + 0.03;
-        const tipRect = new THREE.PlaneGeometry(paddedW, Layout.PANEL_HEIGHT, 1, 1);
+        const h = Layout.TEXT_SCALE * tipText.layout.height;
+        const paddedW = w + 0.03, paddedH = h + 0.03;
+        const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
         const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
         tipBackground.position.x = 0; //paddedW / 2;
         tipBackground.position.y = h / 2;
@@ -157,6 +156,7 @@ export default function createImageButtonGrid( {
         tipGroup.add(tipBackground);
 
         tipText.position.x = -0.5 * w;
+        tipText.position.y = -0.5 * h + 0.0015;
     }
     
     //panel.add( descriptorLabel, hitscanVolume, controllerID );

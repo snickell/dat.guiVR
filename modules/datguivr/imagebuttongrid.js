@@ -94,6 +94,7 @@ export default function createImageButtonGrid( {
   rect.translate( buttonWPadded / 2, -buttonHPadded / 2, BUTTON_DEPTH );
 
   var i = 0;
+  
   //TODO: toggles rather than triggers...
   objects.forEach(obj => {
     let subgroup = new THREE.Group();
@@ -121,10 +122,11 @@ export default function createImageButtonGrid( {
     if (obj.text) {
         const text = textCreator.create(obj.text);
         const h = Layout.TEXT_SCALE * text.layout.height;
+        const w = text.computeWidth();
         subgroup.add(text);
         subgroup.text = text;
-        text.position.x = obj.textX || 0.3 * BUTTON_WIDTH;
-        text.position.y = obj.textY || -(BUTTON_HEIGHT+0.07) / 2; //TODO: numLines...
+        text.position.x = obj.textX || 0.5 * (BUTTON_WIDTH - w);
+        text.position.y = obj.textY || -0.5 * BUTTON_HEIGHT - h;
         text.position.z = BUTTON_DEPTH * 1.2;
     }
     const filledVolume = new THREE.Mesh( rect.clone(), material );
@@ -144,12 +146,8 @@ export default function createImageButtonGrid( {
         subgroup.add(tipGroup);
         tipGroup.add(tipText);
         subgroup.tipText = tipGroup;
-        let textWidth = 0;
-        obj.tip.split("\n").forEach(line => {
-            const lineWidth = tipText.layout.computeMetrics(line, 0, line.length).width;
-            textWidth = Math.max(textWidth, lineWidth);
-        });
-        const w = obj.tipWidth || textWidth * Layout.TEXT_SCALE;
+        
+        const w = obj.tipWidth || tipText.computeWidth();
         const h = Layout.TEXT_SCALE * tipText.layout.height;
         const paddedW = w + 0.03, paddedH = h + 0.03;
         const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);

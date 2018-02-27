@@ -86,6 +86,14 @@ export function creator(){
     let mesh = createText( str, font, color, scale );
     group.add( mesh );
     group.layout = mesh.geometry.layout;
+    group.computeWidth = () => {
+      let textWidth = 0;
+      str.split("\n").forEach(line => {
+          const lineWidth = group.layout.computeMetrics(line, 0, line.length).width;
+          textWidth = Math.max(textWidth, lineWidth);
+      });
+      return textWidth * Layout.TEXT_SCALE;
+    }
 
     group.updateLabel = function( str ){
       mesh.geometry.update( str );

@@ -120,10 +120,11 @@ export default function createImageButtonGrid( {
     if (obj.image) applyImageToMaterial(obj.image, material);
     if (obj.text) {
         const text = textCreator.create(obj.text);
+        const numLines = obj.text.split("\n").length;
         subgroup.add(text);
         subgroup.text = text;
         text.position.x = obj.textX || 0.3 * BUTTON_WIDTH;
-        text.position.y = obj.textY || -(BUTTON_HEIGHT+0.07) / 2;
+        text.position.y = obj.textY || -(BUTTON_HEIGHT+0.07) / 2; //TODO: numLines...
         text.position.z = BUTTON_DEPTH * 1.2;
     }
     const filledVolume = new THREE.Mesh( rect.clone(), material );
@@ -143,9 +144,9 @@ export default function createImageButtonGrid( {
         subgroup.add(tipGroup);
         tipGroup.add(tipText);
         subgroup.tipText = tipGroup;
-        //TODO: compute text geometry and adjust.
-        //Estimate for now. Width is dodgy especially as font is not monospace.
-        const w = obj.tipWidth || 0.01 + obj.tip.length * BUTTON_WIDTH / 10;
+        const tipMetrics = tipText.layout.computeMetrics(obj.tip, 0, obj.tip.length);
+        const w = obj.tipWidth || tipMetrics.width * Layout.TEXT_SCALE;
+        //TODO: compute height and adjust layout appropriately.
         const h = Layout.PANEL_HEIGHT * 0.8;
         const paddedW = w + 0.03;
         const tipRect = new THREE.PlaneGeometry(paddedW, Layout.PANEL_HEIGHT, 1, 1);
@@ -155,11 +156,7 @@ export default function createImageButtonGrid( {
         tipBackground.position.z = -BUTTON_DEPTH * 0.5;
         tipGroup.add(tipBackground);
 
-        // tipText.position.x = 0.5 * (BUTTON_WIDTH - w);
         tipText.position.x = -0.5 * w;
-        // tipText.position.y = -1.2 * BUTTON_HEIGHT;
-        // tipText.position.z = BUTTON_DEPTH * 2.5;
-        // tipText.visible = false;
     }
     
     //panel.add( descriptorLabel, hitscanVolume, controllerID );

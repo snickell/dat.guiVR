@@ -20,6 +20,7 @@
 import SDFShader from 'three-bmfont-text/shaders/sdf';
 import createGeometry from 'three-bmfont-text';
 import parseASCII from 'parse-bmfont-ascii';
+import * as Layout from './layout';
 
 import * as Font from './font';
 
@@ -41,7 +42,7 @@ export function createMaterial( color ){
   }));
 }
 
-const textScale = 0.00024;
+const textScale = Layout.TEXT_SCALE;
 
 export function creator(){
 

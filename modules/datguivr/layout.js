@@ -98,3 +98,4 @@ export const FOLDER_HEIGHT = 0.09;
 export const FOLDER_GRAB_HEIGHT = 0.0512;
 export const BORDER_THICKNESS = 0.01;
 export const CHECKBOX_SIZE = 0.05;
+export const TEXT_SCALE = 0.00024;

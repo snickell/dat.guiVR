@@ -183,7 +183,7 @@ export default function createFolder({
     const folder = getTopLevelFolder(group);
     if (folder.modalEditor) folder.modalEditor.visible = false;
     folder.modalEditor = e;
-    e.visible = true;
+    if (e) e.visible = true;
   };
 
 

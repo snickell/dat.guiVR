@@ -110,9 +110,10 @@ export default function createTextBox({
             var str = object[propertyName];
             switch (k) {
                 case '\n':
-                    //XXX: For some reason, this is now leaving the rest of the GUI unresponsive
-                    //Likely related somehow to the folder.setModalEditor() business...
-                    keyboard.visible = false;
+                    //setting "keyboard.visible = false" in the middle of event
+                    //handler seems to kill all event processing from then on.
+                    //setTimeout is an adequate workaround for now.
+                    setTimeout(toggleKeyboard, 100);
                     break;
                 case '\b':
                     str = str.substring(0, str.length-1);

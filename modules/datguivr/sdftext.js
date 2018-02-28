@@ -55,7 +55,7 @@ export function creator(){
     const geometry = createGeometry({
       text: str,
       align: 'left',
-      width: 10000,
+      //width: 10000, //unnecessary, and makes width property of layout uninformative.
       flipY: true,
       font
     });

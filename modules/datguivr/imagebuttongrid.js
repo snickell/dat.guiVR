@@ -40,8 +40,6 @@ export default function createImageButtonGrid( {
   columns = 4
 } = {} ){
   
-  const buttons = [];
-
   function applyImageToMaterial(image, targetMaterial) {
       if (typeof image === "string") {
         //TODO cache.  Does TextureLoader already cache?
@@ -60,17 +58,25 @@ export default function createImageButtonGrid( {
 
   const margin = Layout.PANEL_MARGIN * 3;
   const BUTTON_WIDTH = (width - margin) * (1/columns);
-  const BUTTON_HEIGHT = rowHeight > 0 ? rowHeight : BUTTON_WIDTH; //height - Layout.PANEL_MARGIN;
+  //TODO: add setRowHeight method
+  let BUTTON_HEIGHT = rowHeight > 0 ? rowHeight : BUTTON_WIDTH;
   const BUTTON_DEPTH = Layout.BUTTON_DEPTH;
 
   const group = new THREE.Group();
   group.guiType = "imagebuttongrid";
   group.toString = () => `[${group.guiType}: ${objects}]`;
-  group.guiChildren = buttons;
   
   const rows = Math.ceil(objects.length / columns);
-  const height = Layout.PANEL_MARGIN + BUTTON_HEIGHT * rows;
-  group.spacing = height; 
+  let height = Layout.PANEL_MARGIN + BUTTON_HEIGHT * rows;
+  group.spacing = height;
+
+  group.setRowHeight = h => {
+    rowHeight = BUTTON_HEIGHT = h;
+    height = Layout.PANEL_MARGIN + BUTTON_HEIGHT * rows;
+    group.spacing = height;
+    layoutButtons();
+    return group;
+  };
 
   let highlightLastPressed = false;
   let lastPressed = null;
@@ -81,134 +87,149 @@ export default function createImageButtonGrid( {
       return group;
   }
   
-  const panel = Layout.createPanel( width, height, depth );
-  group.add( panel );
+  let panel, grabInteraction, buttons = [];
 
-  const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
-  controllerID.position.z = depth;
-  panel.add(controllerID);
-
-  //TODO: padding
-  const buttonWPadded = BUTTON_WIDTH * 0.99, buttonHPadded = BUTTON_HEIGHT * 0.99;
-  const rect = new THREE.PlaneGeometry( buttonWPadded, buttonHPadded, 1, 1 );
-  rect.translate( buttonWPadded / 2, -buttonHPadded / 2, BUTTON_DEPTH );
-
-  var i = 0;
+  layoutButtons();
   
-  //TODO: toggles rather than triggers...
-  objects.forEach(obj => {
-    let subgroup = new THREE.Group();
-    subgroup.guiType = "imageButtonGridElement";
-    group.add(subgroup);
-    buttons.push(subgroup);
-
-    const col = i % columns;
-    const row = Math.floor(i / columns);
-
-    subgroup.position.x = (2*Layout.PANEL_MARGIN) + BUTTON_WIDTH * col;
-    subgroup.position.y = (height/2) -BUTTON_HEIGHT * row;
-    subgroup.position.z = BUTTON_DEPTH;
-
-    //  hitscan volume.
-    // This material could probably be reused.
-    const hitscanMaterial = new THREE.MeshBasicMaterial();
-    hitscanMaterial.visible = false;
-
-    const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
-
-    const material = new THREE.MeshBasicMaterial();
-    material.transparent = true;
-    if (obj.image) applyImageToMaterial(obj.image, material);
-    if (obj.text) {
-        const text = textCreator.create(obj.text);
-        const h = Layout.TEXT_SCALE * text.layout.height;
-        const w = text.computeWidth();
-        subgroup.add(text);
-        subgroup.text = text;
-        text.position.x = obj.textX || 0.5 * (BUTTON_WIDTH - w);
-        text.position.y = obj.textY || -0.5 * BUTTON_HEIGHT - h;
-        text.position.z = BUTTON_DEPTH * 1.2;
-    }
-    const filledVolume = new THREE.Mesh( rect.clone(), material );
-    hitscanVolume.add( filledVolume );
-
-    //button label & descriptor label removed.
-    //Tooltip text option added.  Might want to be able to pass in richer things...
-    //maybe an arbitrary THREE object would work well...
-    if (obj.tip) {
-        const tipText = textCreator.create(obj.tip);
-        const tipGroup = new THREE.Group();
-        tipGroup.position.x  = 0.5 * BUTTON_WIDTH;
-        tipGroup.position.y = -1.2 * BUTTON_HEIGHT;
-        tipGroup.position.z = BUTTON_DEPTH * 2.5;
-        tipGroup.visible = false;
-
-        subgroup.add(tipGroup);
-        tipGroup.add(tipText);
-        subgroup.tipText = tipGroup;
-        
-        const w = obj.tipWidth || tipText.computeWidth();
-        const h = Layout.TEXT_SCALE * tipText.layout.height;
-        const paddedW = w + 0.03, paddedH = h + 0.03;
-        const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
-        const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
-        tipBackground.position.x = 0; //paddedW / 2;
-        tipBackground.position.y = h / 2;
-        tipBackground.position.z = -BUTTON_DEPTH * 0.5;
-        tipGroup.add(tipBackground);
-
-        tipText.position.x = -0.5 * w;
-        tipText.position.y = -0.5 * h + 0.0015;
-    }
+  function initPanel() {
+    if (panel) group.remove(panel);
+    panel = Layout.createPanel( width, height, depth );
+    group.add( panel );
     
-    //panel.add( descriptorLabel, hitscanVolume, controllerID );
-    subgroup.add( hitscanVolume );
-    panel.add(subgroup);
+    const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_BUTTON );
+    controllerID.position.z = depth;
+    panel.add(controllerID);
+    
+    grabInteraction = Grab.create( { group, panel } );
+    
+    buttons.forEach(b=>group.remove(b));
+    buttons = [];
+    group.guiChildren = buttons;
+  }
+  
+  function layoutButtons() {
+    initPanel();
+    //TODO: padding
+    const buttonWPadded = BUTTON_WIDTH * 0.99, buttonHPadded = BUTTON_HEIGHT * 0.99;
+    const rect = new THREE.PlaneGeometry( buttonWPadded, buttonHPadded, 1, 1 );
+    rect.translate( buttonWPadded / 2, -buttonHPadded / 2, BUTTON_DEPTH );
 
-    const interaction = createInteraction( hitscanVolume );
-    interaction.events.on( 'onPressed', handleOnPress );
-    interaction.events.on( 'onReleased', handleOnRelease );
+    var i = 0;
+    
+    //TODO: toggles rather than triggers...
+    objects.forEach(obj => {
+        let subgroup = new THREE.Group(); //note: reducing nesting could improve performance.
+        subgroup.guiType = "imageButtonGridElement";
+        group.add(subgroup);
+        buttons.push(subgroup);
 
+        const col = i % columns;
+        const row = Math.floor(i / columns);
 
-    function handleOnPress( p ){
-        if( subgroup.visible === false ){
-            return;
-        }
-
-        obj.func();
-        lastPressed = obj;
-        subgroup.position.z = BUTTON_DEPTH * 0.4;
-        p.locked = true;
-    }
-
-    function handleOnRelease(){
+        subgroup.position.x = (2*Layout.PANEL_MARGIN) + BUTTON_WIDTH * col;
+        subgroup.position.y = (height/2) -BUTTON_HEIGHT * row;
         subgroup.position.z = BUTTON_DEPTH;
-        if (obj.release) obj.release();
-    }
-    //quick color hack...
-    const hoverCol = obj.text ? 0x888 : 0xFFFFFF;
-    const noHoverCol = obj.text ? 0x111 : 0xCCCCCC;
-    subgroup.updateView = () => {
-        if (highlightLastPressed && lastPressed === obj) {
-            material.color.setHex( lastPressedCol );
+
+        //  hitscan volume.
+        // This material could probably be reused.
+        const hitscanMaterial = new THREE.MeshBasicMaterial();
+        hitscanMaterial.visible = false;
+
+        const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
+
+        const material = new THREE.MeshBasicMaterial();
+        material.transparent = true;
+        if (obj.image) applyImageToMaterial(obj.image, material);
+        if (obj.text) {
+            const text = textCreator.create(obj.text);
+            const h = Layout.TEXT_SCALE * text.layout.height;
+            const w = text.computeWidth();
+            subgroup.add(text);
+            subgroup.text = text;
+            text.position.x = obj.textX || 0.5 * (BUTTON_WIDTH - w);
+            text.position.y = obj.textY || -0.5 * BUTTON_HEIGHT - h;
+            text.position.z = BUTTON_DEPTH * 1.2;
         }
-        else material.color.setHex( interaction.hovering() ? hoverCol : noHoverCol );
+        const filledVolume = new THREE.Mesh( rect.clone(), material );
+        hitscanVolume.add( filledVolume );
 
-        if (subgroup.tipText) subgroup.tipText.visible = interaction.hovering();
-    }
-    
-    subgroup.updateView();
+        //button label & descriptor label removed.
+        //Tooltip text option added.  Might want to be able to pass in richer things...
+        //maybe an arbitrary THREE object would work well...
+        if (obj.tip) {
+            const tipText = textCreator.create(obj.tip);
+            const tipGroup = new THREE.Group();
+            tipGroup.position.x  = 0.5 * BUTTON_WIDTH;
+            tipGroup.position.y = -1.2 * BUTTON_HEIGHT;
+            tipGroup.position.z = BUTTON_DEPTH * 2.5;
+            tipGroup.visible = false;
 
-    subgroup.interaction = interaction;
-    subgroup.hitscan = hitscanVolume; //XXX: making this single element rather than array,
-    //that means these 'subgroup' buttons aren't acting exactly as normal dat.GUIVR controllers
-    i++;
-  });
+            subgroup.add(tipGroup);
+            tipGroup.add(tipText);
+            subgroup.tipText = tipGroup;
+            
+            const w = obj.tipWidth || tipText.computeWidth();
+            const h = Layout.TEXT_SCALE * tipText.layout.height;
+            const paddedW = w + 0.03, paddedH = h + 0.03;
+            const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
+            const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
+            tipBackground.position.x = 0; //paddedW / 2;
+            tipBackground.position.y = h / 2;
+            tipBackground.position.z = -BUTTON_DEPTH * 0.5;
+            tipGroup.add(tipBackground);
 
-  group.hitscan = buttons.map(b=>b.hitscan);//.push(panel);
-  group.hitscan.push(panel);
+            tipText.position.x = -0.5 * w;
+            tipText.position.y = -0.5 * h + 0.0015;
+        }
+        
+        //panel.add( descriptorLabel, hitscanVolume, controllerID );
+        subgroup.add( hitscanVolume );
+        panel.add(subgroup);
 
-  const grabInteraction = Grab.create( { group, panel } );
+        const interaction = createInteraction( hitscanVolume );
+        interaction.events.on( 'onPressed', handleOnPress );
+        interaction.events.on( 'onReleased', handleOnRelease );
+
+
+        function handleOnPress( p ){
+            if( subgroup.visible === false ){
+                return;
+            }
+
+            obj.func();
+            lastPressed = obj;
+            subgroup.position.z = BUTTON_DEPTH * 0.4;
+            p.locked = true;
+        }
+
+        function handleOnRelease(){
+            subgroup.position.z = BUTTON_DEPTH;
+            if (obj.release) obj.release();
+        }
+        //quick color hack...
+        const hoverCol = obj.text ? 0x888 : 0xFFFFFF;
+        const noHoverCol = obj.text ? 0x111 : 0xCCCCCC;
+        subgroup.updateView = () => {
+            if (highlightLastPressed && lastPressed === obj) {
+                material.color.setHex( lastPressedCol );
+            }
+            else material.color.setHex( interaction.hovering() ? hoverCol : noHoverCol );
+
+            if (subgroup.tipText) subgroup.tipText.visible = interaction.hovering();
+        }
+        
+        subgroup.updateView();
+
+        subgroup.interaction = interaction;
+        subgroup.hitscan = hitscanVolume; //XXX: making this single element rather than array,
+        //that means these 'subgroup' buttons aren't acting exactly as normal dat.GUIVR controllers
+        i++;
+    });
+
+    group.hitscan = buttons.map(b=>b.hitscan);//.push(panel);
+    group.hitscan.push(panel);
+  }
+
 
   function updateView() {
       buttons.forEach(b=>b.updateView());

@@ -88,10 +88,13 @@ export default function createFolder({
   //  Yeah. Gross.
   const addOriginal = THREE.Group.prototype.add;
   //as long as no-one expects this to behave like a regular THREE.Group, the changed definition of remove shouldn't hurt
-  //const removeOriginal = THREE.Group.prototype.remove; 
+  const removeOriginal = THREE.Group.prototype.remove; 
 
   function addImpl( o ){
     addOriginal.call( group, o );
+  }
+  function removeImpl( o ){
+    removeOriginal.call( group, o );
   }
 
   addImpl( collapseGroup );
@@ -223,7 +226,8 @@ export default function createFolder({
     child.showHeader();
     child.folder = child;
     collapseGroup.remove(child);
-    THREE.Object3D.prototype.remove.call(group, child);
+    //THREE.Object3D.prototype.remove.call(group, child);
+    removeImpl(child);
     performLayout();
     return group; //or child?
   };
@@ -364,12 +368,14 @@ export default function createFolder({
       group.folder.guiChildren.filter(c=>c.isFolder && c !== group).forEach(c=>c.close());
     }
     state.collapsed = false;
+    addImpl(collapseGroup);
     performLayout();
   };
 
   group.close = function() {
     if (state.collapsed) return;
     state.collapsed = true;
+    removeImpl(collapseGroup);
     performLayout();
   };
 

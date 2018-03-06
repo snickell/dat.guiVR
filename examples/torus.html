@@ -43,7 +43,8 @@
         }
       }, false );
 
-
+      const laserRotateModifier = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/3);
+      controllers[0].laserRotateModifier = controllers[1].laserRotateModifier = laserRotateModifier;
 
       //  add an input object (any Object3D like ViveController or Camera)
       //  you can add multiple objects

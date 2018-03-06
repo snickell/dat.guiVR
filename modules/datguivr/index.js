@@ -552,7 +552,12 @@ const GUIVR = (function DATGUIVR(){
 
       tPosition.set(0,0,0).setFromMatrixPosition( object.matrixWorld );
       tMatrix.identity().extractRotation( object.matrixWorld );
-      tDirection.set(0,0,-1).applyMatrix4( tMatrix ).normalize();
+      
+      tDirection.set(0,0,-1);
+      //altering direction e.g. to point in direction of extended trigger finger, rather than 'main axis' of Vive controller...
+      //maybe this should be in userData.
+      if (object.laserRotateModifier) tDirection.applyQuaternion(object.laserRotateModifier);
+      tDirection.applyMatrix4( tMatrix ).normalize();
 
       raycast.set( tPosition, tDirection );
 
@@ -565,6 +570,8 @@ const GUIVR = (function DATGUIVR(){
       parseIntersections( intersections, laser, cursor );
 
       inputObjects[ index ].intersections = intersections;
+      //want to add info (hit disctance) to object for use outside... just adding entirety of intersections in case useful
+      if (object.userData) object.userData.guiIntersections = intersections;
     });
 
     const inputs = inputObjects.slice();

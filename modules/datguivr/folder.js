@@ -140,7 +140,7 @@ export default function createFolder({
   group.add(detachButton);
   const detachButtonInteraction = createInteraction(detachButton);
   detachButtonInteraction.events.on( 'onPressed', function( p ){
-    group.detachFromParent();
+    group.detach();
     p.locked = true;
   });
 
@@ -221,7 +221,7 @@ export default function createFolder({
    * 
    * (will not be visible until user explicitly adds elsewhere)
    */
-  group.detach = (child) => {
+  group.detachChild = (child) => {
     if (!child.isFolder || child.folder !== group) return false;
     child.showHeader();
     child.folder = child;
@@ -236,11 +236,11 @@ export default function createFolder({
     Detach this object from its parent, and reattach to scenegraph as a sibling of the 'top level' folder in
     the hierarchy this previously was a member of.
   */
-  group.detachFromParent = () => {
+  group.detach = () => {
     if (group.folder === group) return false;
     //automatically add to THREE parent of top level folder and try to set appropriate scale / transform...
     const topFolder = getTopLevelFolder(group);
-    group.folder.detach(group);
+    group.folder.detachChild(group);
     topFolder.parent.add(group);
     const m = topFolder.matrix.clone();
     group.applyMatrix(m);
@@ -250,7 +250,8 @@ export default function createFolder({
     group.open();
     group.detachable = false;
     return group;
-  }
+  };
+  group.detachFromParent = group.detach;
 
   group.addController = function( ...args ){
     args.forEach( function( obj ){

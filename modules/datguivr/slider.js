@@ -59,6 +59,12 @@ export default function createSlider( {
   const group = new THREE.Group();
   group.guiType = "slider";
   group.toString = () => `[${group.guiType}: ${propertyName}]`;
+  
+  const descriptorLabel = textCreator.create( propertyName );
+  descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
+  descriptorLabel.position.z = depth;
+  descriptorLabel.position.y = -0.03;
+
   let panel;
   group.setHeight = height => {
     if (panel) group.remove( panel );
@@ -102,11 +108,6 @@ export default function createSlider( {
     valueLabel.position.x = Layout.PANEL_VALUE_TEXT_MARGIN + width * 0.5;
     valueLabel.position.z = depth*2.5;
     valueLabel.position.y = -0.0325;
-
-    const descriptorLabel = textCreator.create( propertyName );
-    descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
-    descriptorLabel.position.z = depth;
-    descriptorLabel.position.y = -0.03;
 
     const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_SLIDER );
     controllerID.position.z = depth;

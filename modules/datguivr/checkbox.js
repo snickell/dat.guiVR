@@ -47,6 +47,12 @@ export default function createCheckbox( {
   group.guiType = "checkbox";
   group.toString = () => `[${group.guiType}: ${propertyName}]`;
   
+  const descriptorLabel = textCreator.create( propertyName );
+  descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
+  descriptorLabel.position.z = depth;
+  descriptorLabel.position.y = -0.03;
+
+
   let panel;
   //all layout etc is done inside setHeight, which is called once at start.
   //any callbacks etc remain associated with 'group'.
@@ -85,11 +91,6 @@ export default function createCheckbox( {
     const filledVolume = new THREE.Mesh( rect.clone(), material );
     hitscanVolume.add( filledVolume );
   
-  
-    const descriptorLabel = textCreator.create( propertyName );
-    descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
-    descriptorLabel.position.z = depth;
-    descriptorLabel.position.y = -0.03;
   
     const controllerID = Layout.createControllerIDBox( newHeight, Colors.CONTROLLER_ID_CHECKBOX );
     controllerID.position.z = depth;

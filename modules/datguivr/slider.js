@@ -279,6 +279,7 @@ export default function createSlider( {
       updateSlider( );
       return group;
     };
+    return group;
   }
   group.setHeight( initialHeight );
   return group;

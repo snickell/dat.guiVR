@@ -176,6 +176,7 @@ export default function createCheckbox( {
       grabInteraction.update( inputObjects );
       updateView();
     };
+    return group;
   };
   
   group.setHeight(height);

@@ -52,6 +52,24 @@ export default function createCheckbox( {
   descriptorLabel.position.z = depth;
   descriptorLabel.position.y = -0.03;
 
+  let onChangedCB;
+  let onFinishChangeCB;
+
+  group.onChange = function( callback ){
+    onChangedCB = callback;
+    return group;
+  };
+
+  group.listen = function(){
+    state.listen = true;
+    return group;
+  };
+
+  group.name = function( str ){
+    descriptorLabel.updateLabel( str );
+    return group;
+  };
+
 
   let panel;
   //all layout etc is done inside setHeight, which is called once at start.
@@ -146,29 +164,11 @@ export default function createCheckbox( {
   
     }
   
-    let onChangedCB;
-    let onFinishChangeCB;
-  
-    group.onChange = function( callback ){
-      onChangedCB = callback;
-      return group;
-    };
-  
     group.interaction = interaction;
     group.hitscan = [ hitscanVolume, panel ];
-  
+    
     const grabInteraction = Grab.create( { group, panel } );
-  
-    group.listen = function(){
-      state.listen = true;
-      return group;
-    };
-  
-    group.name = function( str ){
-      descriptorLabel.updateLabel( str );
-      return group;
-    };
-  
+    
     group.updateControl = function( inputObjects ){
       if( state.listen ){
         state.value = object[ propertyName ];

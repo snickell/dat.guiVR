@@ -33,14 +33,10 @@ export default function createSlider( {
   min = 0.0, max = 1.0,
   step = 0.1,
   width = Layout.PANEL_WIDTH,
-  height = Layout.PANEL_HEIGHT,
+  initialHeight = Layout.PANEL_HEIGHT,
   depth = Layout.PANEL_DEPTH
 } = {} ){
 
-
-  const SLIDER_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
-  const SLIDER_HEIGHT = height - Layout.PANEL_MARGIN;
-  const SLIDER_DEPTH = depth;
 
   const state = {
     alpha: 1.0,
@@ -55,226 +51,236 @@ export default function createSlider( {
     onFinishedChange: undefined,
     pressing: false
   };
-
+  
   state.step = getImpliedStep( state.value );
   state.precision = numDecimals( state.step );
   state.alpha = getAlphaFromValue( state.value, state.min, state.max );
-
+  
   const group = new THREE.Group();
   group.guiType = "slider";
   group.toString = () => `[${group.guiType}: ${propertyName}]`;
+  let panel;
+  group.setHeight = height => {
+    if (panel) group.remove( panel );
+    
+    group.spacing = height;
 
-  //  filled volume
-  const rect = new THREE.BoxGeometry( SLIDER_WIDTH, SLIDER_HEIGHT, SLIDER_DEPTH );
-  rect.translate(SLIDER_WIDTH*0.5,0,0);
-  // Layout.alignLeft( rect );
+    const SLIDER_WIDTH = width * 0.5 - Layout.PANEL_MARGIN;
+    const SLIDER_HEIGHT = height - Layout.PANEL_MARGIN;
+    const SLIDER_DEPTH = depth;
 
-  const hitscanMaterial = new THREE.MeshBasicMaterial();
-  hitscanMaterial.visible = false;
+    //  filled volume
+    const rect = new THREE.BoxGeometry( SLIDER_WIDTH, SLIDER_HEIGHT, SLIDER_DEPTH );
+    rect.translate(SLIDER_WIDTH*0.5,0,0);
+    // Layout.alignLeft( rect );
 
-  const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
-  hitscanVolume.position.z = depth;
-  hitscanVolume.position.x = width * 0.5;
-  hitscanVolume.name = 'hitscanVolume';
+    const hitscanMaterial = new THREE.MeshBasicMaterial();
+    hitscanMaterial.visible = false;
 
-  //  sliderBG volume
-  const sliderBG = new THREE.Mesh( rect.clone(), SharedMaterials.PANEL );
-  Colors.colorizeGeometry( sliderBG.geometry, Colors.SLIDER_BG );
-  sliderBG.position.z = depth * 0.5;
-  sliderBG.position.x = SLIDER_WIDTH + Layout.PANEL_MARGIN;
+    const hitscanVolume = new THREE.Mesh( rect.clone(), hitscanMaterial );
+    hitscanVolume.position.z = depth;
+    hitscanVolume.position.x = width * 0.5;
+    hitscanVolume.name = 'hitscanVolume';
 
-  const material = new THREE.MeshBasicMaterial({ color: Colors.DEFAULT_COLOR });
-  const filledVolume = new THREE.Mesh( rect.clone(), material );
-  filledVolume.position.z = depth * 0.5;
-  hitscanVolume.add( filledVolume );
+    //  sliderBG volume
+    const sliderBG = new THREE.Mesh( rect.clone(), SharedMaterials.PANEL );
+    Colors.colorizeGeometry( sliderBG.geometry, Colors.SLIDER_BG );
+    sliderBG.position.z = depth * 0.5;
+    sliderBG.position.x = SLIDER_WIDTH + Layout.PANEL_MARGIN;
 
-  const endLocator = new THREE.Mesh( new THREE.BoxGeometry( 0.05, 0.05, 0.05, 1, 1, 1 ), SharedMaterials.LOCATOR );
-  endLocator.position.x = SLIDER_WIDTH;
-  hitscanVolume.add( endLocator );
-  endLocator.visible = false;
+    const material = new THREE.MeshBasicMaterial({ color: Colors.DEFAULT_COLOR });
+    const filledVolume = new THREE.Mesh( rect.clone(), material );
+    filledVolume.position.z = depth * 0.5;
+    hitscanVolume.add( filledVolume );
 
-  const valueLabel = textCreator.create( state.value.toString() );
-  valueLabel.position.x = Layout.PANEL_VALUE_TEXT_MARGIN + width * 0.5;
-  valueLabel.position.z = depth*2.5;
-  valueLabel.position.y = -0.0325;
+    const endLocator = new THREE.Mesh( new THREE.BoxGeometry( 0.05, 0.05, 0.05, 1, 1, 1 ), SharedMaterials.LOCATOR );
+    endLocator.position.x = SLIDER_WIDTH;
+    hitscanVolume.add( endLocator );
+    endLocator.visible = false;
 
-  const descriptorLabel = textCreator.create( propertyName );
-  descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
-  descriptorLabel.position.z = depth;
-  descriptorLabel.position.y = -0.03;
+    const valueLabel = textCreator.create( state.value.toString() );
+    valueLabel.position.x = Layout.PANEL_VALUE_TEXT_MARGIN + width * 0.5;
+    valueLabel.position.z = depth*2.5;
+    valueLabel.position.y = -0.0325;
 
-  const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_SLIDER );
-  controllerID.position.z = depth;
+    const descriptorLabel = textCreator.create( propertyName );
+    descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
+    descriptorLabel.position.z = depth;
+    descriptorLabel.position.y = -0.03;
 
-  const panel = Layout.createPanel( width, height, depth );
-  panel.name = 'panel';
-  panel.add( descriptorLabel, hitscanVolume, sliderBG, valueLabel, controllerID );
+    const controllerID = Layout.createControllerIDBox( height, Colors.CONTROLLER_ID_SLIDER );
+    controllerID.position.z = depth;
 
-  group.add( panel )
+    panel = Layout.createPanel( width, height, depth );
+    panel.name = 'panel';
+    panel.add( descriptorLabel, hitscanVolume, sliderBG, valueLabel, controllerID );
 
-  updateValueLabel( state.value );
-  updateSlider();
+    group.add( panel )
 
-  function updateValueLabel( value ){
-    if( state.useStep ){
-      valueLabel.updateLabel( roundToDecimal( state.value, state.precision ).toString() );
-    }
-    else{
-      valueLabel.updateLabel( state.value.toString() );
-    }
-  }
-
-  function updateView(){
-    if( state.pressing ){
-      material.color.setHex( Colors.INTERACTION_COLOR );
-    }
-    else
-    if( interaction.hovering() ){
-      material.color.setHex( Colors.HIGHLIGHT_COLOR );
-    }
-    else{
-      material.color.setHex( Colors.DEFAULT_COLOR );
-    }
-  }
-
-  function updateSlider(){
-    filledVolume.scale.x =
-      Math.min(
-        Math.max( getAlphaFromValue( state.value, state.min, state.max ) * width, 0.000001 ),
-        width
-      );
-  }
-
-  function updateObject( value ){
-    object[ propertyName ] = value;
-  }
-
-  function updateStateFromAlpha( alpha ){
-    state.alpha = getClampedAlpha( alpha );
-    state.value = getValueFromAlpha( state.alpha, state.min, state.max );
-    if( state.useStep ){
-      state.value = getSteppedValue( state.value, state.step );
-    }
-    state.value = getClampedValue( state.value, state.min, state.max );
-  }
-
-  function listenUpdate(){
-    state.value = getValueFromObject();
-    state.alpha = getAlphaFromValue( state.value, state.min, state.max );
-    state.alpha = getClampedAlpha( state.alpha );
-  }
-
-  function getValueFromObject(){
-    return parseFloat( object[ propertyName ] );
-  }
-
-  group.onChange = function( callback ){
-    state.onChangedCB = callback;
-    return group;
-  };
-
-  group.step = function( step ){
-    state.step = step;
-    state.precision = numDecimals( state.step )
-    state.useStep = true;
-
-    state.alpha = getAlphaFromValue( state.value, state.min, state.max );
-
-    updateStateFromAlpha( state.alpha );
     updateValueLabel( state.value );
-    updateSlider( );
-    return group;
-  };
+    updateSlider();
 
-  group.listen = function(){
-    state.listen = true;
-    return group;
-  };
-
-  const interaction = createInteraction( hitscanVolume );
-  interaction.events.on( 'onPressed', handlePress );
-  interaction.events.on( 'pressing', handleHold );
-  interaction.events.on( 'onReleased', handleRelease );
-
-  function handlePress( p ){
-    if( group.visible === false ){
-      return;
-    }
-    state.pressing = true;
-    p.locked = true;
-  }
-
-  function handleHold( { point } = {} ){
-    if( group.visible === false ){
-      return;
+    function updateValueLabel( value ){
+      if( state.useStep ){
+        valueLabel.updateLabel( roundToDecimal( state.value, state.precision ).toString() );
+      }
+      else{
+        valueLabel.updateLabel( state.value.toString() );
+      }
     }
 
-    state.pressing = true;
-
-    filledVolume.updateMatrixWorld();
-    endLocator.updateMatrixWorld();
-
-    const a = new THREE.Vector3().setFromMatrixPosition( filledVolume.matrixWorld );
-    const b = new THREE.Vector3().setFromMatrixPosition( endLocator.matrixWorld );
-
-    const previousValue = state.value;
-
-    updateStateFromAlpha( getPointAlpha( point, {a,b} ) );
-    updateValueLabel( state.value );
-    updateSlider( );
-    updateObject( state.value );
-
-    if( previousValue !== state.value && state.onChangedCB ){
-      state.onChangedCB( state.value );
+    function updateView(){
+      if( state.pressing ){
+        material.color.setHex( Colors.INTERACTION_COLOR );
+      }
+      else
+      if( interaction.hovering() ){
+        material.color.setHex( Colors.HIGHLIGHT_COLOR );
+      }
+      else{
+        material.color.setHex( Colors.DEFAULT_COLOR );
+      }
     }
-  }
 
-  function handleRelease(){
-    state.pressing = false;
-  }
+    function updateSlider(){
+      filledVolume.scale.x =
+        Math.min(
+          Math.max( getAlphaFromValue( state.value, state.min, state.max ) * width, 0.000001 ),
+          width
+        );
+    }
 
-  group.interaction = interaction;
-  group.hitscan = [ hitscanVolume, panel ];
+    function updateObject( value ){
+      object[ propertyName ] = value;
+    }
 
-  const grabInteraction = Grab.create( { group, panel } );
-  const paletteInteraction = Palette.create( { group, panel } );
+    function updateStateFromAlpha( alpha ){
+      state.alpha = getClampedAlpha( alpha );
+      state.value = getValueFromAlpha( state.alpha, state.min, state.max );
+      if( state.useStep ){
+        state.value = getSteppedValue( state.value, state.step );
+      }
+      state.value = getClampedValue( state.value, state.min, state.max );
+    }
 
-  group.updateControl = function( inputObjects ){
-    interaction.update( inputObjects );
-    grabInteraction.update( inputObjects );
-    paletteInteraction.update( inputObjects );
+    function listenUpdate(){
+      state.value = getValueFromObject();
+      state.alpha = getAlphaFromValue( state.value, state.min, state.max );
+      state.alpha = getClampedAlpha( state.alpha );
+    }
 
-    if( state.listen ){
-      listenUpdate();
+    function getValueFromObject(){
+      return parseFloat( object[ propertyName ] );
+    }
+
+    group.onChange = function( callback ){
+      state.onChangedCB = callback;
+      return group;
+    };
+
+    group.step = function( step ){
+      state.step = step;
+      state.precision = numDecimals( state.step )
+      state.useStep = true;
+
+      state.alpha = getAlphaFromValue( state.value, state.min, state.max );
+
+      updateStateFromAlpha( state.alpha );
       updateValueLabel( state.value );
-      updateSlider();
+      updateSlider( );
+      return group;
+    };
+
+    group.listen = function(){
+      state.listen = true;
+      return group;
+    };
+
+    const interaction = createInteraction( hitscanVolume );
+    interaction.events.on( 'onPressed', handlePress );
+    interaction.events.on( 'pressing', handleHold );
+    interaction.events.on( 'onReleased', handleRelease );
+
+    function handlePress( p ){
+      if( group.visible === false ){
+        return;
+      }
+      state.pressing = true;
+      p.locked = true;
     }
-    updateView();
-  };
 
-  group.name = function( str ){
-    descriptorLabel.updateLabel( str );
-    return group;
-  };
+    function handleHold( { point } = {} ){
+      if( group.visible === false ){
+        return;
+      }
 
-  group.min = function( m ){
-    state.min = m;
-    state.alpha = getAlphaFromValue( state.value, state.min, state.max );
-    updateStateFromAlpha( state.alpha );
-    updateValueLabel( state.value );
-    updateSlider( );
-    return group;
-  };
+      state.pressing = true;
 
-  group.max = function( m ){
-    state.max = m;
-    state.alpha = getAlphaFromValue( state.value, state.min, state.max );
-    updateStateFromAlpha( state.alpha );
-    updateValueLabel( state.value );
-    updateSlider( );
-    return group;
-  };
+      filledVolume.updateMatrixWorld();
+      endLocator.updateMatrixWorld();
 
+      const a = new THREE.Vector3().setFromMatrixPosition( filledVolume.matrixWorld );
+      const b = new THREE.Vector3().setFromMatrixPosition( endLocator.matrixWorld );
+
+      const previousValue = state.value;
+
+      updateStateFromAlpha( getPointAlpha( point, {a,b} ) );
+      updateValueLabel( state.value );
+      updateSlider( );
+      updateObject( state.value );
+
+      if( previousValue !== state.value && state.onChangedCB ){
+        state.onChangedCB( state.value );
+      }
+    }
+
+    function handleRelease(){
+      state.pressing = false;
+    }
+
+    group.interaction = interaction;
+    group.hitscan = [ hitscanVolume, panel ];
+
+    const grabInteraction = Grab.create( { group, panel } );
+    const paletteInteraction = Palette.create( { group, panel } );
+
+    group.updateControl = function( inputObjects ){
+      interaction.update( inputObjects );
+      grabInteraction.update( inputObjects );
+      paletteInteraction.update( inputObjects );
+
+      if( state.listen ){
+        listenUpdate();
+        updateValueLabel( state.value );
+        updateSlider();
+      }
+      updateView();
+    };
+
+    group.name = function( str ){
+      descriptorLabel.updateLabel( str );
+      return group;
+    };
+
+    group.min = function( m ){
+      state.min = m;
+      state.alpha = getAlphaFromValue( state.value, state.min, state.max );
+      updateStateFromAlpha( state.alpha );
+      updateValueLabel( state.value );
+      updateSlider( );
+      return group;
+    };
+
+    group.max = function( m ){
+      state.max = m;
+      state.alpha = getAlphaFromValue( state.value, state.min, state.max );
+      updateStateFromAlpha( state.alpha );
+      updateValueLabel( state.value );
+      updateSlider( );
+      return group;
+    };
+  }
+  group.setHeight( initialHeight );
   return group;
 }
 

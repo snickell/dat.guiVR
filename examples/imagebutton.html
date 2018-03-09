@@ -76,7 +76,7 @@
         f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
         //f.add(settings, 'speed');
         gui.addFolder(f);
-        gui.add(settings, 'speed');
+        gui.add(settings, 'speed').setHeight(0.15);
         
         let fn = ()=>{console.log("image button pressed")};
         

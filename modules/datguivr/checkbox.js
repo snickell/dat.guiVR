@@ -177,6 +177,7 @@ export default function createCheckbox( {
       grabInteraction.update( inputObjects );
       updateView();
     };
+    if(group.folder) group.folder.performLayout();
     return group;
   };
   

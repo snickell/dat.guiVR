@@ -140,7 +140,9 @@ export default function createFolder({
   group.add(detachButton);
   const detachButtonInteraction = createInteraction(detachButton);
   detachButtonInteraction.events.on( 'onPressed', function( p ){
-    group.detach();
+    if (group.detachedParent) {
+      group.reattach();
+    } else group.detach();
     p.locked = true;
   });
 
@@ -225,6 +227,7 @@ export default function createFolder({
     if (!child.isFolder || child.folder !== group) return false;
     child.showHeader();
     child.folder = child;
+    child.detachedParent = group;
     collapseGroup.remove(child);
     //THREE.Object3D.prototype.remove.call(group, child);
     removeImpl(child);
@@ -248,10 +251,17 @@ export default function createFolder({
     const t = new THREE.Vector3(Layout.FOLDER_WIDTH, 0, 0).applyMatrix4(m);
     group.position.add(t);
     group.open();
-    group.detachable = false;
+    //group.detachable = false;
     return group;
   };
   group.detachFromParent = group.detach;
+  group.reattach = () => {
+    if (!group.detachedParent) return false;
+    group.detachedParent.addFolder(group);
+    console.log(group.matrix.elements);
+    group.detachedParent = null;
+    return true;
+  }
 
   group.addController = function( ...args ){
     args.forEach( function( obj ){
@@ -270,6 +280,7 @@ export default function createFolder({
     args.forEach( function (obj) {
       collapseGroup.add( obj );
       obj.folder = group;
+      obj.scale.set(1,1,1);
       obj.hideGrabber();
       obj.close();
     });
@@ -283,6 +294,17 @@ export default function createFolder({
     var totalSpacing = emptyFolderSpace;
 
     collapseGroup.children.forEach( (c) => { c.visible = !state.collapsed } );
+    //children should be ordered by guiIndex.
+    //if they don't already have one, it can be added here:
+    //this should be the only place that we need to consider that property
+    //it allows for detaching elements and reattaching in similar place, even if some siblings are also detached.
+    let lastGuiIndex = 0;
+    collapseGroup.children.forEach( (c, i) => {
+      if (c.guiIndex === undefined) {
+        c.guiIndex = lastGuiIndex+=1;
+      } else lastGuiIndex = c.guiIndex;
+    });
+    collapseGroup.children.sort((a, b) => { return a.guiIndex - b.guiIndex });
 
     if ( state.collapsed ) {
       downArrow.rotation.z = Math.PI * 0.5;
@@ -318,18 +340,18 @@ export default function createFolder({
         child.position.x += width * Math.floor(index / MAX_FOLDER_ITEMS_IN_COLUMN);
       });
     }
-
+    
     group.spacing = totalSpacing;
-
+    
     //make sure parent folder also performs layout.
     if (group.folder !== group) group.folder.performLayout();
-
+    
     // if we're a subfolder, use a smaller panel
     let panelWidth = Layout.FOLDER_WIDTH;
     if (group.folder !== group) {
       panelWidth = Layout.SUBFOLDER_WIDTH;
     }
-
+    
     Layout.resizePanel(panel, panelWidth, Layout.FOLDER_HEIGHT, depth)
 
   }

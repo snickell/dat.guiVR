@@ -54,6 +54,7 @@
 
         //creating lots of stuff just to take up space and test layout.
         let f = dat.GUIVR.create("Long Folder");
+        window.longFolder = f; //for runtime hacking / debugging
         f.detachable = true;
         for (let i=0; i<52; i++) {
           f.add(test, 'myColor');

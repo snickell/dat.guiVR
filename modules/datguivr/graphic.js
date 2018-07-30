@@ -75,10 +75,10 @@ export const checkmark = (function(){
   });
   material.alphaTest = 0.2;
 
-  return function(){
-    const h = 0.4;
+  return function(h = 0.4){
+    //const h = 0.4;
     const geo = new THREE.PlaneGeometry( image.width / 1000 * h, image.height / 1000 * h, 1, 1 );
-    geo.translate( 0.025, 0, 0 );
+    geo.translate( 0.025 * h/0.4, 0, 0 );
     return new THREE.Mesh( geo, material );
   }
 }());

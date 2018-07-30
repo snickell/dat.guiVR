@@ -47,6 +47,8 @@
         parent.add(gui);
         gui.scale.set(0.5, 0.5, 0.5);
 
+        gui.add({check: false}, 'check').name('test check').setHeight(0.2);
+        
         const test = {myColor: new THREE.Color(0, 0.7, 0.6), color2: new THREE.Color() };
         gui.addDropdown(["abcdefg", "option 2"]).name("dropdown");
         gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
@@ -75,7 +77,7 @@
         f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
         //f.add(settings, 'speed');
         gui.addFolder(f);
-        gui.add(settings, 'speed');
+        gui.add(settings, 'speed').name('speeeeed').setHeight(0.15);
         
         let fn = ()=>{console.log("image button pressed")};
         

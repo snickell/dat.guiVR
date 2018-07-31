@@ -120,6 +120,9 @@ export default function createCheckbox( {
         if( onChangedCB && propertyChanged ){
           onChangedCB( object[ propertyName ] );
         }
+        if ( onChooseCB ){
+          onChooseCB( object[ propertyName ]);
+        }
 
         p.locked = true;
 
@@ -241,11 +244,16 @@ export default function createCheckbox( {
 
   let onChangedCB;
   let onFinishChangeCB;
+  let onChooseCB;
 
   group.onChange = function( callback ){
     onChangedCB = callback;
     return group;
   };
+  group.onChoose = function( callback ){
+    onChooseCB = callback;
+    return group;
+  }
 
   const grabInteraction = Grab.create( { group, panel } );
 

@@ -97,7 +97,7 @@ export default function createFolder({
     removeOriginal.call( group, o );
   }
 
-  addImpl( collapseGroup );
+  //addImpl( collapseGroup ); //redundant.
 
   const panel = Layout.createPanel( width, Layout.FOLDER_HEIGHT, depth, true );
   addImpl( panel );
@@ -123,22 +123,30 @@ export default function createFolder({
   grabber.add( grabBar );
   group.isFolder = true;
   group.hideGrabber = function() { grabber.visible = false };
+  group.showGrabber = function() { grabber.visible = true };
   group.hideHeader = function() { 
     group.hideGrabber();
-    descriptorLabel.visible = downArrow.visible = panel.visible = false;
+    //descriptorLabel.visible = downArrow.visible = panel.visible = false;
+    panel.visible = false;
   };
   group.showHeader = () => {
-    grabber.visible = descriptorLabel.visible = downArrow.visible = panel.visible = true;
+    //grabber.visible = descriptorLabel.visible = downArrow.visible = panel.visible = true;
+    panel.visible = true;
   };
 
+  const headerItems = new THREE.Group();
+  panel.add(headerItems);
+
   const detachButtonMaterial = new THREE.MeshBasicMaterial({color: 0x888888});
-  detachButtonMaterial.visible = false;
   const h = Layout.FOLDER_HEIGHT * 0.8;
   const detachButtonRect = new THREE.BoxGeometry( h, h, Layout.BUTTON_DEPTH*2 );
   const detachButton = new THREE.Mesh(  detachButtonRect, detachButtonMaterial );
+  detachButton.visible = false;
   detachButton.position.x = Layout.FOLDER_WIDTH - Layout.FOLDER_HEIGHT;
-  group.add(detachButton);
+  //panel.add(detachButton);
+  headerItems.add(detachButton);
   const detachButtonInteraction = createInteraction(detachButton);
+  detachButton.interaction = detachButtonInteraction;
   detachButtonInteraction.events.on( 'onPressed', function( p ){
     if (group.detachedParent) {
       group.reattach();
@@ -153,7 +161,7 @@ export default function createFolder({
     },
     set: ( newValue ) => {
       if (newValue === isDetachable) return;
-      detachButtonMaterial.visible = newValue;
+      detachButton.visible = newValue;
       isDetachable = newValue;
     }
   });
@@ -170,6 +178,10 @@ export default function createFolder({
       return new THREE.Group();
     }
   };
+
+  group.addHeaderItem = function(obj){
+    headerItems.add(obj);
+  }
 
   /*
     Some controllers may bring up sub-GUIs which have the potential
@@ -244,6 +256,7 @@ export default function createFolder({
     //automatically add to THREE parent of top level folder and try to set appropriate scale / transform...
     const topFolder = getTopLevelFolder(group);
     group.folder.detachChild(group);
+    
     topFolder.parent.add(group);
     const m = topFolder.matrix.clone();
     group.applyMatrix(m);
@@ -251,6 +264,7 @@ export default function createFolder({
     const t = new THREE.Vector3(Layout.FOLDER_WIDTH, 0, 0).applyMatrix4(m);
     group.position.add(t);
     group.open();
+    group.showGrabber();
     //group.detachable = false;
     return group;
   };
@@ -289,6 +303,7 @@ export default function createFolder({
   };
 
   function performLayout(){
+    performHeaderLayout();
     const spacingPerController = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
     const emptyFolderSpace = Layout.FOLDER_HEIGHT + Layout.PANEL_SPACING;
     var totalSpacing = emptyFolderSpace;
@@ -356,6 +371,17 @@ export default function createFolder({
 
   }
 
+  function performHeaderLayout() {
+    let dx = Layout.FOLDER_HEIGHT;
+    let x = Layout.FOLDER_WIDTH;
+    headerItems.children.forEach((c) => {
+      if (!c.visible) return;
+      x -= dx;
+      c.position.x = x;
+      x -= dx*0.2; //TODO: dehackify
+    });
+  }
+  
   function updateView(){
     if( interaction.hovering() ){
       panel.material.color.setHex( Colors.HIGHLIGHT_BACK );
@@ -371,6 +397,7 @@ export default function createFolder({
       grabber.material.color.setHex( Colors.DEFAULT_FOLDER_BACK );
     }
 
+    //TODO: more consistent hover styling
     if ( detachButtonInteraction.hovering() ) {
       detachButtonMaterial.color.setHex( 0xFFFFFF );
     } else {
@@ -409,7 +436,9 @@ export default function createFolder({
   group.updateControl = function( inputObjects ){
     //nb: if the control is not visible / active, then it won't interfere...    
     //but "if (!isDetachable)" here causes problems.
-    detachButtonInteraction.update( inputObjects );
+    
+    headerItems.children.forEach(o => o.interaction.update(inputObjects));
+    //detachButtonInteraction.update( inputObjects );
     interaction.update( inputObjects );
     grabInteraction.update( inputObjects );
     paletteInteraction.update( inputObjects );
@@ -422,7 +451,13 @@ export default function createFolder({
     return group;
   };
 
-  group.hitscan = [ panel, grabber, detachButton ];
+  //group.hitscan = [ panel, grabber, detachButton ];
+  Object.defineProperty(group, 'hitscan', {
+    get: () => {
+      const hs = headerItems.children.filter(c=>c.visible).reduce((a, b) => {return a.concat(b)}, [panel, grabber]);
+      return hs;
+    }
+  });
 
   group.beingMoved = false;
 

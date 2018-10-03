@@ -70,6 +70,63 @@ export default function createCheckbox( {
     return group;
   };
 
+  let isShownInFolderHeader = false;
+  //XXX: advantage of method over property is chaining...
+  Object.defineProperty(group, 'showInFolderHeader', {
+    get: () => { return isShownInFolderHeader },
+    set: (value) => {
+      if (value !== isShownInFolderHeader) {
+        isShownInFolderHeader = value;
+        //group.folderHeaderObject = value ? getFolderHeaderObject : null;
+        //xxx: can't use ordinary add...
+        _header = getFolderHeaderObject();
+        if (value) group.folder.addHeaderItem(_header);
+        else _header.visible = false;
+      }
+    }
+  });
+  let _header;
+  function getFolderHeaderObject() {
+    if (_header) return _header;
+    let size = Layout.PANEL_HEIGHT * 0.8;
+    const rect = new THREE.BoxGeometry(size, size, depth);
+    rect.translate(size*0.5, 0, 0);
+    const hitscanMaterial = new THREE.MeshBasicMaterial();
+    hitscanMaterial.visible = true;
+    const hitscanVolume = new THREE.Mesh(rect.clone(), hitscanMaterial);
+    _header = hitscanVolume; //XXX: side-effect...
+    // x position is set in folder performHeaderLayout()
+    hitscanVolume.position.z = depth;
+    
+    const borderBox = Layout.createPanel(size + Layout.BORDER_THICKNESS, size + Layout.BORDER_THICKNESS, depth, true );
+    _header.borderBox = borderBox;
+    borderBox.material.color.setHex( 0x1f7ae7 );
+    borderBox.position.x = -Layout.BORDER_THICKNESS * 0.5 + width * 0.5;
+    borderBox.position.z = depth * 0.5;
+  
+    const checkmark = Graphic.checkmark(0.4 * size / Layout.CHECKBOX_SIZE);
+    _header.checkmark = checkmark;
+    checkmark.visible = state.value;
+    checkmark.position.z = depth * 0.51;
+    hitscanVolume.add(checkmark);
+
+    const interaction = createInteraction(hitscanVolume);
+    interaction.events.on('onPressed', handleHeaderPress);
+    _header.interaction = interaction;
+
+    return _header;
+  }
+
+  function handleHeaderPress(p){
+    if (group.folder.visible === false || _header.visible === false) return;
+    state.value = !state.value;
+    object[propertyName] = state.value;
+    if (onChangedCB) onChangedCB(state.value);
+    p.locked = true;
+
+    //make sure view is also up to date; updateView() won't happen when parent folder is collapsed
+    _header.checkmark.visible = state.value;
+  }
 
   let panel;
   //all layout etc is done inside setHeight, which is called once at start.
@@ -131,6 +188,7 @@ export default function createCheckbox( {
   
     updateView();
   
+    ///need to move these around to allow access from header versions
     function handleOnPress( p ){
       if( group.visible === false ){
         return;
@@ -148,20 +206,12 @@ export default function createCheckbox( {
     }
   
     function updateView(){
-  
-      if( state.value ){
-        checkmark.visible = true;
+      checkmark.visible = state.value;
+      borderBox.visible = interaction.hovering();
+      if (_header) {
+        _header.checkmark.visible = state.value;
+        _header.borderBox.visible = _header.interaction.hovering();
       }
-      else{
-        checkmark.visible = false;
-      }
-      if( interaction.hovering() ){
-        borderBox.visible = true;
-      }
-      else{
-        borderBox.visible = false;
-      }
-  
     }
   
     group.interaction = interaction;

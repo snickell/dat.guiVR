@@ -47,7 +47,7 @@
         parent.add(gui);
         gui.scale.set(0.5, 0.5, 0.5);
 
-        gui.add({check: false}, 'check').name('test check').setHeight(0.2);
+        gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader = true;
         
         const test = {myColor: new THREE.Color(0, 0.7, 0.6), color2: new THREE.Color() };
         gui.addDropdown(["abcdefg", "option 2"]).name("dropdown");
@@ -56,6 +56,7 @@
 
         //creating lots of stuff just to take up space and test layout.
         let f = dat.GUIVR.create("Long Folder");
+        f.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader = true;
         window.longFolder = f; //for runtime hacking / debugging
         f.detachable = true;
         for (let i=0; i<52; i++) {

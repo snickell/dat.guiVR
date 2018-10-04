@@ -158,6 +158,10 @@ const GUIVR = (function DATGUIVR(){
     input.mouseCamera = undefined;
 
     window.addEventListener( 'mousemove', function( event ){
+      //might consider polling whether the mouse is pressed here
+      //mouseup events get lost when debugging, which is irritating.
+      //input.pressed = event.button !== 0;
+
       // if a specific renderer has been defined
       if (mouseRenderer) {
         const clientRect = mouseRenderer.domElement.getBoundingClientRect();
@@ -176,8 +180,8 @@ const GUIVR = (function DATGUIVR(){
       if (input.intersections.length > 0) {
         // prevent mouse down from triggering other listeners (polyfill, etc)
         event.stopImmediatePropagation();
-        input.pressed = true;
       }
+      input.pressed = true; //sometimes we care about the mouse being pressed, even on background
     }, true );
 
     window.addEventListener( 'mouseup', function( event ){
@@ -542,6 +546,9 @@ const GUIVR = (function DATGUIVR(){
     requestAnimationFrame( update );
 
     var hitscanObjects = getVisibleHitscanObjects();
+    const controllers = getVisibleControllers();
+    const folders = controllers.filter(c => c.folder === c); //all top-level folders
+    folders.forEach(f => f.modalWasSetInCurrentFrame = false); // protect any newly-displayed modalEditor from being cleared
 
     if( mouseEnabled ){
       mouseInput.intersections = performMouseInput( hitscanObjects, mouseInput );
@@ -549,7 +556,7 @@ const GUIVR = (function DATGUIVR(){
 
     inputObjects.forEach( function( {box,object,raycast,laser,cursor} = {}, index ){
       object.updateMatrixWorld();
-
+      
       tPosition.set(0,0,0).setFromMatrixPosition( object.matrixWorld );
       tMatrix.identity().extractRotation( object.matrixWorld );
       
@@ -558,29 +565,36 @@ const GUIVR = (function DATGUIVR(){
       //maybe this should be in userData.
       if (object.laserRotateModifier) tDirection.applyQuaternion(object.laserRotateModifier);
       tDirection.applyMatrix4( tMatrix ).normalize();
-
+      
       raycast.set( tPosition, tDirection );
-
+      
       laser.geometry.vertices[ 0 ].copy( tPosition );
-
+      
       //  debug...
       // laser.geometry.vertices[ 1 ].copy( tPosition ).add( tDirection.multiplyScalar( 1 ) );
-
+      
       const intersections = raycast.intersectObjects( hitscanObjects, false );
       parseIntersections( intersections, laser, cursor );
-
+      
       inputObjects[ index ].intersections = intersections;
       //want to add info (hit disctance) to object for use outside... just adding entirety of intersections in case useful
       if (object.userData) object.userData.guiIntersections = intersections;
     });
-
+    
     const inputs = inputObjects.slice();
-
+    
     if( mouseEnabled ){
       inputs.push( mouseInput );
     }
-
-    getVisibleControllers().forEach( c => c.updateControl( inputs ));
+    
+    controllers.forEach( c => c.updateControl( inputs ));
+    //now check if any press on any input hit any non'modal editor'... if so, we'll remove modals from all folders
+    //(this isn't perfect; if you are actively interacting with something and press other button somewhere else, it'll remove your object)
+    let hitNonModals = inputs.filter(input => input.hitNonModal);
+    if (hitNonModals.length != 0) {
+      hitNonModals.forEach(h => h.hitNonModal = false); //remove flags so they don't persist to subsequent updates
+      folders.forEach(f => f.clearModalEditor()); //this function is designed to not hide items newly displayed in this frame
+    }
   }
 
   function updateLaser( laser, point ){

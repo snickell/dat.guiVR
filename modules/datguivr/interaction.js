@@ -86,7 +86,7 @@ export default function createInteraction( hitVolume ){
   function extractHit( input ){
     if( input.intersections.length <= 0 ){
       return {
-        hitPoint: tVector.setFromMatrixPosition( input.cursor.matrixWorld ).clone(),
+        hitPoint: tVector.setFromMatrixPosition( input.cursor.matrixWorld ).clone(), //xxx: garbage?
         hitObject: undefined,
       };
     }
@@ -105,6 +105,8 @@ export default function createInteraction( hitVolume ){
   } = {} ){
 
     if( input[ buttonName ] === true && hitObject === undefined ){
+      //flag that what we've clicked *isn't* part of a modal editor
+      input.hitNonModal = true;
       return;
     }
 
@@ -130,6 +132,10 @@ export default function createInteraction( hitVolume ){
         inputObject: input.object,
         locked: false
       };
+
+      //flag that what we've clicked *isn't* part of a modal editor
+      if (!hitObject.userData.partOfModal) input.hitNonModal = true;
+      
       events.emit( downName, payload );
 
       if( payload.locked ){

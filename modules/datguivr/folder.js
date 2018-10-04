@@ -200,7 +200,34 @@ export default function createFolder({
     const folder = getTopLevelFolder(group);
     if (folder.modalEditor) folder.modalEditor.visible = false;
     folder.modalEditor = e;
-    if (e) e.visible = true;
+    if (!e) return;
+    e.visible = true;
+    folder.modalWasSetInCurrentFrame = true;
+    //add a flag to all children recursively so that interaction system can identify them as belonging to a modal editor
+    //TODO: skip if already done...
+    function decorateChildren(parent) {
+      parent.children.forEach(c => {
+        c.userData.partOfModal = e;
+        decorateChildren(c);
+      });
+    }
+    decorateChildren(e);
+  };
+
+  /**
+   * Removes the current modal editor from this folder
+   * **but not if it was added during the current controller update,
+   * as indicated by a flag set in setModalController and reset in index.js update**
+   */
+  group.clearModalEditor = function() {
+    const folder = getTopLevelFolder(group);
+    if (!folder.modalWasSetInCurrentFrame) {
+      //folder.setModalEditor(null);
+      if (folder.modalEditor) {
+        folder.modalEditor.visible = false;
+        folder.modalEditor = null;
+      }
+    }
   };
 
 

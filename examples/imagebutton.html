@@ -10,7 +10,7 @@
   </head>
   <body>
 
-    <script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/three.js/r82/build/three.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/97/three.js"></script>
     <script type="text/javascript" src="../build/datguivr.js"></script>
 
 
@@ -45,6 +45,7 @@
 
         gui = dat.GUIVR.create( 'Empty GUI' );
         parent.add(gui);
+        gui.position.set(0, 0.03, -0.02);
         gui.scale.set(0.5, 0.5, 0.5);
 
         gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader = true;

@@ -117,7 +117,7 @@ export default function createImageButton( {
   //button label removed; might want options like a hover label in future.
 
   const descriptorLabel = textCreator.create( propertyName );
-  descriptorLabel.position.x = 0.03;
+  descriptorLabel.position.x = Layout.PANEL_LABEL_TEXT_MARGIN;
   descriptorLabel.position.z = depth;
   descriptorLabel.position.y = -0.03;
   if (wide) descriptorLabel.visible = false;

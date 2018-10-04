@@ -59,6 +59,8 @@ export default function createCheckbox( {
 
   group.hitscan = [ panel ];
 
+  const modalDropdown = new THREE.Group();
+  modalDropdown.visible = false;
   const labelInteractions = [];
   const optionLabels = [];
 
@@ -88,7 +90,7 @@ export default function createCheckbox( {
       0.866
     );
 
-    group.hitscan.push( label.back );
+    group.hitscan.push( label.back ); 
     const labelInteraction = createInteraction( label.back );
     labelInteractions.push( labelInteraction );
     optionLabels.push( label );
@@ -96,6 +98,7 @@ export default function createCheckbox( {
 
     if( isOption ){
       labelInteraction.events.on( 'onPressed', function( p ){
+        state.open = modalDropdown.visible;
         selectedLabel.setString( labelText );
 
         let propertyChanged = false;
@@ -130,6 +133,7 @@ export default function createCheckbox( {
     }
     else{
       labelInteraction.events.on( 'onPressed', function( p ){
+        state.open = modalDropdown.visible;
         if( state.open === false ){
           openOptions();
           state.open = true;
@@ -147,6 +151,7 @@ export default function createCheckbox( {
   }
 
   function collapseOptions(){
+    if (group.folder) group.folder.setModalEditor(null); //should we check if it wasn't set to something else??
     optionLabels.forEach( function( label ){
       if( label.isOption ){
         label.visible = false;
@@ -156,10 +161,13 @@ export default function createCheckbox( {
   }
 
   function openOptions(){
-    //TODO: think about relation to folder.setModalEditor()
+    group.folder.setModalEditor(modalDropdown);
+    //return;
     //label.isOption seems mostly redundant.
     //labels & backs should be added to a group to be used as 'modal editor', 
     //making everything visible / invisible with one property
+    //(nb, even though they are now in a group used as 'modal editor', we still need to set visible...
+    //see comment in index.js getVisibleHitscanObjects())
     optionLabels.forEach( function( label ){
       if( label.isOption ){
         label.visible = true;
@@ -191,11 +199,12 @@ export default function createCheckbox( {
     return optionLabel;
   }
 
+  selectedLabel.add(modalDropdown);
   if( Array.isArray( options ) ){
-    selectedLabel.add( ...options.map( optionToLabel ) );
+    modalDropdown.add(...options.map(optionToLabel));
   }
   else{
-    selectedLabel.add( ...Object.keys(options).map( optionToLabel ) );
+    modalDropdown.add( ...Object.keys(options).map( optionToLabel ) );
   }
 
 

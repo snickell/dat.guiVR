@@ -60,7 +60,12 @@ const GUIVR = (function DATGUIVR(){
     return controllers.filter( isControllerVisible );
   }
   function getVisibleHitscanObjects() {
-    const tmp = getVisibleControllers().map( o => { return o.hitscan; } )
+    //XXX WARNING:::
+    //there could exist situations in which members of hitscan for a visible controller are not themselves visible.
+    //this can happen for eg if the 'visible' property of the particular hitscan is in an invisible modal editor.
+    //we could check that, adding a more robust filter to each hitscan array... for now, it is the responsibility of
+    //controllers to either only return hitscan objects that are currently active, or to set 'visible' explicitly.
+    const tmp = getVisibleControllers().map( o => { return o.hitscan.filter(h => h.visible); } )
     return tmp.reduce((a, b) => { return a.concat(b)}, []);
   }
 

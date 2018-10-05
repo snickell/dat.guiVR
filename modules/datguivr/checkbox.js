@@ -88,7 +88,7 @@ export default function createCheckbox( {
   let _header;
   function getFolderHeaderObject() {
     if (_header) return _header;
-    let size = Layout.PANEL_HEIGHT * 0.8;
+    let size = Layout.PANEL_HEIGHT * 0.6;
     const rect = new THREE.BoxGeometry(size, size, depth);
     rect.translate(size*0.5, 0, 0);
     const hitscanMaterial = new THREE.MeshBasicMaterial();

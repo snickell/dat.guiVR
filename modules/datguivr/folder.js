@@ -424,7 +424,7 @@ export default function createFolder({
       if (!c.visible) return;
       x -= dx * 0.8;
       c.position.x = x;
-      x -= dx * 0.4; //TODO: dehackify
+      x -= dx * 0.3; //TODO: dehackify
     });
   }
   

@@ -514,13 +514,15 @@
       gui.add( params, 'rotation', 0, 1 ).step( 0.01 );
       gui.add( params, 'radius', 0, 1 ).step( 0.01 );
       gui.add( params, 'pulsate' );
-      gui.add( params, 'scaleX', 0, 20 ).step( 0.1 );
-      gui.add( params, 'scaleY', 0, 20 ).step( 0.1 );
-      gui.add( params, 'scaleZ', 0, 20 ).step( 0.1 );
-      gui.add( params, 'scale', 0, 2 ).step( 0.01 );
 
-
-      gui.add({text: "hi world"}, 'text');
+      const f = dat.GUIVR.create('scale');
+      //nb: detachable is an extra feature from xinaesthete fork.
+      f.detachable = true; //reattach was going wrong... should be ok now
+      gui.addFolder(f);
+      f.add( params, 'scaleX', 0, 20 ).step( 0.1 );
+      f.add( params, 'scaleY', 0, 20 ).step( 0.1 );
+      f.add( params, 'scaleZ', 0, 20 ).step( 0.1 );
+      f.add( params, 'scale', 0, 2 ).step( 0.01 );
 
 
 

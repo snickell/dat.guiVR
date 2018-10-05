@@ -341,6 +341,7 @@ export default function createFolder({
       collapseGroup.add( obj );
       obj.folder = group;
       obj.scale.set(1,1,1);
+      obj.position.set(0,0,0);
       obj.hideGrabber();
       obj.close();
     });

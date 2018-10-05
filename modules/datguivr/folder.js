@@ -137,9 +137,13 @@ export default function createFolder({
   const headerItems = new THREE.Group();
   panel.add(headerItems);
 
-  const detachButtonMaterial = new THREE.MeshBasicMaterial({color: 0x888888});
+  const detachButtonMaterial = new THREE.MeshBasicMaterial({color: 0x888888, transparent: true});
   const h = Layout.FOLDER_HEIGHT * 0.8;
   const detachButtonRect = new THREE.BoxGeometry( h, h, Layout.BUTTON_DEPTH*2 );
+  //somewhat backwards way of getting textures... TODO maybe change (along with other style consistency type stuff)
+  const dockTexture = Graphic.dock().material.map;
+  const undockTexture = Graphic.undock().material.map;
+  detachButtonMaterial.map = undockTexture;
   const detachButton = new THREE.Mesh(  detachButtonRect, detachButtonMaterial );
   detachButton.visible = false;
   detachButton.position.x = Layout.FOLDER_WIDTH - Layout.FOLDER_HEIGHT;
@@ -257,16 +261,30 @@ export default function createFolder({
     return true;
   };
 
+  //rather than method, detachedParent be a property that does this stuff in setter...
+  //anyway, both are really meant for internal use, as hinted by _ in name.
+  group._setDetachedFrom = (parent) => {
+    group.detachedParent = parent;
+    if (parent === null) {
+      detachButton.material.map = undockTexture;
+    } else {
+      detachButtonMaterial.map = dockTexture;
+      group.showHeader();
+      group.showGrabber();
+      group.folder = group;
+    }
+  }
+  
   /**
    * Detach a child folder from this folder hierarchy, such that it can be used elsewhere in scene hierarchy.
    * 
-   * (will not be visible until user explicitly adds elsewhere)
+   * (will not be visible until explicitly added elsewhere; 
+   * calling detach() instead will do this automatically, and is more intended for use in application code
+   * while this method is more of an internal implementation detail.)
    */
   group.detachChild = (child) => {
     if (!child.isFolder || child.folder !== group) return false;
-    child.showHeader();
-    child.folder = child;
-    child.detachedParent = group;
+    child._setDetachedFrom(group);
     collapseGroup.remove(child);
     //THREE.Object3D.prototype.remove.call(group, child);
     removeImpl(child);
@@ -291,16 +309,17 @@ export default function createFolder({
     const t = new THREE.Vector3(Layout.FOLDER_WIDTH, 0, 0).applyMatrix4(m);
     group.position.add(t);
     group.open();
-    group.showGrabber();
     //group.detachable = false;
     return group;
   };
+
   group.detachFromParent = group.detach;
+  
   group.reattach = () => {
     if (!group.detachedParent) return false;
-    group.detachedParent.addFolder(group);
-    console.log(group.matrix.elements);
-    group.detachedParent = null;
+    group.detachedParent.addFolder(group); // this will also deal with cosmetics (hideGrabber etc)
+    //group.detachedParent = null;
+    group._setDetachedFrom(null);
     return true;
   }
 
@@ -403,9 +422,9 @@ export default function createFolder({
     let x = Layout.FOLDER_WIDTH;
     headerItems.children.forEach((c) => {
       if (!c.visible) return;
-      x -= dx;
+      x -= dx * 0.8;
       c.position.x = x;
-      x -= dx*0.2; //TODO: dehackify
+      x -= dx * 0.4; //TODO: dehackify
     });
   }
   
@@ -481,7 +500,8 @@ export default function createFolder({
   //group.hitscan = [ panel, grabber, detachButton ];
   Object.defineProperty(group, 'hitscan', {
     get: () => {
-      const hs = headerItems.children.filter(c=>c.visible).reduce((a, b) => {return a.concat(b)}, [panel, grabber]);
+      //don't need to filter visible here, this'll be done in index.js getVisibleHitscanObjects()
+      const hs = headerItems.children.reduce((a, b) => {return a.concat(b)}, [panel, grabber]);
       return hs;
     }
   });

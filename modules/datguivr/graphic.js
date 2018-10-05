@@ -82,3 +82,62 @@ export const checkmark = (function(){
     return new THREE.Mesh( geo, material );
   }
 }());
+
+
+export const dock = (function(){
+  const image = new Image();
+  image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACABAMAAAAxEHz4AAABG2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+Gkqr6gAAAYFpQ0NQc1JHQiBJRUM2MTk2Ni0yLjEAACiRdZHPK0RRFMc/ZogMDbGwsJg02BgxamKjjISaNI1Rfm1mnvmh5o3Xe0+abJWtosTGrwV/AVtlrRSRkoWVNbFBz3memknm3M49n/u995zuPRdc8ZyiGpU9oOZNPTYa9k3PzPqqn6ilCg+NdCYUQxuKRiOUtfdbKux4HbBrlT/3r3kWUoYCFTXCg4qmm8JjwpEVU7N5S7hZySYWhE+Eu3S5oPCNrScdfrY54/CnzXo8NgyuBmFfpoSTJaxkdVVYXo5fzS0rv/exX1KXyk9NSmwTb8UgxihhfIwzwjAhehmQOUSAIN2yokx+z0/+BEuSq8isUUBnkQxZTLpEXZbqKYlp0VMychTs/v/tq5HuCzrV68JQ9WhZr+1QvQlfG5b1cWBZX4fgfoDzfDF/aR/630TfKGr+PfCuwelFUUtuw9k6tNxrCT3xI7nFXek0vBxD/Qw0XUHtnNOz332O7iC+Kl91CTu70CHnvfPfIyhnx9hAUU0AAAAnUExURR8fH0BAQJCQkERERA4ODgcHBycnJ////+bm5hAQEH9/fwICAiZFyV/KlNAAAAANdFJOU////////////////wA96CKGAAAACXBIWXMAAAsTAAALEwEAmpwYAAABR0lEQVRoge3ZS67CMAyF4e7aE/bnCYtilAckjTjnl1CQklHVm3wylzaxzfWE4zrAbkAI4zEBkgLK+hkgBTADpPUTQAtgAmjrR0AMYATE9QOgBnCAA6yB8oebUeeVGy5Qp7lAvWECbZYJtBse0E3ygO6GBfRzLKBcu0CZEi5QL02gBuAC71c60AIwgW6BBXQBeEA/3wHKCAgkBQICSYGAQFIgIJAUCAgkBQICSYGAQFIgIJAUCAgkBQICSYGAwGcu+HsAfwT+T8RfI3+Q8KPMXyb8OvMNBW9pfFPF2zo/WPDRxg9XfLzzBAOnODzJwmkeTzT9VBcn2zzdxwUHL3lw0cXLPlx48tIXF9+8/McNCN4CwU0Y3gbCjSjeCrtvxn07Nm5IHuCfAPok3r8LYgAusNgPxABMYLUnigF4wPJcEAPY7TfXA3jjBcXZjTlVPTzIAAAAAElFTkSuQmCC';
+
+  const texture = new THREE.Texture();
+  texture.image = image;
+  texture.needsUpdate = true;
+  texture.minFilter = THREE.LinearMipMapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  // texture.anisotropic
+  // texture.generateMipmaps = false;
+
+  const material = new THREE.MeshBasicMaterial({
+    // color: 0xff0000,
+    side: THREE.DoubleSide,
+    transparent: true,
+    map: texture
+  });
+  material.alphaTest = 0.2;
+
+  return function(h = 0.4){
+    //const h = 0.4;
+    const geo = new THREE.PlaneGeometry( image.width / 1000 * h, image.height / 1000 * h, 1, 1 );
+    geo.translate( 0.025 * h/0.4, 0, 0 );
+    return new THREE.Mesh( geo, material );
+  }
+}());
+
+
+export const undock = (function(){
+  const image = new Image();
+  image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACABAMAAAAxEHz4AAABG2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIi8+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3hwYWNrZXQgZW5kPSJyIj8+Gkqr6gAAAYFpQ0NQc1JHQiBJRUM2MTk2Ni0yLjEAACiRdZHPK0RRFMc/ZogMDbGwsJg02BgxamKjjISaNI1Rfm1mnvmh5o3Xe0+abJWtosTGrwV/AVtlrRSRkoWVNbFBz3memknm3M49n/u995zuPRdc8ZyiGpU9oOZNPTYa9k3PzPqqn6ilCg+NdCYUQxuKRiOUtfdbKux4HbBrlT/3r3kWUoYCFTXCg4qmm8JjwpEVU7N5S7hZySYWhE+Eu3S5oPCNrScdfrY54/CnzXo8NgyuBmFfpoSTJaxkdVVYXo5fzS0rv/exX1KXyk9NSmwTb8UgxihhfIwzwjAhehmQOUSAIN2yokx+z0/+BEuSq8isUUBnkQxZTLpEXZbqKYlp0VMychTs/v/tq5HuCzrV68JQ9WhZr+1QvQlfG5b1cWBZX4fgfoDzfDF/aR/630TfKGr+PfCuwelFUUtuw9k6tNxrCT3xI7nFXek0vBxD/Qw0XUHtnNOz332O7iC+Kl91CTu70CHnvfPfIyhnx9hAUU0AAAAnUExURR8fHw0NDZCQkEBAQA4ODgICAicnJ////0RERBAQEH9/f+bm5iZFySSSZosAAAANdFJOU////////////////wA96CKGAAAACXBIWXMAAAsTAAALEwEAmpwYAAABR0lEQVRoge3ZSw7DIAwE0N7aG+7HhkN1BZhPkGZGqiMVVpVjnqZVmwD9FHF8LvA2wICRNkBWAWT+DoAC7ABo/gbAAmwAbP4KgAFWAJy/AGiAC1zgDNQLT0MGsgoUGcgqUGQgq0CRgUwD9RoNmGvmABeBA1wEEkjLKxDoEVigRWCBFoEG6nUasKmGA1MDDkwRCGDsIIAxAgMMLQwwRKAA30MBPgIHuCYOcBFIoHeRQI/AAq2NBVoEGuDvB1MEHkgqYDKQVMBkIIUD6luQP8QiAvIXqYiA/GOqtbAbSqtF3VR7LejB4moxD1dfC1lgDLWIRdZYC1hoTrXfL7Zrf9iGo7VHbbp6d9DG0zXHbL59b+QBhHwEYiIgHwOZCMhHYXPfC88TL/BXQBGB54UmGIAFDgtNMAAJnBaaYAAOOC40wQBv+8/1Atz4Au5+fpNeioIEAAAAAElFTkSuQmCC';
+
+  const texture = new THREE.Texture();
+  texture.image = image;
+  texture.needsUpdate = true;
+  texture.minFilter = THREE.LinearMipMapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  // texture.anisotropic
+  // texture.generateMipmaps = false;
+
+  const material = new THREE.MeshBasicMaterial({
+    // color: 0xff0000,
+    side: THREE.DoubleSide,
+    transparent: true,
+    map: texture
+  });
+  material.alphaTest = 0.2;
+
+  return function(h = 0.4){
+    //const h = 0.4;
+    const geo = new THREE.PlaneGeometry( image.width / 1000 * h, image.height / 1000 * h, 1, 1 );
+    geo.translate( 0.025 * h/0.4, 0, 0 );
+    return new THREE.Mesh( geo, material );
+  }
+}());
+

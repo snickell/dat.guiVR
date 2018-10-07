@@ -340,8 +340,11 @@ export default function createFolder({
     args.forEach( function (obj) {
       collapseGroup.add( obj );
       obj.folder = group;
+      obj.matrix.identity();
       obj.scale.set(1,1,1);
       obj.position.set(0,0,0);
+      obj.rotation.set(0,0,0);
+      
       obj.hideGrabber();
       obj.close();
     });

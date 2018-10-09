@@ -299,17 +299,50 @@ export default function createFolder({
   group.detach = () => {
     if (group.folder === group) return false;
     //automatically add to THREE parent of top level folder and try to set appropriate scale / transform...
+    //if that folder beingMoved at the present time, then it will have an oldParent to which we should attach instead.
+    //...although it may be that we want the detached folder to move with the controller until button is released...
     const topFolder = getTopLevelFolder(group);
     group.folder.detachChild(group);
     
+    //adding to topFolder.parent, not oldParent, pending working out transform later if beingMoved...
     topFolder.parent.add(group);
     const m = topFolder.matrix.clone();
+
     group.applyMatrix(m);
     m.setPosition(new THREE.Vector3());
     const t = new THREE.Vector3(Layout.FOLDER_WIDTH, 0, 0).applyMatrix4(m);
     group.position.add(t);
+    
+    if (topFolder.beingMoved) {
+      //detach this object from topFolder.parent then attach to topFolder.oldParent while maintaining matrixWorld
+      //referring to https://threejs.org/docs/#examples/utils/SceneUtils helper methods for this
+
+      //we could just detach, leaving the object as direct descendent of scene, but there may be real reasons to situate
+      //the GUI within hierarchy somehow (like as children of a controller)
+      
+      //find scene (root) node
+      let node = topFolder;
+      while (node.parent) {
+        node = node.parent;
+      }
+      const scene = node;
+      const child = group;
+      const oldParent = topFolder.parent; //oldParent to detach from is the current parent while beingMoved
+      const newParent = topFolder.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
+      
+      oldParent.updateMatrixWorld();
+      child.applyMatrix(oldParent.matrixWorld);
+      oldParent.remove(child);
+      scene.add(child); //redundant?
+      child.updateMatrixWorld();
+      newParent.updateMatrixWorld();
+
+      child.applyMatrix( new THREE.Matrix4().getInverse( newParent.matrixWorld ) );
+      scene.remove(child); //redundant?
+      newParent.add(child);
+      child.updateMatrixWorld();
+    }
     group.open();
-    //group.detachable = false;
     return group;
   };
 

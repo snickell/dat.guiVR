@@ -26,7 +26,7 @@ export function create( { group, panel } = {} ){
   interaction.events.on( 'onGripped', handleOnGrip );
   interaction.events.on( 'onReleaseGrip', handleOnGripRelease );
 
-  let oldParent;
+  //let oldParent;
   let oldPosition = new THREE.Vector3();
   let oldRotation = new THREE.Euler();
 
@@ -55,7 +55,7 @@ export function create( { group, panel } = {} ){
     folder.rotation.set( 0,0,0 );
     folder.rotation.x = -Math.PI * 0.5;
 
-    oldParent = folder.parent;
+    folder.oldParent = folder.parent;
 
     rotationGroup.add( folder );
 
@@ -75,7 +75,7 @@ export function create( { group, panel } = {} ){
       return;
     }
 
-    if( oldParent === undefined ){
+    if( folder.oldParent === undefined ){
       return;
     }
 
@@ -83,8 +83,8 @@ export function create( { group, panel } = {} ){
       return;
     }
 
-    oldParent.add( folder );
-    oldParent = undefined;
+    folder.oldParent.add( folder );
+    folder.oldParent = undefined;
 
     folder.position.copy( oldPosition );
     folder.rotation.copy( oldRotation );

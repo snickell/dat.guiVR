@@ -31,7 +31,7 @@ export function create( { group, panel } = {} ){
   const tempMatrix = new THREE.Matrix4();
   const tPosition = new THREE.Vector3();
 
-  let oldParent;
+  //let oldParent;
   
   function handleTick( { input } = {} ){
     const folder = getTopLevelFolder(group);
@@ -112,7 +112,7 @@ export function create( { group, panel } = {} ){
       folder.matrix.premultiply( tempMatrix );
       folder.matrix.decompose( folder.position, folder.quaternion, folder.scale );
 
-      oldParent = folder.parent;
+      folder.oldParent = folder.parent;
       //failing to account for the position not necessarily being the world position?
       inputObject.add( folder ); 
     }
@@ -142,14 +142,14 @@ export function create( { group, panel } = {} ){
     }
     else{
 
-      if( oldParent === undefined ){
+      if( folder.oldParent === undefined ){
         return;
       }
 
       folder.matrix.premultiply( inputObject.matrixWorld );
       folder.matrix.decompose( folder.position, folder.quaternion, folder.scale );
-      oldParent.add( folder );
-      oldParent = undefined;
+      folder.oldParent.add( folder );
+      folder.oldParent = undefined;
     }
 
     folder.beingMoved = false;

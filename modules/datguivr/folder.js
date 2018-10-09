@@ -315,36 +315,41 @@ export default function createFolder({
     
     if (topFolder.beingMoved) {
       //detach this object from topFolder.parent then attach to topFolder.oldParent while maintaining matrixWorld
-      //referring to https://threejs.org/docs/#examples/utils/SceneUtils helper methods for this
 
       //we could just detach, leaving the object as direct descendent of scene, but there may be real reasons to situate
       //the GUI within hierarchy somehow (like as children of a controller)
       
-      //find scene (root) node
-      let node = topFolder;
-      while (node.parent) {
-        node = node.parent;
-      }
-      const scene = node;
       const child = group;
       const oldParent = topFolder.parent; //oldParent to detach from is the current parent while beingMoved
       const newParent = topFolder.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
-      
-      oldParent.updateMatrixWorld();
-      child.applyMatrix(oldParent.matrixWorld);
-      oldParent.remove(child);
-      scene.add(child); //redundant?
-      child.updateMatrixWorld();
-      newParent.updateMatrixWorld();
 
-      child.applyMatrix( new THREE.Matrix4().getInverse( newParent.matrixWorld ) );
-      scene.remove(child); //redundant?
-      newParent.add(child);
-      child.updateMatrixWorld();
+      sceneShift(child, oldParent, newParent);
     }
     group.open();
     return group;
   };
+
+  //ala https://threejs.org/docs/#examples/utils/SceneUtils
+  function sceneDetach(child, parent, scene) {
+    parent.updateMatrixWorld();
+    child.applyMatrix(parent.matrixWorld);
+    parent.remove(child);
+    scene.add(child)
+  }
+  function sceneAttach(child, scene, parent) {
+    parent.updateMatrixWorld();
+    child.applyMatrix( new THREE.Matrix4().getInverse(parent.matrixWorld) );
+		scene.remove(child);
+		parent.add(child);   
+  }
+  function sceneShift(child, oldParent, newParent) {
+    let node = oldParent;
+    while (node.parent) node = node.parent;
+    const scene = node;
+    
+    sceneDetach(child, oldParent, scene);
+    sceneAttach(child, scene, newParent);
+  }
 
   group.detachFromParent = group.detach;
   

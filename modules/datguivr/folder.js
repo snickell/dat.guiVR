@@ -315,15 +315,26 @@ export default function createFolder({
     
     if (topFolder.beingMoved) {
       //detach this object from topFolder.parent then attach to topFolder.oldParent while maintaining matrixWorld
+      //...actually, (maybe) we want to do this sceneShift business when beingMoved finishes...
+      // put things into semiDetached, so that when beingMoved is set to false, they can be shifted.
+      //or maybe what we really want is to have an option to 'pin' panels together and unpin them, rather than assume
+      //attachment changes when button released.  For now, this is not quite working right, so...
+      const deferSceneShiftWhileMoving = false;
 
       //we could just detach, leaving the object as direct descendent of scene, but there may be real reasons to situate
       //the GUI within hierarchy somehow (like as children of a controller)
       
-      const child = group;
-      const oldParent = topFolder.parent; //oldParent to detach from is the current parent while beingMoved
-      const newParent = topFolder.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
+      if (deferSceneShiftWhileMoving) {
+        topFolder.userData.semiDetached.push(group);
+        topFolder.userData.oldParent = topFolder.oldParent;//XXX: hack because topFolder.oldParent was being undefined before beingMoved = false
+      } else {
+        const child = group;
+        const oldParent = topFolder.parent; //oldParent to detach from is the current parent while beingMoved
+        const newParent = topFolder.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
+  
+        sceneShift(child, oldParent, newParent);
+      }
 
-      sceneShift(child, oldParent, newParent);
     }
     group.open();
     return group;
@@ -356,6 +367,14 @@ export default function createFolder({
   group.reattach = () => {
     if (!group.detachedParent) return false;
     group.detachedParent.addFolder(group); // this will also deal with cosmetics (hideGrabber etc)
+    const topFolder = getTopLevelFolder(group.detachedParent);
+    if (topFolder.beingMoved) {
+      //maybe we could do this kind of stuff in _setDetachedFrom
+      //in any case, it's irrelevant if 
+      let semis = topFolder.userData.semiDetached;
+      const index = semis.indexOf(group);
+      if (index > -1) topFolder.userData.semiDetached.splice(index, 1);
+    }
     //group.detachedParent = null;
     group._setDetachedFrom(null);
     return true;
@@ -539,16 +558,45 @@ export default function createFolder({
     return group;
   };
 
+  let _beingMoved = false;
   //group.hitscan = [ panel, grabber, detachButton ];
-  Object.defineProperty(group, 'hitscan', {
-    get: () => {
-      //don't need to filter visible here, this'll be done in index.js getVisibleHitscanObjects()
-      const hs = headerItems.children.reduce((a, b) => {return a.concat(b)}, [panel, grabber]);
-      return hs;
+  
+  /////EXPERIMENTAL FEATURE, CURRENTLY HARDCODED NOT TO HAPPEN
+  //sub-folders that are detached while moving remain attached to parent object (the controller that's moving them)
+  //& kept in semiDetached until beingMoved is set to false, at which point they shift attachment to oldParent
+  group.userData.semiDetached = [];
+  Object.defineProperties(group, {
+    hitscan: {
+      get: () => {
+        //don't need to filter visible here, this'll be done in index.js getVisibleHitscanObjects()
+        return [...headerItems.children, panel, grabber];
+      }
+    },
+    beingMoved: {
+      get: () => {
+        return _beingMoved;
+      },
+      set: (value) => {
+        _beingMoved = value;
+        if (!_beingMoved) {
+          const oldParent = group.parent; //oldParent to detach from is the current parent while beingMoved
+          const newParent = group.userData.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
+          //assertion... this should never happen (and doesn't AFAICT).
+          if (getTopLevelFolder(group) !== group) {
+            console.log("look here");
+          }
+          
+          group.userData.semiDetached.forEach(child => {
+            //as well as this currently ending up with wrong transform, I also have wrong transform if I drag folder while semiDeatched...
+            //**although in that case, it shifts back to where it should be when button is released**
+            sceneShift(child, oldParent, newParent);
+          });
+          group.userData.semiDetached = [];
+        }
+      }
     }
   });
 
-  group.beingMoved = false;
 
   for (let k in addControllerFuncs) {
     group[k] = (...args) => {

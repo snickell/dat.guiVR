@@ -71,19 +71,20 @@ export default function createCheckbox( {
   };
 
   let isShownInFolderHeader = false;
-  //XXX: advantage of method over property is chaining...
-  Object.defineProperty(group, 'showInFolderHeader', {
-    get: () => { return isShownInFolderHeader },
-    set: (value) => {
-      if (value !== isShownInFolderHeader) {
-        isShownInFolderHeader = value;
-        //group.folderHeaderObject = value ? getFolderHeaderObject : null;
-        //xxx: can't use ordinary add...
-        _header = getFolderHeaderObject();
-        if (value) group.folder.addHeaderItem(_header);
-        else _header.visible = false;
-      }
+  group.showInFolderHeader = (value=true) => {
+    if (value !== isShownInFolderHeader) {
+      isShownInFolderHeader = value;
+      //group.folderHeaderObject = value ? getFolderHeaderObject : null;
+      //xxx: can't use ordinary add...
+      _header = getFolderHeaderObject();
+      if (value) group.folder.addHeaderItem(_header);
+      else _header.visible = false;
     }
+    return group;
+  }
+  Object.defineProperty(group, 'isShownInFolderHeader', {
+    get: () => { return isShownInFolderHeader },
+    set: group.showInFolderHeader
   });
   let _header;
   function getFolderHeaderObject() {
@@ -98,6 +99,7 @@ export default function createCheckbox( {
     // x position is set in folder performHeaderLayout()
     hitscanVolume.position.z = depth;
     
+    //TODO: get this to work...
     const borderBox = Layout.createPanel(size + Layout.BORDER_THICKNESS, size + Layout.BORDER_THICKNESS, depth, true );
     _header.borderBox = borderBox;
     borderBox.material.color.setHex( 0x1f7ae7 );

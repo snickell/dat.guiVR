@@ -99,7 +99,7 @@ export default function createCheckbox( {
     // x position is set in folder performHeaderLayout()
     hitscanVolume.position.z = depth;
     
-    //TODO: get this to work...
+    //TODO: get this to work... add tooltip
     const borderBox = Layout.createPanel(size + Layout.BORDER_THICKNESS, size + Layout.BORDER_THICKNESS, depth, true );
     _header.borderBox = borderBox;
     borderBox.material.color.setHex( 0x1f7ae7 );
@@ -229,7 +229,7 @@ export default function createCheckbox( {
       grabInteraction.update( inputObjects );
       updateView();
     };
-    if(group.folder) group.folder.performLayout();
+    if(group.folder) group.folder.requestLayout();
     return group;
   };
   

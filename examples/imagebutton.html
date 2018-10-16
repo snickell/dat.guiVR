@@ -69,6 +69,7 @@
         gui.addFolder(f);
 
         f = dat.GUIVR.create("pictures / materials");
+        f.detachable = true;
         //addImageButton currently takes a callback function followed by filename string or THREE Texture / RenderTarget / Material object
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/bin.png")
         f.addImageButton(()=>{console.log("image button pressed")}, "textures/branches_white.png")
@@ -79,7 +80,7 @@
         f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
         //f.add(settings, 'speed');
         gui.addFolder(f);
-        gui.add(settings, 'speed').name('speeeeed').setHeight(0.15);
+        gui.add(settings, 'speed').name('settings.speed').setHeight(0.15);
         
         let fn = ()=>{console.log("image button pressed")};
         
@@ -89,7 +90,7 @@
         // gui.addFolder(f);
         let i = 0;
         let t = ()=> {return `tip ${i++}`};
-
+        
         f = gui.addImageButtonPanel(
           {func: fn, image: "textures/butterfly_white.png", tip: t() }
           , {func: fn, image: "textures/mag_white.png", tip: t() }
@@ -103,17 +104,30 @@
           , {func: fn, image: "textures/butterfly_white.png", tip: "mmmmmmmm" }
           , {func: fn, image: "textures/mag_white.png",       tip: "........" }
           , {func: fn, image: "textures/mag_white.png", tip: "rather a long tip...\nmore than one line, even!" }
-        ).highlightLastPressed();
-
-        gui.addTextbox({t: 'hello world'}, 't');
+          ).highlightLastPressed();
+          
+          gui.addTextbox({t: 'hello world'}, 't');
+          
+          //add 'babushka' matryoshka russian doll menu with some deeply nested folders.
+          let n = 4;
+          let babushka = gui;
+          while (n--) {
+            let child = dat.GUIVR.create(`babushka ${n}`);
+            child.detachable = true;
+            child.add({check: false}, 'check').name('test check');
+            child.add({check: false}, 'check').name('test check').setHeight(0.1);
+            child.add({check: false}, 'check').name('test check');
+            babushka.addFolder(child);
+            babushka = child;
+          }
+          
+          gui.addKeyboard();
+          
+          dat.GUIVR.enableMouse( camera );
+        }
         
-        gui.addKeyboard();
         
-        dat.GUIVR.enableMouse( camera );
-      }
-
-
-      function animate() {
+        function animate() {
 
         renderer.render( scene, camera );
 

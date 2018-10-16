@@ -208,6 +208,7 @@ export default function createColorPicker( {
                     changeFn();
                     HMaterial.needsUpdate = true;
                 };
+                //TODO: check layout
                 panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth, buttonDepth);
             } else {
                 panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);

@@ -527,6 +527,10 @@ const GUIVR = (function DATGUIVR(){
         addImageButtonPanel: addImageButtonPanel,
         addKeyboard: addKeyboard,
         addTextbox: addTextbox
+      },
+      //???
+      addHeaderFuncs: {
+        
       }
     });
 
@@ -553,7 +557,13 @@ const GUIVR = (function DATGUIVR(){
     var hitscanObjects = getVisibleHitscanObjects();
     const controllers = getVisibleControllers();
     const folders = controllers.filter(c => c.folder === c); //all top-level folders
-    folders.forEach(f => f.modalWasSetInCurrentFrame = false); // protect any newly-displayed modalEditor from being cleared
+    folders.forEach(f => {
+      if (f.modalWasSetInCurrentFrame) {
+        f.requestLayout();
+        f.modalWasSetInCurrentFrame = false; // protect any newly-displayed modalEditor from being cleared
+      }
+      if (f.userData.layoutPending) f.performLayout();
+    }); 
 
     if( mouseEnabled ){
       mouseInput.intersections = performMouseInput( hitscanObjects, mouseInput );

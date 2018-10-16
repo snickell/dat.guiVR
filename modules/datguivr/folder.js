@@ -64,12 +64,24 @@ export default function createFolder({
     set: ( newValue ) => {
       if ( newValue && !isAccordion ) group.guiChildren.filter( c=>c.isFolder ).map( c=>c.close() );
       isAccordion = newValue;
-      performLayout();
+      group.requestLayout();
     }
   });
 
-  //expose as public interface so that children can call it when their spacing changes
+  //flag the need for performing layout of the folder hierarchy in which this is contained.
+  group.requestLayout = () => {
+    const topFolder = getTopLevelFolder(group);
+    if (topFolder.userData.layoutInProgress) {
+      console.log(`requested layout of folder ${group.folderName} while layout already in progress...`);
+    }
+    else {
+      //topFolder.requestLayout();
+      topFolder.userData.layoutPending = true;
+    }
+  }
+  //should only be called from index.js update(?) for each topFolder, then from within performLayout() for each child folder
   group.performLayout = performLayout;
+
   group.isCollapsed = () => { return state.collapsed }
   
   //useful to have access to this as well. Using in remove implementation
@@ -91,6 +103,8 @@ export default function createFolder({
   const removeOriginal = THREE.Group.prototype.remove; 
 
   function addImpl( o ){
+    // I could change this function as part of a refactor to place everything at topFolder level...
+    // is that a good idea, or a bad idea?
     addOriginal.call( group, o );
   }
   function removeImpl( o ){
@@ -134,6 +148,7 @@ export default function createFolder({
     panel.visible = true;
   };
 
+  //TODO: interface for adding things to this... NOT 'showInFolderHeader' method / property on linear items...
   const headerItems = new THREE.Group();
   panel.add(headerItems);
 
@@ -257,7 +272,7 @@ export default function createFolder({
       collapseGroup.remove(obj);
     });
     //TODO: defer actual layout performance; set a flag and make sure it gets done before any rendering or hit-testing happens.
-    performLayout();
+    group.requestLayout();
     return true;
   };
 
@@ -288,7 +303,7 @@ export default function createFolder({
     collapseGroup.remove(child);
     //THREE.Object3D.prototype.remove.call(group, child);
     removeImpl(child);
-    performLayout();
+    group.requestLayout();
     return group; //or child?
   };
 
@@ -366,6 +381,7 @@ export default function createFolder({
   
   group.reattach = () => {
     if (!group.detachedParent) return false;
+    //TODO: check layout with various combinations of wrapping etc.
     group.detachedParent.addFolder(group); // this will also deal with cosmetics (hideGrabber etc)
     const topFolder = getTopLevelFolder(group.detachedParent);
     if (topFolder.beingMoved) {
@@ -390,7 +406,7 @@ export default function createFolder({
       }
     });
 
-    performLayout();
+    group.requestLayout();
   };
 
   group.addFolder = function( ...args ){
@@ -406,11 +422,29 @@ export default function createFolder({
       obj.close();
     });
 
-    performLayout();
+    group.requestLayout();
   };
 
   function performLayout(){
     performHeaderLayout();
+    
+    const wrapNested = false;
+    
+    const topFolder = getTopLevelFolder(group);
+    //starting whole new layout of topFolder?
+    if (topFolder === group) {
+      topFolder.userData.layoutInProgress = true;
+      topFolder.userData.columnHeight = 0;
+      topFolder.userData.columnIndex = 0;
+      topFolder.userData.columnYOff = -topFolder.position.y;
+      //I could undefine these at the end, but there's no point.
+    } else {
+      //keep counting columnHeight (current y) & index from parent folder.
+      group.userData.columnHeight = group.folder.userData.columnHeight;
+      group.userData.columnIndex = group.folder.userData.columnIndex; //TODO: make sure to test with deep nesting.
+    }
+    
+    
     const spacingPerController = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
     const emptyFolderSpace = Layout.FOLDER_HEIGHT + Layout.PANEL_SPACING;
     var totalSpacing = emptyFolderSpace;
@@ -436,37 +470,98 @@ export default function createFolder({
       var y = 0, lastHeight = emptyFolderSpace;
 
       collapseGroup.children.forEach( function( child, index ){
-        var h = child.spacing ? child.spacing : spacingPerController;
-        // how far to get from the middle of previous to middle of this child?
-        // half of the height of previous plus half height of this.
-        var spacing = 0.5 * (lastHeight + h);
-
         if (child.isFolder) {
-          // For folders, the origin isn't in the middle of the entire height of the folder,
-          // but just the middle of the top panel.
-          var offset = 0.5 * (lastHeight + emptyFolderSpace);
-          child.position.y = y - offset;
-        } else {
-          child.position.y = y - spacing;
+          child.userData.columnYOff = group.userData.columnYOff - y; //except 'y' will be wrong...
+          child.performLayout();
         }
-        // in any case, for use by the next object along we remember 'y' as the middle of the whole panel
-        y -= spacing;
-        lastHeight = h;
-        if (index < MAX_FOLDER_ITEMS_IN_COLUMN)
+        if ( !wrapNested ) {
+          //Original layout algorithm
+          var h = child.spacing ? child.spacing : spacingPerController;
+          // how far to get from the middle of previous to middle of this child?
+          // half of the height of previous plus half height of this.
+          // if we've wrapped to a new column recently, how is this affected?
+          // spacing property should then be spacing *within current column*, so the way we track totalSpacing should reflect that.
+          var spacing = 0.5 * (lastHeight + h);
+  
+          if (child.isFolder) {
+            // For folders, the origin isn't in the middle of the entire height of the folder,
+            // but just the middle of the top panel.
+            var offset = 0.5 * (lastHeight + emptyFolderSpace);
+            child.position.y = y - offset;
+          } else {
+            child.position.y = y - spacing;
+          }
+          // in any case, for use by the next object along we remember 'y' as the middle of the whole panel
+          y -= spacing;
+          lastHeight = h;
+          
+
+          if (index < MAX_FOLDER_ITEMS_IN_COLUMN)
+            totalSpacing += h;
+          child.position.x = 0.026;
+  
+          if ((index+1) % MAX_FOLDER_ITEMS_IN_COLUMN === 0) y = 0;
+  
+          child.position.x += width * Math.floor(index / MAX_FOLDER_ITEMS_IN_COLUMN);
+
+
+        } else {
+          //new layout algorithm WIP, should allow for nested folders to wrap to the top of a new column, with all folders
+          //in hierarchy using same column layout
+          const maxColHeight = MAX_FOLDER_ITEMS_IN_COLUMN * spacingPerController; //MAX_FOLDER_ITEMS is slight misnomer
+          const h = child.spacing ? child.spacing : spacingPerController;
+          const childDidWrap = child.isFolder && child.userData.columnIndex > group.userData.columnIndex;
+          
+          //move to a new column?
+          if (group.userData.columnHeight > maxColHeight) {
+            //TODO: maybe add an extra header thing to allow folding nested folder?
+            group.userData.columnIndex++; 
+            group.userData.columnHeight = h;
+            totalSpacing = 0; //h will be added later
+            lastHeight = 0; //???? what should this be?  Original algorithm it's 'emptyFolderSpace'
+            //check logic of this WRT deeper nesting (should be position relative to topFolder rather than immediate parent)
+            //what I should do is use accummulation of all folder levels + one parent above.
+            //y = -group.position.y;
+            y = group.userData.columnYOff;
+          } else {
+            group.userData.columnHeight += h;
+          }
+
+          //var spacing = 0.5 * (lastHeight + h);
+          let spacing = 0.5 * (lastHeight + h);
+
+
+          if (child.isFolder) {
+            // For folders, the origin isn't in the middle of the entire height of the folder,
+            // but just the middle of the top panel....
+            var offset = 0.5 * (lastHeight + emptyFolderSpace);
+            child.position.y = y - offset;
+          } else {
+            child.position.y = y - spacing;
+          }
+          // in any case, for use by the next object along we remember 'y' as the middle of the whole panel
+          //XXX: this logic doesn't work for column wrapping, (because of how spacing is computed above?)
+          y -= spacing;
+          lastHeight = h;
+
           totalSpacing += h;
-        child.position.x = 0.026;
-
-        if ((index+1) % MAX_FOLDER_ITEMS_IN_COLUMN === 0) y = 0;
-
-        // child.position.y -= (index%MAX_FOLDER_ITEMS_IN_COLUMN+1) * ( DROPDOWN_OPTION_HEIGHT );
-        child.position.x += width * Math.floor(index / MAX_FOLDER_ITEMS_IN_COLUMN);
+          child.position.x = 0.026;
+          child.position.x += width * group.userData.columnIndex; //nb for nested, consider difference between group & parent
+          
+          if (child.isFolder) {
+            //if (child.userData.columnIndex > group.userData.columnIndex) lastHeight = 0;
+            group.userData.columnHeight = child.userData.columnHeight;
+            group.userData.columnIndex = child.userData.columnIndex;
+          }
+        }
       });
     }
     
     group.spacing = totalSpacing;
     
-    //make sure parent folder also performs layout.
-    if (group.folder !== group) group.folder.performLayout();
+    //make sure parent folder also performs layout. //XXX: inverting this...
+    //this is taken care of at the group.requestLayout() level
+    //if (group.folder !== group) group.folder.requestLayout();
     
     // if we're a subfolder, use a smaller panel
     let panelWidth = Layout.FOLDER_WIDTH;
@@ -474,8 +569,12 @@ export default function createFolder({
       panelWidth = Layout.SUBFOLDER_WIDTH;
     }
     
-    Layout.resizePanel(panel, panelWidth, Layout.FOLDER_HEIGHT, depth)
+    Layout.resizePanel(panel, panelWidth, Layout.FOLDER_HEIGHT, depth);
 
+    if (topFolder === group) {
+      topFolder.userData.layoutInProgress = false;
+      topFolder.userData.layoutPending = false;
+    }
   }
 
   function performHeaderLayout() {
@@ -526,14 +625,14 @@ export default function createFolder({
     }
     state.collapsed = false;
     addImpl(collapseGroup);
-    performLayout();
+    group.requestLayout();
   };
 
   group.close = function() {
     if (state.collapsed) return;
     state.collapsed = true;
     removeImpl(collapseGroup);
-    performLayout();
+    group.requestLayout();
   };
 
   group.folder = group;

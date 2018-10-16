@@ -280,7 +280,7 @@ export default function createSlider( {
       updateSlider( );
       return group;
     };
-    if(group.folder) group.folder.performLayout();
+    if(group.folder) group.folder.requestLayout();
     return group;
   } // /setHeight
   group.setHeight( initialHeight );

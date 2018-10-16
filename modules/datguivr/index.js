@@ -163,9 +163,11 @@ const GUIVR = (function DATGUIVR(){
     input.mouseCamera = undefined;
 
     window.addEventListener( 'mousemove', function( event ){
-      //might consider polling whether the mouse is pressed here
-      //mouseup events get lost when debugging, which is irritating.
-      //input.pressed = event.button !== 0;
+      //polling whether the mouse is pressed here
+      //mouseup events get lost when debugging, which is irritating...
+      //but I also encountered a bug with input getting stuck if folders were reattached to closed parent.
+      //This seeme to fix that (for mouse input...)
+      input.pressed = event.buttons !== 0;
 
       // if a specific renderer has been defined
       if (mouseRenderer) {
@@ -610,6 +612,11 @@ const GUIVR = (function DATGUIVR(){
       hitNonModals.forEach(h => h.hitNonModal = false); //remove flags so they don't persist to subsequent updates
       folders.forEach(f => f.clearModalEditor()); //this function is designed to not hide items newly displayed in this frame
     }
+
+    //for debugging, where button release is missed
+    //in fact, this appears to reveale the true bug: mouseUp is missed during normal runtime, because the pressed object dissappears from under it...
+    //it's not just moved, it's been set to invisible and filtered out of update calculations
+    mouseInput.pressed = false;
   }
 
   function updateLaser( laser, point ){

@@ -618,12 +618,12 @@ const GUIVR = (function DATGUIVR(){
     //if any input.interactions have hitVolume that corresponds to something not currently in hitscanObjects,
     //that interaction should be cancelled. Especially problematic with e.g. pressing 'reattach' when the parent is closed.
     function checkCancelledInteractions( interactions, hitscanObjects ) {
-    ['press', 'grip', 'hover'].forEach( interactionName => {
-      const interaction = interactions[interactionName];
-      if (interaction && hitscanObjects.indexOf(interaction.hitVolume) < 0) {
-        interactions[interactionName] = undefined; 
-        //only be polite to inform the interaction as well; update with empty inputObjects arg should do the trick.
-        interaction.update( [] );
+      ['press', 'grip', 'hover'].forEach( interactionName => {
+        const interaction = interactions[interactionName];
+        if (interaction && hitscanObjects.indexOf(interaction.hitVolume) < 0) {
+          interactions[interactionName] = undefined; 
+          //only be polite to inform the interaction as well; update with empty inputObjects arg should do the trick.
+          interaction.update( [] );
       } 
     });
   }

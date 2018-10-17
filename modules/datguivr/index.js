@@ -620,7 +620,11 @@ const GUIVR = (function DATGUIVR(){
     function checkCancelledInteractions( interactions, hitscanObjects ) {
     ['press', 'grip', 'hover'].forEach( interactionName => {
       const interaction = interactions[interactionName];
-      if (interaction && hitscanObjects.indexOf(interaction.hitVolume) < 0) interactions[interactionName] = undefined; //maybe it would be polite to inform the interaction as well
+      if (interaction && hitscanObjects.indexOf(interaction.hitVolume) < 0) {
+        interactions[interactionName] = undefined; 
+        //only be polite to inform the interaction as well; update with empty inputObjects arg should do the trick.
+        interaction.update( [] );
+      } 
     });
   }
 

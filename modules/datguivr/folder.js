@@ -433,6 +433,8 @@ export default function createFolder({
     const topFolder = getTopLevelFolder(group);
     //starting whole new layout of topFolder?
     if (topFolder === group) {
+      if (topFolder.modalEditor && topFolder.modalEditor.performLayout) topFolder.modalEditor.performLayout();
+      
       topFolder.userData.layoutInProgress = true;
       topFolder.userData.columnHeight = 0;
       topFolder.userData.columnIndex = 0;

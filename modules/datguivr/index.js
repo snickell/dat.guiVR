@@ -571,7 +571,8 @@ const GUIVR = (function DATGUIVR(){
       mouseInput.intersections = performMouseInput( hitscanObjects, mouseInput );
     }
 
-    inputObjects.forEach( function( {box,object,raycast,laser,cursor} = {}, index ){
+    inputObjects.forEach( function( {box,object,raycast,laser,cursor,interaction} = {}, index ){
+      checkCancelledInteractions( interaction, hitscanObjects );
       object.updateMatrixWorld();
       
       tPosition.set(0,0,0).setFromMatrixPosition( object.matrixWorld );
@@ -612,11 +613,15 @@ const GUIVR = (function DATGUIVR(){
       hitNonModals.forEach(h => h.hitNonModal = false); //remove flags so they don't persist to subsequent updates
       folders.forEach(f => f.clearModalEditor()); //this function is designed to not hide items newly displayed in this frame
     }
+  }
 
-    //for debugging, where button release is missed
-    //in fact, this appears to reveale the true bug: mouseUp is missed during normal runtime, because the pressed object dissappears from under it...
-    //it's not just moved, it's been set to invisible and filtered out of update calculations
-    mouseInput.pressed = false;
+    //if any input.interactions have hitVolume that corresponds to something not currently in hitscanObjects,
+    //that interaction should be cancelled. Especially problematic with e.g. pressing 'reattach' when the parent is closed.
+    function checkCancelledInteractions( interactions, hitscanObjects ) {
+    ['press', 'grip', 'hover'].forEach( interactionName => {
+      const interaction = interactions[interactionName];
+      if (interaction && hitscanObjects.indexOf(interaction.hitVolume) < 0) interactions[interactionName] = undefined; //maybe it would be polite to inform the interaction as well
+    });
   }
 
   function updateLaser( laser, point ){
@@ -656,7 +661,8 @@ const GUIVR = (function DATGUIVR(){
     return raycast.ray.intersectPlane( plane, v );
   }
 
-  function performMouseInput( hitscanObjects, {box,object,raycast,laser,cursor,mouse,mouseCamera} = {} ){
+  function performMouseInput( hitscanObjects, {box,object,raycast,laser,cursor,mouse,mouseCamera, interaction} = {} ){
+    checkCancelledInteractions( interaction, hitscanObjects );
     let intersections = [];
 
     if (mouseCamera) {

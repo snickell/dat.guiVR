@@ -206,7 +206,8 @@ export default function createInteraction( hitVolume ){
     hovering: isMainHover,
     pressing: ()=>anyPressing,
     update,
-    events
+    events,
+    hitVolume
   };
 
   return interaction;

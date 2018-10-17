@@ -484,6 +484,10 @@
       const guiInputLeft = dat.GUIVR.addInputObject( controllers[ 1 ] );
       scene.add( guiInputLeft );
 
+      // change the angle of the pointer so that (for Vive) it's pointing in the direction of extended index finger
+      // this seems to require less strain on user arm / wrist... but the way it's specified may change in future.
+      const laserRotateModifier = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/3);
+      controllers[0].laserRotateModifier = controllers[1].laserRotateModifier = laserRotateModifier;
 
 
       const params = {

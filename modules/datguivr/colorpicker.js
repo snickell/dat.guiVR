@@ -224,6 +224,7 @@ export default function createColorPicker( {
 
     group.onChange = (callback) => {
         events.on('onChange', callback);
+        return group;
     }
 
     return group;

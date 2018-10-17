@@ -221,6 +221,7 @@ export default function createFolder({
     folder.modalEditor = e;
     if (!e) return;
     e.visible = true;
+    if (e.performLayout) e.performLayout();
     folder.modalWasSetInCurrentFrame = true;
     //add a flag to all children recursively so that interaction system can identify them as belonging to a modal editor
     //TODO: skip if already done...

@@ -502,6 +502,17 @@ const GUIVR = (function DATGUIVR(){
     return true;
   }
 
+  /**
+   * Completely remove all GUI elements from the system globally, 
+   * including removing any objects from the scene hierarchy.
+   */
+  function clearAll() {
+    controllers.forEach(c => {
+      c.visible = false; if (!c.parent.guiChildren) c.parent.remove(c);
+    });
+    controllers.splice(0, controllers.length);
+  }
+
 
   /*
     Creates a folder with the name.
@@ -690,7 +701,8 @@ const GUIVR = (function DATGUIVR(){
     addInputObject,
     enableMouse,
     disableMouse,
-    textCreator
+    textCreator,
+    clearAll
   };
 
 }());

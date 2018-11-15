@@ -222,8 +222,9 @@ const GUIVR = (function DATGUIVR(){
     const input = createInput( object );
 
     input.laser.pressed = function( flag ){
+      const hits = input.intersections;
       // only pay attention to presses over the GUI
-      if (flag && (input.intersections.length > 0)) {
+      if (flag && hits & (hits.length > 0)) {
         input.pressed = true;
       } else {
         input.pressed = false;

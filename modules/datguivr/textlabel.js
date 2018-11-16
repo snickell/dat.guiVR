@@ -29,7 +29,7 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
   const internalPositioning = new THREE.Group();
   group.add( internalPositioning );
 
-  const text = textCreator.create( str, { color: fgColor, scale } );
+  const text = textCreator.create( str.toString(), { color: fgColor, scale } );
   internalPositioning.add( text );
 
 

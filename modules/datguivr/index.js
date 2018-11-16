@@ -163,12 +163,6 @@ const GUIVR = (function DATGUIVR(){
     input.mouseCamera = undefined;
 
     window.addEventListener( 'mousemove', function( event ){
-      //polling whether the mouse is pressed here
-      //mouseup events get lost when debugging, which is irritating...
-      //but I also encountered a bug with input getting stuck if folders were reattached to closed parent.
-      //This seeme to fix that (for mouse input...)
-      input.pressed = event.buttons !== 0;
-
       // if a specific renderer has been defined
       if (mouseRenderer) {
         const clientRect = mouseRenderer.domElement.getBoundingClientRect();
@@ -189,6 +183,9 @@ const GUIVR = (function DATGUIVR(){
         event.stopImmediatePropagation();
       }
       input.pressed = true; //sometimes we care about the mouse being pressed, even on background
+       //will be set false at end of first update. Shouldn't be necessary to add a new property... 
+       //onPressed should be adequate.
+      input.clicked = true;
     }, true );
 
     window.addEventListener( 'mouseup', function( event ){
@@ -222,9 +219,11 @@ const GUIVR = (function DATGUIVR(){
     const input = createInput( object );
 
     input.laser.pressed = function( flag ){
+      const hits = input.intersections;
       // only pay attention to presses over the GUI
-      if (flag && (input.intersections.length > 0)) {
+      if (flag && hits & (hits.length > 0)) {
         input.pressed = true;
+        input.clicked = true;
       } else {
         input.pressed = false;
       }
@@ -502,6 +501,17 @@ const GUIVR = (function DATGUIVR(){
     return true;
   }
 
+  /**
+   * Completely remove all GUI elements from the system globally, 
+   * including removing any objects from the scene hierarchy.
+   */
+  function clearAll() {
+    controllers.forEach(c => {
+      c.visible = false; if (!c.parent.guiChildren) c.parent.remove(c);
+    });
+    controllers.splice(0, controllers.length);
+  }
+
 
   /*
     Creates a folder with the name.
@@ -613,6 +623,8 @@ const GUIVR = (function DATGUIVR(){
       hitNonModals.forEach(h => h.hitNonModal = false); //remove flags so they don't persist to subsequent updates
       folders.forEach(f => f.clearModalEditor()); //this function is designed to not hide items newly displayed in this frame
     }
+    mouseInput.clicked = false;
+    inputObjects.forEach(o=>o.clicked = false);
   }
 
   //if any input.interactions have hitVolume that corresponds to something not currently in hitscanObjects,
@@ -694,7 +706,8 @@ const GUIVR = (function DATGUIVR(){
     addInputObject,
     enableMouse,
     disableMouse,
-    textCreator
+    textCreator,
+    clearAll
   };
 
 }());

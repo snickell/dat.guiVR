@@ -52,6 +52,7 @@ export default function createInteraction( hitVolume ){
         hover,
         hitObject, hitPoint,
         buttonName: 'pressed',
+        buttonClickName: 'clicked', //maybe not stable part of API...
         interactionName: 'press',
         downName: 'onPressed',
         holdName: 'pressing',
@@ -101,7 +102,7 @@ export default function createInteraction( hitVolume ){
   function performStateEvents({
     input, hover,
     hitObject, hitPoint,
-    buttonName, interactionName, downName, holdName, upName, hoverName
+    buttonName, buttonClickName, interactionName, downName, holdName, upName, hoverName
   } = {} ){
 
     if( input[ buttonName ] === true && hitObject === undefined ){
@@ -123,7 +124,9 @@ export default function createInteraction( hitVolume ){
     }
 
     //  hovering and button down but no interactions active yet
-    if( hover && input[ buttonName ] === true && input.interaction[ interactionName ] === undefined ){
+    //---> should be ^ button 'clicked'... ie only if it came down since the last update.
+    //so, should we pass 'buttonClickName' as an argument (and use buttonName if not provided)?
+    if( hover && input[ buttonClickName || buttonName ] === true && input.interaction[ interactionName ] === undefined ){
 
       const payload = {
         input,

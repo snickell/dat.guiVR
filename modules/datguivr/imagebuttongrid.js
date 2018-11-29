@@ -117,7 +117,10 @@ export default function createImageButtonGrid( {
     var i = 0;
     
     //TODO: toggles rather than triggers...
-    objects.forEach(obj => {
+    objects.forEach((obj, i) => {
+        if (!obj.image && !obj.text) {
+            return;
+        }
         let subgroup = new THREE.Group(); //note: reducing nesting could improve performance.
         subgroup.guiType = "imageButtonGridElement";
         group.add(subgroup);
@@ -223,7 +226,6 @@ export default function createImageButtonGrid( {
         subgroup.interaction = interaction;
         subgroup.hitscan = hitscanVolume; //XXX: making this single element rather than array,
         //that means these 'subgroup' buttons aren't acting exactly as normal dat.GUIVR controllers
-        i++;
     });
 
     group.hitscan = buttons.map(b=>b.hitscan);//.push(panel);

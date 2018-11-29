@@ -35,7 +35,8 @@ import { FOLDER_WIDTH } from './layout';
 const topFolderStack = [];
 
 function orthographicFolderLayout() {
-  topFolderStack.forEach((f, i) => f.position.z = i * 2*Layout.PANEL_DEPTH);
+  topFolderStack.forEach((f, i) => f.position.z = i * 10*Layout.PANEL_DEPTH);
+  //console.log(`[${topFolderStack.map(f=>f.folderName + '\t: ' + f.position.z).join('\n')}]`);
 }
 
 export default function createFolder({
@@ -443,6 +444,8 @@ export default function createFolder({
     }
     topFolderStack.splice(topFolderStack.indexOf(group), 1);
     topFolderStack.push(group);
+    // console.log(`promoting ${group.folderName}`);
+    // console.log(`[${topFolderStack.map(f=>f.folderName).join(', ')}]`);
     if (group.userData.isOrthographic) orthographicFolderLayout();
   };
 
@@ -464,6 +467,9 @@ export default function createFolder({
 
       if (!topFolderStack.includes(group)) {
         topFolderStack.push(group);
+        if (group.userData.isOrthographic) orthographicFolderLayout();
+        // console.log(`adding ${group.folderName}`);
+        // console.log(`[${topFolderStack.map(f=>f.folderName).join(', ')}]`);
       }
     } else {
       //keep counting columnHeight (current y) & index from parent folder.
@@ -472,6 +478,9 @@ export default function createFolder({
       
       if (topFolderStack.includes(group)) {
         topFolderStack.splice(topFolderStack.indexOf(group), 1);
+        if (group.userData.isOrthographic) orthographicFolderLayout();
+        // console.log(`removing ${group.folderName}`);
+        // console.log(`[${topFolderStack.map(f=>f.folderName).join(', ')}]`);
       }
     }
     

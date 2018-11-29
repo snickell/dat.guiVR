@@ -17,6 +17,7 @@
 * limitations under the License.
 */
 import Emitter from 'events';
+import { getTopLevelFolder } from './utils';
 
 export default function createInteraction( hitVolume ){
   const events = new Emitter();
@@ -106,6 +107,7 @@ export default function createInteraction( hitVolume ){
   } = {} ){
 
     if( input[ buttonName ] === true && hitObject === undefined ){
+      //clicked and didn't hit any GUI object.
       //flag that what we've clicked *isn't* part of a modal editor
       input.hitNonModal = true;
       return;
@@ -138,6 +140,8 @@ export default function createInteraction( hitVolume ){
 
       //flag that what we've clicked *isn't* part of a modal editor
       if (!hitObject.userData.partOfModal) input.hitNonModal = true;
+
+      promoteZOrder(hitObject);
       
       events.emit( downName, payload );
 
@@ -179,6 +183,11 @@ export default function createInteraction( hitVolume ){
       });
     }
 
+  }
+
+  function promoteZOrder(hitObject) {
+    const topFolder = getTopLevelFolder(hitObject);
+    topFolder.promoteZOrder();
   }
 
   function isMainHover(){

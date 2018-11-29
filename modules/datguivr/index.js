@@ -564,12 +564,14 @@ const GUIVR = (function DATGUIVR(){
   const tMatrix = new THREE.Matrix4();
 
   function update() {
+    const isOrthographic = mouseEnabled && mouseInput.mouseCamera.type === 'OrthographicCamera';
     requestAnimationFrame( update );
-
+    
     var hitscanObjects = getVisibleHitscanObjects();
     const controllers = getVisibleControllers();
     const folders = controllers.filter(c => c.folder === c); //all top-level folders
     folders.forEach(f => {
+      f.userData.isOrthographic = isOrthographic;
       if (f.modalWasSetInCurrentFrame) {
         f.requestLayout();
         f.modalWasSetInCurrentFrame = false; // protect any newly-displayed modalEditor from being cleared

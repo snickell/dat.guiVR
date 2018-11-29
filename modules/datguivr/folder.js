@@ -28,6 +28,16 @@ import * as Palette from './palette';
 import { getTopLevelFolder } from './utils';
 import { FOLDER_WIDTH } from './layout';
 
+/**
+ * Not entirely sure about starting to add this kind of global state manaagement here...
+ * This is for z-order in 2d orthographic mode, and maybe some other things one day
+ */
+const topFolderStack = [];
+
+function orthographicFolderLayout() {
+  topFolderStack.forEach((f, i) => f.position.z = i * 2*Layout.PANEL_DEPTH);
+}
+
 export default function createFolder({
   textCreator,
   name,
@@ -426,6 +436,16 @@ export default function createFolder({
     group.requestLayout();
   };
 
+  group.promoteZOrder = () => {
+    if (getTopLevelFolder(group) !== group || !topFolderStack.includes(group)) {
+      //maybe this shouldn't be a 'public method' (but maybe there should be a well-defined public interface).
+      console.error(`Warning: inconsistency in folder housekeeping`);
+    }
+    topFolderStack.splice(topFolderStack.indexOf(group), 1);
+    topFolderStack.push(group);
+    if (group.userData.isOrthographic) orthographicFolderLayout();
+  };
+
   function performLayout(){
     performHeaderLayout();
     
@@ -441,10 +461,18 @@ export default function createFolder({
       topFolder.userData.columnIndex = 0;
       topFolder.userData.columnYOff = -topFolder.position.y;
       //I could undefine these at the end, but there's no point.
+
+      if (!topFolderStack.includes(group)) {
+        topFolderStack.push(group);
+      }
     } else {
       //keep counting columnHeight (current y) & index from parent folder.
       group.userData.columnHeight = group.folder.userData.columnHeight;
       group.userData.columnIndex = group.folder.userData.columnIndex; //TODO: make sure to test with deep nesting.
+      
+      if (topFolderStack.includes(group)) {
+        topFolderStack.splice(topFolderStack.indexOf(group), 1);
+      }
     }
     
     

@@ -19,18 +19,14 @@ export function isControllerVisible(control) {
  * ... intention is that it should work with any gui element, in particular any hitObject in interaction.js...
  */
 export function getTopLevelFolder(group) {
-    var folder = group.folder;
-    //if (!folder) return group; //??? in this case, it isn't a folder... should we return ~null instead?
-    
-    //if (!folder) return; //actually seems to work ok for most uses (unit tests would be handy)... 
-    //but changing spec for dealing with modal editor interaction...
-    
-    if (!folder) {
-        if (!group.parent || !group.parent.folder) return;
-        folder = group.parent.folder;
-    }
-    
+    var folder = getFolder(group);
     while (folder.folder !== folder) folder = folder.folder;
     return folder;
 }
 
+export function getFolder(group) {
+    if (group.folder) return group.folder;
+    let node = group.parent;
+    while (!node.folder && group.parent) node = node.parent;
+    return node.folder;
+}

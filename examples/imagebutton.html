@@ -29,8 +29,12 @@
       function initThreeJS() {
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 15 );
-        camera.position.set(0,0,1.0);
+        // camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 15 );
+        // camera.position.set(0,0,1.0);
+        let w = window.innerWidth, h = window.innerHeight, ar = w/h;
+
+        camera = new THREE.OrthographicCamera(-ar, ar, 1, -1, 1, 100);
+        camera.position.set(0,0,2);
 
         renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -46,7 +50,7 @@
         gui = dat.GUIVR.create( 'Empty GUI' );
         parent.add(gui);
         gui.position.set(0, 0.03, -0.02);
-        gui.scale.set(0.5, 0.5, 0.5);
+        gui.scale.set(0.8, 0.8, 0.8);
 
         gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader();
         

@@ -244,7 +244,7 @@ export default function createFolder({
     //This could go wrong if folder hierarchy changes significantly.
     //Should be good enough for rock'n'roll (famous last words).
     //I could make it so that only one of these things was ever visible
-    //across the entire system.  That'd be easy to make robust, anyway...
+    //across the entire system.  That should be easier to make robust, anyway...
     //and saves headaches down the line.
     const folder = getTopLevelFolder(group);
     if (folder.modalEditor) folder.modalEditor.visible = false;
@@ -737,7 +737,9 @@ export default function createFolder({
     hitscan: {
       get: () => {
         //don't need to filter visible here, this'll be done in index.js getVisibleHitscanObjects()
-        return [...headerItems.children, panel, grabber];
+        let hits = [...headerItems.children, panel, grabber];
+        if (group.modalEditor) hits = hits.concat(...group.modalEditor.hitscan);
+        return hits;
       }
     },
     beingMoved: {

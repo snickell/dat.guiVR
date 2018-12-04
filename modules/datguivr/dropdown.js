@@ -61,6 +61,7 @@ export default function createCheckbox( {
 
   const modalDropdown = new THREE.Group();
   modalDropdown.visible = false;
+  modalDropdown.hitscan = [];
   const labelInteractions = [];
   const optionLabels = [];
 
@@ -89,9 +90,13 @@ export default function createCheckbox( {
       Colors.DROPDOWN_FG_COLOR, Colors.DROPDOWN_BG_COLOR,
       0.866
     );
+    label.back.guiType = 'dropdownOption';
+    label.guiType = 'dropdownOption';
 
-    group.hitscan.push( label.back ); 
+    if (isOption) modalDropdown.hitscan.push( label.back );
+    else group.hitscan.push( label.back );
     const labelInteraction = createInteraction( label.back );
+    labelInteraction.guiType = 'dropdownOption';
     labelInteractions.push( labelInteraction );
     optionLabels.push( label );
 
@@ -136,11 +141,9 @@ export default function createCheckbox( {
         state.open = modalDropdown.visible;
         if( state.open === false ){
           openOptions();
-          state.open = true;
         }
         else{
           collapseOptions();
-          state.open = false;
         }
 
         p.locked = true;
@@ -151,16 +154,12 @@ export default function createCheckbox( {
   }
 
   function collapseOptions(){
-    if (group.folder) group.folder.setModalEditor(null); //should we check if it wasn't set to something else??
-    optionLabels.forEach( function( label ){
-      if( label.isOption ){
-        label.visible = false;
-        label.back.visible = false;
-      }
-    });
+    state.open = false;
+    if (group.folder) group.folder.clearModalEditor(); //should we check if it wasn't set to something else??
   }
 
   function openOptions(){
+    state.open = true;
     group.folder.setModalEditor(modalDropdown);
     //return;
     //label.isOption seems mostly redundant.
@@ -180,7 +179,7 @@ export default function createCheckbox( {
   const selectedLabel = createOption( initialLabel || ' ', false );
   selectedLabel.position.x = Layout.PANEL_MARGIN * 0.5 + width * 0.5;
   selectedLabel.position.z = depth;
-
+  
   const downArrow = Graphic.downArrow();
   // Colors.colorizeGeometry( downArrow.geometry, Colors.DROPDOWN_FG_COLOR );
   downArrow.position.set( DROPDOWN_WIDTH - 0.04, 0, depth * 1.01 );

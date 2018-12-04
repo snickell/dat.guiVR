@@ -46,8 +46,12 @@ export function create( { group, panel } = {} ){
                     
           input.selected.parent.updateMatrixWorld();          
           input.selected.parent.worldToLocal(input.mouseIntersection);
-
+          
+          //NOTE:: in orthographic mode, we've already mutated the position of folders,
+          //meaning there could be some inconsistency with the mouseIntersection point no longer being right...
+          //I thought this was playing a role in a bug with orthographic folder layout, appears ok for now.
           folder.position.copy(input.mouseIntersection);
+
           folder.updateMatrix();
           return;
         }

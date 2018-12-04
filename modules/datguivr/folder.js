@@ -35,7 +35,26 @@ import { FOLDER_WIDTH } from './layout';
 const topFolderStack = [];
 
 function orthographicFolderLayout() {
-  topFolderStack.forEach((f, i) => f.position.z = i * 10*Layout.PANEL_DEPTH);
+  topFolderStack.forEach((f, i) => {
+    f.position.z = i * 10*Layout.PANEL_DEPTH;
+    f.updateMatrix();
+  });
+
+  //---> unnecessary, at least for now... could consider being more careful about near/far
+  //     but the bug I was suffering from is addressed by simple f.updateMatrix()
+  // const cam = topFolderStack[0].userData.isOrthographic;
+  // if (!cam || topFolderStack.length <= 1) return;
+  // const near = cam.near, far = cam.far, n = topFolderStack.length;
+  // topFolderStack.forEach((f, i) => {
+  //   let z = -0.9*far + i*10*Layout.PANEL_DEPTH;
+  //   if (z !== f.position.z) {
+  //     f.position.z = z;
+  //     f.updateMatrix();
+  //   }
+  // });
+  // if (topFolderStack[n-1].position.z >= near - Layout.PANEL_DEPTH) {
+  //   console.log("GUIVR Warning: likely problem with z-order in orthographicFolderLayout");
+  // }
   //console.log(`[${topFolderStack.map(f=>f.folderName + '\t: ' + f.position.z).join('\n')}]`);
 }
 
@@ -446,8 +465,13 @@ export default function createFolder({
     topFolderStack.push(group);
     // console.log(`promoting ${group.folderName}`);
     // console.log(`[${topFolderStack.map(f=>f.folderName).join(', ')}]`);
+    //this will result in the object z being different from when mouseIntersection hit it earlier in update.
+    //mouseIntersection will then later be used in handleTick of grab interaction, to further mutate position
+    //seems ok though (as of 04/12/18)
     if (group.userData.isOrthographic) orthographicFolderLayout();
   };
+
+  //group.userData.orthographicFolderLayout =  orthographicFolderLayout;
 
   function performLayout(){
     performHeaderLayout();
@@ -494,6 +518,7 @@ export default function createFolder({
     //if they don't already have one, it can be added here:
     //this should be the only place that we need to consider that property
     //it allows for detaching elements and reattaching in similar place, even if some siblings are also detached.
+    //TODO: review where to set guiIndex WRT save and load of folder layout.
     let lastGuiIndex = 0;
     collapseGroup.children.forEach( (c, i) => {
       if (c.guiIndex === undefined) {

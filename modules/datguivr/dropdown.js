@@ -242,6 +242,7 @@ export default function createCheckbox( {
       }
     });
 
+    state.open = modalDropdown.visible; //as of this writing, this is believed to be reliable, but beware dragons, future reader.
     if( labelInteractions[0].hovering() || state.open ){
       borderBox.visible = true;
     }

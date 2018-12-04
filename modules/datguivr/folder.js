@@ -235,10 +235,6 @@ export default function createFolder({
   /*
     Some controllers may bring up sub-GUIs which have the potential
     to overlap / clash.  This ensures only one is present at a time.
-
-    This should also apply to dropdown menus, and it should be more
-    aggressively cleared when any interaction happens that *isn't*
-    showing something...
   */
   group.setModalEditor = function(e){
     //This could go wrong if folder hierarchy changes significantly.

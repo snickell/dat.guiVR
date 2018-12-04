@@ -145,6 +145,7 @@ export default function createImageButtonGrid( {
         if (obj.image) applyImageToMaterial(obj.image, material);
         if (obj.text) {
             const text = textCreator.create(obj.text);
+            text.constrainBounds(BUTTON_WIDTH, BUTTON_HEIGHT);
             const h = Layout.TEXT_SCALE * text.layout.height;
             const w = text.computeWidth();
             subgroup.add(text);
@@ -160,10 +161,20 @@ export default function createImageButtonGrid( {
         //Tooltip text option added.  Might want to be able to pass in richer things...
         //maybe an arbitrary THREE object would work well...
         if (obj.tip) {
+            //... createTextLabel does most of what we were doing here. 
+            // should be used to reduce noise and make more DRY, but not going to help particularly
+            // const tipObj = createTextLabel(textCreator, obj.tip);
+            // tipObj.position.x = 0.5 * BUTTON_WIDTH;
+            // tipObj.position.y = 
+            // subgroup.add(tipObj);
+
             const tipText = textCreator.create(obj.tip);
             const tipGroup = new THREE.Group();
+            const w = obj.tipWidth || tipText.computeWidth();
+            const h = Layout.TEXT_SCALE * tipText.layout.height;
+            
             tipGroup.position.x  = 0.5 * BUTTON_WIDTH;
-            tipGroup.position.y = -1.2 * BUTTON_HEIGHT;
+            tipGroup.position.y = -1.05 * BUTTON_HEIGHT - h;
             tipGroup.position.z = BUTTON_DEPTH * 2.5;
             tipGroup.visible = false;
 
@@ -171,8 +182,6 @@ export default function createImageButtonGrid( {
             tipGroup.add(tipText);
             subgroup.tipText = tipGroup;
             
-            const w = obj.tipWidth || tipText.computeWidth();
-            const h = Layout.TEXT_SCALE * tipText.layout.height;
             const paddedW = w + 0.03, paddedH = h + 0.03;
             const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
             const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);

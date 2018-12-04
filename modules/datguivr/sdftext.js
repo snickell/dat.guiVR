@@ -50,12 +50,13 @@ export function creator(){
 
   const colorMaterials = {};
 
-  function createText( str, font, color = 0xffffff, scale = 1.0 ){
+  function createText( str, font, color = 0xffffff, scale = 1.0, width, height ){
 
     const geometry = createGeometry({
       text: str,
       align: 'left',
-      //width: 10000, //unnecessary, and makes width property of layout uninformative.
+      width: width,
+      height: height,
       flipY: true,
       font
     });
@@ -87,12 +88,20 @@ export function creator(){
     group.add( mesh );
     group.layout = mesh.geometry.layout;
     group.computeWidth = () => {
-      // let textWidth = 0;
-      // str.split("\n").forEach(line => {
-      //     const lineWidth = group.layout.computeMetrics(line, 0, line.length).width;
-      //     textWidth = Math.max(textWidth, lineWidth);
-      // });
-      return group.layout.width * Layout.TEXT_SCALE;// textWidth * Layout.TEXT_SCALE;
+      return group.layout.width * Layout.TEXT_SCALE;
+    }
+
+    group.constrainBounds = (w, h) => {
+      group.remove(mesh);
+      const s = Layout.TEXT_SCALE;
+      mesh = createText(str, font, color, scale, w/s, h/s);
+      const hFactor = mesh.geometry.layout.height*s/h;
+      if (hFactor > 1) {
+        str = str.substring(0, 0.95* str.length/hFactor) + '...';
+        mesh = createText(str, font, color, scale, w/s, h/s);
+      }
+      group.add(mesh);
+      group.layout = mesh.geometry.layout;
     }
 
     group.updateLabel = function( str ){

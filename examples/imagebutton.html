@@ -96,8 +96,10 @@
         let i = 0;
         let t = ()=> {return `tip ${i++}`};
         
+        let haiku = `A Haiku:\n\nO snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n - Kobayashi Issa`;
+
         f = gui.addImageButtonPanel(
-          {func: fn, image: "textures/butterfly_white.png", tip: t() }
+          {func: fn, image: "textures/butterfly_white.png", tip: haiku }
           , {func: fn, image: "textures/mag_white.png", tip: t() }
           , {} //empty space
           , {func: fn, image: "textures/butterfly_white.png", tip: t() }
@@ -108,7 +110,9 @@
           , {func: fn, image: "textures/mag_white.png", tip: t() }
           , {func: fn, image: "textures/butterfly_white.png", tip: "mmmmmmmm" }
           , {func: fn, image: "textures/mag_white.png",       tip: "........" }
-          , {func: fn, image: "textures/mag_white.png", tip: "rather a long tip...\nmore than one line, even!" }
+          , {func: x=>{throw x}, text: 
+            "Button, can you handle this? I don't think you can handle this... 'cause my button's too booty-licious for you.",
+            tip: "rather a long tip...\nmore than one line, even!" }
           ).highlightLastPressed();
           
           gui.addTextbox({t: 'hello world'}, 't');

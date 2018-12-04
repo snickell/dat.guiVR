@@ -518,10 +518,13 @@ export default function createFolder({
     //if they don't already have one, it can be added here:
     //this should be the only place that we need to consider that property
     //it allows for detaching elements and reattaching in similar place, even if some siblings are also detached.
-    //TODO: review where to set guiIndex WRT save and load of folder layout.
     let lastGuiIndex = 0;
+    //try to allow for the possibility that client program may attempt to restore items 
+    //remembering detachedParent but not guiIndex? Noise...
+    //const detachedChildren = topFolderStack.filter(f => f.detachedParent === this);
+    //collapseGroup.children.concat(detachedChildren).forEach( (c, i) => {
     collapseGroup.children.forEach( (c, i) => {
-      if (c.guiIndex === undefined) {
+        if (c.guiIndex === undefined) {
         c.guiIndex = lastGuiIndex+=1;
       } else lastGuiIndex = c.guiIndex;
     });
@@ -619,6 +622,7 @@ export default function createFolder({
             group.userData.columnIndex = child.userData.columnIndex;
           }
         }
+        child.updateMatrix();
       });
     }
     

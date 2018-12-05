@@ -145,7 +145,8 @@ export default function createImageButtonGrid( {
         if (obj.image) applyImageToMaterial(obj.image, material);
         if (obj.text) {
             const text = textCreator.create(obj.text);
-            text.constrainBounds(BUTTON_WIDTH, BUTTON_HEIGHT);
+            const margin = 2*Layout.GRID_BUTTON_MARGIN;
+            text.constrainBounds(BUTTON_WIDTH - margin, BUTTON_HEIGHT - margin);
             const h = Layout.TEXT_SCALE * text.layout.height;
             const w = text.computeWidth();
             subgroup.add(text);

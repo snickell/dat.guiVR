@@ -53,6 +53,13 @@ export default function createCheckbox( {
   group.guiType = "dropdown";
   group.toString = () => `[${group.guiType}: ${propertyName}]`;
 
+  //allow for programmatic set. API should not be considered stable.
+  group.userData.sourceObject = object;
+  group.userData.sourcePropertyName = propertyName;
+  group.userData.setValue = v => {
+    object[propertyName] = v;
+    onChangedCB(object[propertyName]);
+  }
 
   const panel = Layout.createPanel( width, height, depth );
   group.add( panel );

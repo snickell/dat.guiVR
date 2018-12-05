@@ -28,34 +28,79 @@ import * as Palette from './palette';
 import { getTopLevelFolder } from './utils';
 import { FOLDER_WIDTH } from './layout';
 
+//If you're looking for main createFolder function, it's further below...
+
 /**
  * Not entirely sure about starting to add this kind of global state manaagement here...
- * This is for z-order in 2d orthographic mode, and maybe some other things one day
+ * This is for z-order in 2d orthographic mode, and maybe some other things one day.
  */
 const topFolderStack = [];
 
-function orthographicFolderLayout() {
-  topFolderStack.forEach((f, i) => {
-    f.position.z = i * 10*Layout.PANEL_DEPTH;
-    f.updateMatrix();
-  });
+const scratchFolderBox = new THREE.Box3(), scratchCamBox = new THREE.Box3(), scratchSize = new THREE.Vector3();
 
-  //---> unnecessary, at least for now... could consider being more careful about near/far
-  //     but the bug I was suffering from is addressed by simple f.updateMatrix()
-  // const cam = topFolderStack[0].userData.isOrthographic;
-  // if (!cam || topFolderStack.length <= 1) return;
-  // const near = cam.near, far = cam.far, n = topFolderStack.length;
-  // topFolderStack.forEach((f, i) => {
-  //   let z = -0.9*far + i*10*Layout.PANEL_DEPTH;
-  //   if (z !== f.position.z) {
-  //     f.position.z = z;
-  //     f.updateMatrix();
-  //   }
-  // });
-  // if (topFolderStack[n-1].position.z >= near - Layout.PANEL_DEPTH) {
-  //   console.log("GUIVR Warning: likely problem with z-order in orthographicFolderLayout");
+function orthographicFolderLayout() {
+  const cam = topFolderStack[0].userData.isOrthographic;
+  if (!cam || topFolderStack.length <= 1) return;
+  const near = cam.near, far = cam.far, n = topFolderStack.length
+  const l = cam.left, r = cam.right, t = cam.top, b = cam.bottom;
+  
+  scratchCamBox.min.set(l, b, -far);
+  scratchCamBox.max.set(r, t, -near);
+  
+  //user will need to unset this property if changing camera properties; ungood design.
+  //... let's not do that.
+  //maybe Object.defineProperties(cam.userData...), maybe in utils to reduce noise here...
+  // if (!cam.userData.frustum) { 
+  //   cam.userData.frustum = new THREE.Frustum();
+  //   cam.userData.frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( cam.projectionMatrix, cam.matrixWorldInverse ) );
+  //   //XXX: -near/far not strictly correct, we're...
+  //   cam.userData.box = new THREE.Box3(new THREE.Vector3(l, b, -far), new THREE.Vector3(r, t, -near));
   // }
+  
+  topFolderStack.forEach((f, i) => {
+    let z = -0.9*far + i*10*Layout.PANEL_DEPTH;
+    if (z !== f.position.z) {
+      f.position.z = z;
+      f.updateMatrix();
+      fixFolderPosition(f, cam.userData.box);
+    }
+  });
+  if (topFolderStack[n-1].position.z >= near - Layout.PANEL_DEPTH) {
+    console.log("GUIVR Warning: likely problem with z-order in orthographicFolderLayout");
+  }
   //console.log(`[${topFolderStack.map(f=>f.folderName + '\t: ' + f.position.z).join('\n')}]`);
+}
+
+//provide arguments for how constrained to be, and re-use same function both on detach and elsewhere?
+function fixFolderPosition(f, camBox) {
+  //we need to avoid NaN because of TextGeometry position having itemSize == 2 which upsets Vector3.fromBufferAttribute
+  //https://github.com/mrdoob/three.js/issues/14352
+  const wonkyGeom = [];
+  f.traverse(o => {
+    if (o.geometry && o.geometry.isBufferGeometry && o.geometry.attributes.position.itemSize !== 3) {
+      o.geometry.isBufferGeometry = false;
+      wonkyGeom.push(o.geometry);
+    }
+  });
+  const box = scratchFolderBox;
+  box.setFromObject(f);
+  wonkyGeom.forEach(g => g.isBufferGeometry = true);
+
+  const cam = f.userData.isOrthographic;
+  //really, I want to know if it's 'mostly' invisible.
+  //Using two boxes, rather than frustum.setFromMatrix( mat.multiplyMatrices( cam.projectionMatrix, cam.matrixWorldInverse ) );
+  //(frustum is unnecessary *cough*if we assume orthographic perspective, no camera transform & are generally lax about z*)
+  const intersection = box.intersect(camBox); //careful of order; intersect() mutates
+  //(although strictly speaking, ideally I would take camera matrixWorld into account if I want to be proper)
+  //(might just make log a warning if it's set how I don't expect it, but prefer not to leave traps.)
+  
+  //look at dimensions of intersection and force inwards if necessary...
+  const intersectionSize = intersection.getSize(scratchSize);
+  //work in units as fraction of screen width/height
+  const screenW = cam.right - cam.left, screenH = cam.top - cam.bottom;
+  intersectionSize.x /= screenW; intersectionSize.y /= screenH;
+  if (intersectionSize.x < 0.1) console.log("x");
+  if (intersectionSize.y < 0.1) console.log("y");
 }
 
 export default function createFolder({
@@ -637,8 +682,14 @@ export default function createFolder({
     Layout.resizePanel(panel, panelWidth, Layout.FOLDER_HEIGHT, depth);
 
     if (topFolder === group) {
-      topFolder.userData.layoutInProgress = false;
-      topFolder.userData.layoutPending = false;
+      group.userData.layoutInProgress = false;
+      group.userData.layoutPending = false;
+      //thinking about using this to check out-of-view objects when isOrthographic
+      //that'll require keeping canera frustum up to date.
+      //XXX: ~~~~~~~~~~~~~ in ortho folder layout (instead? or maybe as getter on userData?)
+      if (!group.userData.boundingBox) group.userData.boundingBox = new THREE.Box3();
+      group.userData.boundingBox.makeEmpty();
+      group.userData.boundingBox.expandByObject(group);
     }
   }
 

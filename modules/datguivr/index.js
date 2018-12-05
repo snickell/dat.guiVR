@@ -571,7 +571,7 @@ const GUIVR = (function DATGUIVR(){
     const controllers = getVisibleControllers();
     const folders = controllers.filter(c => c.folder === c); //all top-level folders
     folders.forEach(f => {
-      f.userData.isOrthographic = isOrthographic;// ? mouseInput.mouseCamera : false;
+      f.userData.isOrthographic = isOrthographic ? mouseInput.mouseCamera : false;
       if (f.modalWasSetInCurrentFrame) {
         f.requestLayout();
         f.modalWasSetInCurrentFrame = false; // protect any newly-displayed modalEditor from being cleared

@@ -76,6 +76,9 @@ const GUIVR = (function DATGUIVR(){
     mouseEnabled = true;
     mouseRenderer = renderer;
     mouseInput.mouseCamera = camera;
+    if (camera.isOrthographicCamera) {
+      mouseInput.events.on('grabReleased', f=>f.fixFolderPosition());
+    }
     return mouseInput.laser;
   }
 
@@ -564,7 +567,7 @@ const GUIVR = (function DATGUIVR(){
   const tMatrix = new THREE.Matrix4();
 
   function update() {
-    const isOrthographic = mouseEnabled && mouseInput.mouseCamera.type === 'OrthographicCamera';
+    const isOrthographic = mouseEnabled && mouseInput.mouseCamera.isOrthographicCamera;
     requestAnimationFrame( update );
     
     var hitscanObjects = getVisibleHitscanObjects();

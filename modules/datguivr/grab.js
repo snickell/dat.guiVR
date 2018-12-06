@@ -158,7 +158,7 @@ export function create( { group, panel } = {} ){
 
     folder.beingMoved = false;
 
-    input.events.emit( 'grabReleased', input );
+    input.events.emit( 'grabReleased', folder );
   }
 
   return interaction;

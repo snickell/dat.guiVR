@@ -30,3 +30,18 @@ export function getFolder(group) {
     while (!node.folder && group.parent) node = node.parent;
     return node.folder;
 }
+
+//we need to avoid NaN because of TextGeometry position having itemSize == 2 which upsets Vector3.fromBufferAttribute
+//https://github.com/mrdoob/three.js/issues/14352
+export function setBoxFromObject(box, obj) {
+  const wonkyGeom = [];
+  obj.traverse(o => {
+    if (o.geometry && o.geometry.isBufferGeometry && o.geometry.attributes.position.itemSize !== 3) {
+      o.geometry.isBufferGeometry = false;
+      wonkyGeom.push(o.geometry);
+    }
+  });
+  box.setFromObject(obj);
+  wonkyGeom.forEach(g => g.isBufferGeometry = true);
+  return box;
+}

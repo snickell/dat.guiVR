@@ -123,14 +123,14 @@ export default function createFolder({
   group.performLayout = performLayout;
 
   //provide arguments for how constrained to be, and re-use same function both on detach and elsewhere?
-  group.fixFolderPosition = function() {
+  group.fixFolderPosition = function(thresh=0.01) {
     const f = this;
     if (!f.userData.isOrthographic) return;
     //we need to avoid NaN because of TextGeometry position having itemSize == 2 which upsets Vector3.fromBufferAttribute
     //https://github.com/mrdoob/three.js/issues/14352
     //maybe I could use a Box2 anyway since 3d might just confuse things.
     const box = setBoxFromObject(scratchFolderBox, f);
-    
+    const boxW = box.max.x - box.min.x, boxH = box.max.y-box.max.y;
     
     const cam = f.userData.isOrthographic;
     const camBox = camBoxSetup(cam); //bit wasteful to call this here, but insignificant.
@@ -143,21 +143,20 @@ export default function createFolder({
     
     //look at dimensions of intersection and force inwards if necessary...
     const intersectionSize = intersection.getSize(scratchSize);
-    //work in units as fraction of screen width/height
     const screenW = cam.right - cam.left, screenH = cam.top - cam.bottom;
-    intersectionSize.x /= screenW; intersectionSize.y /= screenH;
+    //work in units as fraction of box width (although that's not a great idea with multi-column folders)
+    intersectionSize.x /= boxW; intersectionSize.y /= boxW;
     let needsUpdate = false;
-    if (intersectionSize.x < 0.01) { //TODO: paramaterise / non-magic-number
-      console.log('fix x');
+    if (intersectionSize.x < thresh) { //TODO: paramaterise / non-magic-number
+      //TODO work out which side we're on, move by object width...
       f.position.x = cam.left + screenW/2;
       needsUpdate = true;
     }
-    if (intersectionSize.y < 0.01) {
-      console.log('fix y');
+    if (intersectionSize.y < thresh) {
       f.position.y = cam.bottom + screenH/2;
       needsUpdate = true;
     }
-    if (needsUpdate) f.promoteZOrder();
+    if (needsUpdate) f.updateMatrix();
   }
 
   group.isCollapsed = () => { return state.collapsed }
@@ -425,7 +424,7 @@ export default function createFolder({
         sceneShift(child, oldParent, newParent);
       }
 
-    }
+    } else group.fixFolderPosition(0.5);
     group.open();
     return group;
   };
@@ -686,6 +685,7 @@ export default function createFolder({
       group.fixFolderPosition();
     }
   }
+
 
   function performHeaderLayout() {
     let dx = Layout.FOLDER_HEIGHT;

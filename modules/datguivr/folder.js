@@ -145,8 +145,9 @@ export default function createFolder({
     const intersectionSize = intersection.getSize(scratchSize);
     const screenW = cam.right - cam.left, screenH = cam.top - cam.bottom;
     //work in units as fraction of box width (although that's not a great idea with multi-column folders)
-    intersectionSize.x /= boxW; intersectionSize.y /= boxW;
+    intersectionSize.x /= boxW/screenW; intersectionSize.y /= boxW/screenW;
     let needsUpdate = false;
+    //console.log(`${JSON.stringify(intersectionSize)}, thresh: ${thresh}`);
     if (intersectionSize.x < thresh) { //TODO: paramaterise / non-magic-number
       //TODO work out which side we're on, move by object width...
       f.position.x = cam.left + screenW/2;
@@ -424,7 +425,9 @@ export default function createFolder({
         sceneShift(child, oldParent, newParent);
       }
 
-    } else group.fixFolderPosition(0.5);
+    } 
+    group.userData.isOrthographic = topFolder.userData.isOrthographic; //TODO: revise how to pass this info
+    group.fixFolderPosition(0.5);
     group.open();
     return group;
   };

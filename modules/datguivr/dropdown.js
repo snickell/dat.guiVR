@@ -57,8 +57,13 @@ export default function createCheckbox( {
   group.userData.sourceObject = object;
   group.userData.sourcePropertyName = propertyName;
   group.userData.setValue = v => {
+    if (options.indexOf(v) === -1) {
+      //I could consider annotating GUI itself with error labels...
+      console.warn(`dat.GUIVR: Unknown option "${v}" for dropdown "${propertyName}".\nValid options: [${options.join(', ')}]`);
+      return;
+    }
     object[propertyName] = v;
-    onChangedCB(object[propertyName]);
+    if (onChangedCB) onChangedCB(object[propertyName]);
   }
 
   const panel = Layout.createPanel( width, height, depth );
@@ -91,6 +96,7 @@ export default function createCheckbox( {
   }
 
   function createOption( labelText, isOption ){
+    //TODO: truncate long labelText, maybe show full version when hovering.
     const label = createTextLabel(
       textCreator, labelText,
       DROPDOWN_WIDTH, depth,

@@ -34,6 +34,7 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
 
 
   group.setString = function( str ){
+    if (str === undefined) str = "[undefined]";
     text.updateLabel( str.toString() );
   };
 

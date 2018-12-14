@@ -387,6 +387,8 @@ const GUIVR = (function DATGUIVR(){
     }
     else
 
+    if (object.isFolder) return object;
+
     if( object[ propertyName ] === undefined ){
       console.warn( 'no property named', propertyName, 'on object', object );
       return new THREE.Group();
@@ -583,6 +585,7 @@ const GUIVR = (function DATGUIVR(){
     }); 
 
     if( mouseEnabled ){
+      //TODO: lock mouse on hover??
       mouseInput.intersections = performMouseInput( hitscanObjects, mouseInput );
     }
 

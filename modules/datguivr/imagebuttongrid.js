@@ -209,10 +209,15 @@ export default function createImageButtonGrid( {
                 return;
             }
 
-            obj.func();
+            p.locked = true;
+            try {
+                obj.func();
+            } catch (e) {
+                obj.error = e || 'undefined exception';
+                return;
+            }
             lastPressed = obj;
             subgroup.position.z = BUTTON_DEPTH * 0.4;
-            p.locked = true;
         }
 
         function handleOnRelease(){
@@ -227,8 +232,8 @@ export default function createImageButtonGrid( {
                 material.color.setHex( lastPressedCol );
             }
             else material.color.setHex( interaction.hovering() ? hoverCol : noHoverCol );
-
             if (subgroup.tipText) subgroup.tipText.visible = interaction.hovering();
+            if (obj.error) material.color.setHex( 0xAA3333);
         }
         
         subgroup.updateView();

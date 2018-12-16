@@ -24,7 +24,7 @@
 * limitations under the License.
  */
 
-import createTextLabel from './textlabel';
+import {createTextLabel, createToolTip} from './textlabel';
 import createInteraction from './interaction';
 import * as Colors from './colors';
 import * as Layout from './layout';
@@ -162,37 +162,10 @@ export default function createImageButtonGrid( {
         //Tooltip text option added.  Might want to be able to pass in richer things...
         //maybe an arbitrary THREE object would work well...
         if (obj.tip) {
-            //... createTextLabel does most of what we were doing here. 
-            // should be used to reduce noise and make more DRY, but not going to help particularly
-            // const tipObj = createTextLabel(textCreator, obj.tip);
-            // tipObj.position.x = 0.5 * BUTTON_WIDTH;
-            // tipObj.position.y = 
-            // subgroup.add(tipObj);
-
-            const tipText = textCreator.create(obj.tip);
-            const tipGroup = new THREE.Group();
-            const w = obj.tipWidth || tipText.computeWidth();
-            const h = Layout.TEXT_SCALE * tipText.layout.height;
+            const tipText = createToolTip(textCreator, obj.tip, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_DEPTH);
             
-            tipGroup.position.x  = 0.5 * BUTTON_WIDTH;
-            tipGroup.position.y = -1.05 * BUTTON_HEIGHT - h;
-            tipGroup.position.z = BUTTON_DEPTH * 2.5;
-            tipGroup.visible = false;
-
-            subgroup.add(tipGroup);
-            tipGroup.add(tipText);
-            subgroup.tipText = tipGroup;
-            
-            const paddedW = w + 0.03, paddedH = h + 0.03;
-            const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
-            const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
-            tipBackground.position.x = 0; //paddedW / 2;
-            tipBackground.position.y = h / 2;
-            tipBackground.position.z = -BUTTON_DEPTH * 0.5;
-            tipGroup.add(tipBackground);
-
-            tipText.position.x = -0.5 * w;
-            tipText.position.y = -0.5 * h + 0.0015;
+            subgroup.add(tipText);
+            subgroup.tipText = tipText;
         }
         
         //panel.add( descriptorLabel, hitscanVolume, controllerID );
@@ -210,6 +183,7 @@ export default function createImageButtonGrid( {
             }
 
             p.locked = true;
+            //TODO: standardise handling of exceptions in callbacks
             try {
                 obj.func();
             } catch (e) {

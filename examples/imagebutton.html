@@ -55,7 +55,7 @@
         gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader();
         
         const test = {myColor: new THREE.Color(0, 0.7, 0.6), color2: new THREE.Color() };
-        gui.addDropdown(["abcdefg", "option 2"]).name("dropdown");
+        gui.addDropdown(["abcdefg", "option 2 has a very very very long label"]).name("dropdown"); //TODO: fix this.
         gui.addDropdown([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2]).name("Scale").onChange(s => gui.scale.set(s, s, s));
         gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
         gui.add(test, 'color2');
@@ -71,7 +71,7 @@
             f.addImageButton(()=>{}, "textures/branches_white.png");
           } 
         }
-        gui.addFolder(f);
+        gui.add(f);
 
         f = dat.GUIVR.create("pictures / materials");
         f.detachable = true;
@@ -83,9 +83,8 @@
         //and to change size specification.
         f.addImageButton((x, y)=>{console.log(`${x}, ${y}`)}, new THREE.MeshNormalMaterial(), true) 
         f.addImageButton(()=>{console.log("image button pressed")}, new THREE.MeshBasicMaterial(), true)
-        //f.add(settings, 'speed');
-        gui.addFolder(f);
-        gui.add(settings, 'speed').name('settings.speed').setHeight(0.15);
+        gui.add(f); //it used to be necessary to call addFolder, this has been fixed.
+        gui.add(settings, 'speed').name('settings.speed').setHeight(0.15).setToolTip('this does nothing. Fast.');
         
         let fn = ()=>{console.log("image button pressed")};
         
@@ -110,7 +109,7 @@
           , {func: fn, image: "textures/mag_white.png", tip: t() }
           , {func: fn, image: "textures/butterfly_white.png", tip: "mmmmmmmm" }
           , {func: fn, image: "textures/mag_white.png",       tip: "........" }
-          , {func: x=>{throw x}, text: 
+          , {func: x=>{throw `wooo!`}, text: 
             "Button, can you handle this? I don't think you can handle this... 'cause my button's too booty-licious for you.",
             tip: "rather a long tip...\nmore than one line, even!" }
           ).highlightLastPressed();

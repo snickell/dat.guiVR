@@ -99,6 +99,7 @@ export default function createCheckbox( {
     //TODO: truncate long labelText, maybe show full version when hovering.
     const label = createTextLabel(
       textCreator, labelText,
+      //check width value...
       DROPDOWN_WIDTH, depth,
       Colors.DROPDOWN_FG_COLOR, Colors.DROPDOWN_BG_COLOR,
       0.866

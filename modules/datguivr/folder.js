@@ -17,7 +17,7 @@
 * limitations under the License.
 */
 
-import createTextLabel from './textlabel';
+import { createToolTip } from './textlabel';
 import createInteraction from './interaction';
 import * as Colors from './colors';
 import * as Layout from './layout';
@@ -480,6 +480,19 @@ export default function createFolder({
       } else {
         collapseGroup.add( obj );
         obj.folder = group;
+      }
+      //XXX: hacking in some universal tooltip support
+      obj.setToolTip = tip => {
+        //TODO: pay more attention to layout config / make createToolTip have simpler arguments
+        const tipObj = createToolTip(textCreator, tip, Layout.FOLDER_WIDTH, obj.spacing, Layout.BUTTON_DEPTH);
+        obj.add(tipObj);
+        //associate event with hover on appropriate hitscan...
+        if (obj.interaction) {
+          //TODO: events.off() if replacing old tooltip.
+          obj.interaction.events.on('tick', () => {
+            tipObj.visible = obj.interaction.hovering();
+          });
+        }
       }
     });
 

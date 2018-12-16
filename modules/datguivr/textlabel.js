@@ -19,6 +19,7 @@
 
 import * as Colors from './colors';
 import * as SharedMaterials from './sharedmaterials';
+import * as Layout from './layout';
 
 export default function createTextLabel( textCreator, str, width = 0.4, depth = 0.029, fgColor = 0xffffff, bgColor = Colors.DEFAULT_BACK, scale = 1.0 ){
 
@@ -26,16 +27,17 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
   group.guiType = "textlabel";
   group.toString = () => `[${group.guiType}: ${str}]`;
 
-  const internalPositioning = new THREE.Group();
+  const internalPositioning = new THREE.Group(); //rather unnecessary.
   group.add( internalPositioning );
 
   const text = textCreator.create( str.toString(), { color: fgColor, scale } );
   internalPositioning.add( text );
-
+  group.userData.text = text;
 
   group.setString = function( str ){
     if (str === undefined) str = "[undefined]";
     text.updateLabel( str.toString() );
+    //text.constrainBounds(totalWidth, 0.04);
   };
 
   group.setNumber = function( str ){
@@ -48,6 +50,9 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
   const margin = 0.01;
   const totalWidth = width;
   const totalHeight = 0.04 + margin * 2;
+
+  //text.constrainBounds(totalWidth, 0.04);
+
   const labelBackGeometry = new THREE.BoxGeometry( totalWidth, totalHeight, depth, 1, 1, 1 );
   labelBackGeometry.applyMatrix( new THREE.Matrix4().makeTranslation( totalWidth * 0.5 - margin, 0, 0 ) );
 
@@ -61,4 +66,38 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
   group.back = labelBackMesh;
 
   return group;
+}
+
+export function createToolTip( textCreator, tip, parentWidth, parentHeight, parentDepth ) {
+  const tipText = textCreator.create(tip);
+  
+  const tipGroup = new THREE.Group();
+
+  const w = tipText.computeWidth();
+  const h = Layout.TEXT_SCALE * tipText.layout.height;
+
+  tipGroup.position.x  = 0.5 * parentWidth;
+  tipGroup.position.y = -1.05 * parentHeight - h;
+  tipGroup.position.z = parentDepth * 2.5;
+  tipGroup.visible = false;
+
+//  subgroup.add(tipGroup);
+  tipGroup.add(tipText);
+//  subgroup.tipText = tipGroup;
+
+  const paddedW = w + 0.03, paddedH = h + 0.03;
+  const tipRect = new THREE.PlaneGeometry(paddedW, paddedH, 1, 1);
+  const tipBackground = new THREE.Mesh(tipRect, SharedMaterials.TOOLTIP);
+  tipBackground.position.x = 0; //paddedW / 2;
+  tipBackground.position.y = h / 2;
+  tipBackground.position.z = -parentDepth * 0.5;
+  tipGroup.add(tipBackground);
+
+  tipText.position.x = -0.5 * w;
+  tipText.position.y = -0.5 * h + 0.0015;
+
+  tipGroup.userData.w = w;
+  tipGroup.userData.h = h;
+
+  return tipGroup;
 }

@@ -224,7 +224,7 @@ const GUIVR = (function DATGUIVR(){
     input.laser.pressed = function( flag ){
       const hits = input.intersections;
       // only pay attention to presses over the GUI
-      if (flag && hits & (hits.length > 0)) {
+      if (flag && hits && (hits.length > 0)) {
         input.pressed = true;
         input.clicked = true;
       } else {
@@ -788,7 +788,7 @@ function bindViveController( input, controller, pressed, gripped ){
 
   const gamepad = controller.getGamepad();
   function vibrate( t, a ){
-    if( gamepad && gamepad.hapticActuators.length > 0 ){
+    if( gamepad && gamepad.hapticActuators && gamepad.hapticActuators.length > 0 ){
       gamepad.hapticActuators[ 0 ].pulse( t, a );
     }
   }

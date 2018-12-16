@@ -128,6 +128,7 @@ export default function createInteraction( hitVolume ){
     //  hovering and button down but no interactions active yet
     //---> should be ^ button 'clicked'... ie only if it came down since the last update.
     //so, should we pass 'buttonClickName' as an argument (and use buttonName if not provided)?
+    //--->>>> XXX: is this \\\\\\\\\\\\\\//////////// working with Vive controllers? 
     if( hover && input[ buttonClickName || buttonName ] === true && input.interaction[ interactionName ] === undefined ){
 
       const payload = {

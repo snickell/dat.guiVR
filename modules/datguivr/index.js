@@ -71,19 +71,32 @@ const GUIVR = (function DATGUIVR(){
 
   let mouseEnabled = false;
   let mouseRenderer = undefined;
+  let onOrthoMouseRelease = undefined; //keep track so that we don't attach multiple events (particularly when resizing window)
 
   function enableMouse( camera, renderer ){
     mouseEnabled = true;
     mouseRenderer = renderer;
     mouseInput.mouseCamera = camera;
     if (camera.isOrthographicCamera) {
-      mouseInput.events.on('grabReleased', f=>f.fixFolderPosition());
+      if (!onOrthoMouseRelease) {
+        onOrthoMouseRelease = f=>f.fixFolderPosition();
+        mouseInput.events.on('grabReleased', onOrthoMouseRelease);
+      }
+    } else {
+      if (onOrthoMouseRelease) {
+        mouseInput.events.off('grabReleased', onOrthoMouseRelease);
+        onOrthoMouseRelease = undefined;
+      }
     }
     return mouseInput.laser;
   }
-
+  
   function disableMouse(){
     mouseEnabled = false;
+    if (onOrthoMouseRelease) {
+      mouseInput.events.off('grabReleased', onOrthoMouseRelease);
+      onOrthoMouseRelease = undefined;
+    }
   }
 
 

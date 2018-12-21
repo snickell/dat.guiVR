@@ -30,6 +30,7 @@ import * as Colors from './colors';
 import * as Layout from './layout';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
+import setVisibility from './utils';
 
 export default function createImageButtonGrid( {
   textCreator,
@@ -164,7 +165,7 @@ export default function createImageButtonGrid( {
         if (obj.tip) {
             const tipText = createToolTip(textCreator, obj.tip, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_DEPTH);
             
-            subgroup.add(tipText);
+            //subgroup.add(tipText);
             subgroup.tipText = tipText;
         }
         
@@ -206,7 +207,7 @@ export default function createImageButtonGrid( {
                 material.color.setHex( lastPressedCol );
             }
             else material.color.setHex( interaction.hovering() ? hoverCol : noHoverCol );
-            if (subgroup.tipText) subgroup.tipText.visible = interaction.hovering();
+            if (subgroup.tipText) setVisibility(subgroup, subgroup.tipText, interaction.hovering());
             if (obj.error) material.color.setHex( 0xAA3333);
         }
         

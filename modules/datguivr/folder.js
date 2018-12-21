@@ -25,7 +25,7 @@ import * as Graphic from './graphic';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
 import * as Palette from './palette';
-import { getTopLevelFolder, setBoxFromObject } from './utils';
+import { getTopLevelFolder, setBoxFromObject, setVisibility } from './utils';
 import { FOLDER_WIDTH } from './layout';
 
 //If you're looking for main createFolder function, it's further below...
@@ -485,12 +485,18 @@ export default function createFolder({
       obj.setToolTip = tip => {
         //TODO: pay more attention to layout config / make createToolTip have simpler arguments
         const tipObj = createToolTip(textCreator, tip, Layout.FOLDER_WIDTH, obj.spacing, Layout.BUTTON_DEPTH);
-        obj.add(tipObj);
         //associate event with hover on appropriate hitscan...
         if (obj.interaction) {
           //TODO: events.off() if replacing old tooltip.
           obj.interaction.events.on('tick', () => {
-            tipObj.visible = obj.interaction.hovering();
+            //don't just set visibility; add/remove as these are killing framerate in large VR guis.
+            setVisibility(obj, tipObj, obj.interaction.hovering());
+            // const v = tipObj.visible = obj.interaction.hovering();
+            // const isChild = obj.children.includes(tipObj);
+            // //somewhat dirty (hipocritical) manipulation of obj.children
+            // //must get 'round to refactoring so that ordinary THREE add/remove work as expected.
+            // if (v && !isChild) addOriginal.call(obj, tipObj);
+            // if (!v && isChild) removeOriginal.call(obj, tipObj);
           });
         }
       }

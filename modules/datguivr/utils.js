@@ -11,6 +11,22 @@ export function isControllerVisible(control) {
     return folder.visible;
 }
 
+/** 
+ * Invisible THREE objects incur significant CPU cost.
+ * This avoids that by removing them from scene hierarchy.
+ * 
+ * If visible is true, make sure child.visible=true and is a child of parent.
+ * If visible is false, make sure child.visible=false and is removed from scene hierarchy.
+ */
+export function setVisibility(parent, child, visible) {
+    const isChild = parent.children.includes(child);
+    child.visible = visible;
+    //make sure we use original THREE methods that this library overrides (TODO: refactor...)
+    if (visible && !isChild) THREE.Group.prototype.add.call(parent, child);
+    if (!visible && isChild) THREE.Group.prototype.remove.call(parent, child);
+    if (!parent.visible) console.warn(`setVisibility called on child ${child} of invisible parent ${parent}`);
+}
+
 /**
  * Returns the highest level of parent folder in the gui hiearchy containing a given object.
  * nb. older versions of this function would return the input object if it didn't have a 'folder' property.

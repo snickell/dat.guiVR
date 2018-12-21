@@ -30,7 +30,7 @@ import * as Colors from './colors';
 import * as Layout from './layout';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
-import setVisibility from './utils';
+import {setVisibility} from './utils';
 
 export default function createImageButtonGrid( {
   textCreator,

@@ -491,12 +491,6 @@ export default function createFolder({
           obj.interaction.events.on('tick', () => {
             //don't just set visibility; add/remove as these are killing framerate in large VR guis.
             setVisibility(obj, tipObj, obj.interaction.hovering());
-            // const v = tipObj.visible = obj.interaction.hovering();
-            // const isChild = obj.children.includes(tipObj);
-            // //somewhat dirty (hipocritical) manipulation of obj.children
-            // //must get 'round to refactoring so that ordinary THREE add/remove work as expected.
-            // if (v && !isChild) addOriginal.call(obj, tipObj);
-            // if (!v && isChild) removeOriginal.call(obj, tipObj);
           });
         }
       }

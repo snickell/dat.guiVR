@@ -84,7 +84,7 @@ const GUIVR = (function DATGUIVR(){
       }
     } else {
       if (onOrthoMouseRelease) {
-        mouseInput.events.off('grabReleased', onOrthoMouseRelease);
+        mouseInput.events.removeListener('grabReleased', onOrthoMouseRelease);
         onOrthoMouseRelease = undefined;
       }
     }
@@ -94,7 +94,7 @@ const GUIVR = (function DATGUIVR(){
   function disableMouse(){
     mouseEnabled = false;
     if (onOrthoMouseRelease) {
-      mouseInput.events.off('grabReleased', onOrthoMouseRelease);
+      mouseInput.events.removeListener('grabReleased', onOrthoMouseRelease);
       onOrthoMouseRelease = undefined;
     }
   }

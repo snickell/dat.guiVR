@@ -525,7 +525,7 @@ const GUIVR = (function DATGUIVR(){
    */
   function clearAll() {
     controllers.forEach(c => {
-      c.visible = false; if (!c.parent.guiChildren) c.parent.remove(c);
+      c.visible = false; if (c.parent && !c.parent.guiChildren) c.parent.remove(c);
     });
     controllers.splice(0, controllers.length);
   }

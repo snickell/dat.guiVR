@@ -19,7 +19,9 @@
       var camera, scene, renderer, gui;
       var settings = {
         'speed':20,
-        'friction':0.1
+        'friction':0.95,
+        myColor: new THREE.Color(0, 0.7, 0.6),
+        color2: new THREE.Color()
       }
 
       initThreeJS();
@@ -54,11 +56,11 @@
 
         gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader();
         
-        const test = {myColor: new THREE.Color(0, 0.7, 0.6), color2: new THREE.Color() };
         gui.addDropdown(["abcdefg", "option 2 has a very very very long label"]).name("dropdown"); //TODO: fix this.
         gui.addDropdown([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2]).name("Scale").onChange(s => gui.scale.set(s, s, s));
-        gui.add(test, 'myColor').onChange(c=>renderer.setClearColor(c));
-        gui.add(test, 'color2');
+        gui.add(settings, 'myColor').onChange(c=>renderer.setClearColor(c)).listen();
+        gui.add(settings, 'color2');
+        gui.add(settings, 'friction', 0, 1);
 
         //creating lots of stuff just to take up space and test layout.
         let f = dat.GUIVR.create("Long Folder");
@@ -66,7 +68,7 @@
         window.longFolder = f; //for runtime hacking / debugging
         f.detachable = true;
         for (let i=0; i<52; i++) {
-          f.add(test, 'myColor');
+          f.add(settings, 'myColor');
           if (i % 20 === 0) {
             f.addImageButton(()=>{}, "textures/branches_white.png");
           } 

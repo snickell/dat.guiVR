@@ -70,6 +70,7 @@ void main() {
 `;
 
 // http://stackoverflow.com/questions/17242144/javascript-convert-hsb-hsv-color-to-rgb-accurately
+//why not use THREE.Color methods?
 /* accepts parameters
  * h  Object = {h:x, s:y, v:z}
  * OR 
@@ -126,7 +127,8 @@ function RGBtoHSV(r, g, b) {
     return {
         h: h,
         s: s,
-        v: v
+        v: v, 
+        x: h, y: s, z: v //so that we can do Vector3.copy(this)
     };
 }
 
@@ -142,12 +144,15 @@ export default function createColorPicker( {
     // we'll take care of dynamically adding and removing children based on attached...
     // will want to think about listener functions etc.
     let func = toggleDetailPanel;
-    const color = object[propertyName]; //for now, this'd better be a THREE.Color or we'll freak out.
+    let color = object[propertyName]; //for now, this'd better be a THREE.Color or we'll freak out.
     const c = RGBtoHSV(color);
     const uniforms = {selectedHSV: {value: new THREE.Vector3(c.h, c.s, c.v)}};
     const image = new THREE.MeshBasicMaterial({color: color});
     const events = new Emitter();
     const changeColorOnHover = false;
+    const state = {
+        listen: false
+    };
     //TODO make sure color patch occupies full width.  Add text label with hex value?
     const group = createImageButton({
         textCreator, func, image, propertyName, width, height, depth, changeColorOnHover
@@ -211,9 +216,9 @@ export default function createColorPicker( {
                 //TODO: check layout
                 panel.addXYController(setH, HMaterial, wide, Layout.PANEL_HEIGHT, depth, buttonDepth);
             } else {
-                panel.add(color, 'r', 0, 1).step(0.01).onChange(changeFn);
-                panel.add(color, 'g', 0, 1).step(0.01).onChange(changeFn);
-                panel.add(color, 'b', 0, 1).step(0.01).onChange(changeFn);
+                panel.add(color, 'r', 0, 1).onChange(changeFn);
+                panel.add(color, 'g', 0, 1).onChange(changeFn);
+                panel.add(color, 'b', 0, 1).onChange(changeFn);
             }
             group.add(panel);
             group.folder.setModalEditor(panel);
@@ -224,6 +229,24 @@ export default function createColorPicker( {
 
     group.onChange = (callback) => {
         events.on('onChange', callback);
+        return group;
+    }
+
+    const originalUpdateControl = group.updateControl;
+    group.updateControl = function( inputObjects ) {
+        if (state.listen) listenUpdate();
+        originalUpdateControl(inputObjects);
+    };
+
+    function listenUpdate() {
+        //object ref might have changed, as well as value.
+        //even if ref hasn't changed, value still might've, and we're not currently reflecting that.
+        color = object[propertyName];
+        image.color.copy(color);
+        uniforms.selectedHSV.value.copy(RGBtoHSV(color));
+    }
+    group.listen = () => {
+        state.listen = true;
         return group;
     }
 

@@ -122,10 +122,14 @@ export default function createFolder({
   //should only be called from index.js update(?) for each topFolder, then from within performLayout() for each child folder
   group.performLayout = performLayout;
 
+  const straightRotation = new THREE.Quaternion();
   //provide arguments for how constrained to be, and re-use same function both on detach and elsewhere?
   group.fixFolderPosition = function(thresh=0.01) {
     const f = this;
     if (!f.userData.isOrthographic) return;
+    //always force rotation straight forward...
+    f.setRotationFromQuaternion(straightRotation);
+
     //we need to avoid NaN because of TextGeometry position having itemSize == 2 which upsets Vector3.fromBufferAttribute
     //https://github.com/mrdoob/three.js/issues/14352
     //maybe I could use a Box2 anyway since 3d might just confuse things.
@@ -490,7 +494,7 @@ export default function createFolder({
           //TODO: events.off() if replacing old tooltip.
           obj.interaction.events.on('tick', () => {
             //don't just set visibility; add/remove as these are killing framerate in large VR guis.
-            setVisibility(obj, tipObj, obj.interaction.hovering());
+            if (obj.visible) setVisibility(obj, tipObj, obj.interaction.hovering());
           });
         }
       }

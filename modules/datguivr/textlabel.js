@@ -78,7 +78,7 @@ export function createToolTip( textCreator, tip, parentWidth, parentHeight, pare
 
   tipGroup.position.x  = 0.5 * parentWidth;
   tipGroup.position.y = -1.05 * parentHeight - h;
-  tipGroup.position.z = parentDepth * 2.5;
+  tipGroup.position.z = parentDepth * 3;
   tipGroup.visible = false;
 
 //  subgroup.add(tipGroup);

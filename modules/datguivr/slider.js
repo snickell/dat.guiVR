@@ -52,7 +52,7 @@ export default function createSlider( {
     pressing: false
   };
   
-  state.step = getImpliedStep( state.value );
+  state.step = getImpliedStep( state.value, state.min, state.max );
   state.precision = numDecimals( state.step );
   state.alpha = getAlphaFromValue( state.value, state.min, state.max );
   
@@ -344,13 +344,20 @@ function getClampedValue( value, min, max ){
   return value;
 }
 
-function getImpliedStep( value ){
-  if( value === 0 ){
-    return 1; // What are we, psychics?
-  } else {
-    // Hey Doug, check this out.
-    return Math.pow(10, Math.floor(Math.log(Math.abs(value))/Math.LN10))/10;
-  }
+function getImpliedStep( value, min, max ){
+  //PJT: what would we like step to look like?
+  //Something that has about the order of magnitude, and looks nice in base 10?
+  const r = max-min;
+  let step = r/100; //what is the ratio of number of decimals to order of magnitude?
+  
+  return step;
+
+  // if( value === 0 ){
+  //   return 1; // What are we, psychics? //<<<<--- no, so we should base impliedStep on min/max, not value
+  // } else {
+  //   // Hey Doug, check this out.
+  //   return Math.pow(10, Math.floor(Math.log(Math.abs(value))/Math.LN10))/10;
+  // }
 }
 
 function getValueFromAlpha( alpha, min, max ){

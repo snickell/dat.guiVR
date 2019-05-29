@@ -72,6 +72,8 @@ const GUIVR = (function DATGUIVR(){
   let mouseEnabled = false;
   let mouseRenderer = undefined;
   let onOrthoMouseRelease = undefined; //keep track so that we don't attach multiple events (particularly when resizing window)
+  
+  let autoUpdate = true;
 
   function enableMouse( camera, renderer ){
     mouseEnabled = true;
@@ -583,7 +585,7 @@ const GUIVR = (function DATGUIVR(){
 
   function update() {
     const isOrthographic = mouseEnabled && mouseInput.mouseCamera.isOrthographicCamera;
-    requestAnimationFrame( update );
+    if (autoUpdate) requestAnimationFrame( update );
     
     var hitscanObjects = getVisibleHitscanObjects();
     const controllers = getVisibleControllers();
@@ -717,19 +719,24 @@ const GUIVR = (function DATGUIVR(){
 
 
 
-
   /*
     Public methods.
   */
 
-  return {
+  const publicInterface = {
     create,
     addInputObject,
     enableMouse,
     disableMouse,
-    textCreator,
-    clearAll
+    textCreator, //cheap way of exposing this so it can be used by host application.
+    clearAll,
+    update
   };
+  // allow user to call "dat.GUIVR.autoUpdate = false" and then update manually with
+  // "dat.GUIVR.update()"
+  // expose autoUpdate as property so that the reference will be properly effected
+  Object.defineProperty( publicInterface, 'autoUpdate', { get: ()=> autoUpdate, set: v => autoUpdate = v } );
+  return publicInterface;
 
 }());
 

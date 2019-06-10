@@ -147,9 +147,13 @@ export default function createImageButtonGrid( {
         if (obj.text) {
             const text = textCreator.create(obj.text);
             const margin = 2*Layout.GRID_BUTTON_MARGIN;
-            text.constrainBounds(BUTTON_WIDTH - margin, BUTTON_HEIGHT - margin);
-            const h = Layout.TEXT_SCALE * text.layout.height;
-            const w = text.computeWidth();
+            let h = Layout.TEXT_SCALE * text.layout.height;
+            let w = text.computeWidth();
+            if (w > BUTTON_WIDTH - margin) {
+                text.constrainBounds(BUTTON_WIDTH - margin, BUTTON_HEIGHT - margin); //<--
+                h = Layout.TEXT_SCALE * text.layout.height;
+                w = text.computeWidth();
+            }
             subgroup.add(text);
             subgroup.text = text;
             text.position.x = obj.textX || 0.5 * (BUTTON_WIDTH - w);

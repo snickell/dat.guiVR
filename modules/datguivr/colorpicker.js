@@ -103,7 +103,7 @@ function HSVtoRGB(h, s, v) {
     };
 }
 /* accepts parameters
- * r  Object = {r:x, g:y, b:z}
+ * r  Object = {r, g, b}
  * OR 
  * r, g, b
 */

@@ -1,14 +1,20 @@
 /** basic utility functions */
 
 export function isControllerVisible(control) {
-    if (!control.visible) return false;
-    var folder = control.folder;
-    while (folder.folder !== folder){
-        if (folder.isCollapsed() || !folder.visible) return false;
-        folder = folder.folder;
-    }
-    if (!folder.parent) return false;
-    return folder.visible;
+  var folder = control.folder;
+  //note: the basis on which a controller is considered visible revised for 'header' objects.
+  //for now, this should allow header controllers to update while folder is collapsed.
+  //only applies to checkbox, pending design revision & fuller implementation...
+  if (control.isShownInFolderHeader) return isControllerVisible(folder);
+  
+  if (!control.visible) return false;
+  
+  while (folder.folder !== folder){
+    if (folder.isCollapsed() || !folder.visible) return false;
+    folder = folder.folder;
+  }
+  if (!folder.parent) return false;
+  return folder.visible;
 }
 
 /** 

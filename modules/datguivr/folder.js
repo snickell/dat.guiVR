@@ -73,7 +73,8 @@ export default function createFolder({
   name,
   guiAdd,
   guiRemove,
-  addControllerFuncs
+  addControllerFuncs,
+  globalControllers
 } = {} ){
 
   const MAX_FOLDER_ITEMS_IN_COLUMN = 25;
@@ -170,7 +171,9 @@ export default function createFolder({
   Object.defineProperty(group, 'guiChildren', {
     //perhaps modalEditor should also count as a member of this...
     //currently can't see anything in implementation that would require that
-    get: () => { return collapseGroup.children }
+    //-- adding headerItems though, so they'll get picked up by remove()
+    // - maybe same should apply to modalEditor
+    get: () => { return [ ...collapseGroup.children, ...headerItems.children ] }
   });
   // returns true if all of the supplied args are members of this folder
   group.hasChild = function ( ...args ){
@@ -233,6 +236,21 @@ export default function createFolder({
   //TODO: interface for adding things to this... NOT 'showInFolderHeader' method / property on linear items...
   const headerItems = new THREE.Group();
   panel.add(headerItems);
+  //this function will attempt to make obj behave as controller layed out in headerItems,
+  //based on some assumptions about obj that may be true at time of writing...
+  //but are pending more rigorous specification / refactoring etc.
+  group.addHeaderItem = function(obj){
+    headerItems.add(obj);
+    obj.folder = group;
+    obj.isHeaderObject = true;
+
+    //also need to add to global controllers list etc. NB:: make sure that they will get removed as well
+    if (!obj.updateControl) obj.updateControl = inputObjects => obj.interaction.update(inputObjects);
+    obj.hitscan = [ obj ]; //hacky hacky
+    globalControllers.push(obj);
+  }
+
+
 
   const detachButtonMaterial = new THREE.MeshBasicMaterial({color: 0x888888, transparent: true});
   const h = Layout.FOLDER_HEIGHT * 0.8;
@@ -244,8 +262,6 @@ export default function createFolder({
   const detachButton = new THREE.Mesh(  detachButtonRect, detachButtonMaterial );
   detachButton.visible = false;
   detachButton.position.x = Layout.FOLDER_WIDTH - Layout.FOLDER_HEIGHT;
-  //panel.add(detachButton);
-  headerItems.add(detachButton);
   const detachButtonInteraction = createInteraction(detachButton);
   detachButton.interaction = detachButtonInteraction;
   detachButtonInteraction.events.on( 'onPressed', function( p ){
@@ -254,6 +270,8 @@ export default function createFolder({
     } else group.detach();
     p.locked = true;
   });
+  //headerItems.add(detachButton);
+  group.addHeaderItem(detachButton);
 
   let isDetachable = false;
   Object.defineProperty( group, 'detachable', {
@@ -279,10 +297,6 @@ export default function createFolder({
       return new THREE.Group();
     }
   };
-
-  group.addHeaderItem = function(obj){
-    headerItems.add(obj);
-  }
 
   /*
     Some controllers may bring up sub-GUIs which have the potential
@@ -341,7 +355,8 @@ export default function createFolder({
   As long as no-one expects folders to behave like regular THREE.Groups, that shouldn't matter.
   */
   group.remove = function( ...args ){
-    const ok = guiRemove( ...args ); // any invalid arguments should cause this to return false
+    //guiRemove is passed in from index.js and is responsible for sanity checking & removing from global controllers list
+    const ok = guiRemove( ...args ); // any invalid arguments should cause this to return false with no side-effects
     if (!ok) return false;
     args.forEach( function( obj ){
       console.assert(group.hasChild(obj), "internal problem with housekeeping logic of dat.GUIVR folder not caught by sanity check");
@@ -399,7 +414,7 @@ export default function createFolder({
     group.folder.detachChild(group);
     
     //adding to topFolder.parent, not oldParent, pending working out transform later if beingMoved...
-    topFolder.parent.add(group);
+    topFolder.parent.add(group); //apparently topFolder can be null, see "exception with attach/detach modes to hand"
     const m = topFolder.matrix.clone();
 
     group.applyMatrix(m);
@@ -773,8 +788,8 @@ export default function createFolder({
     //nb: if the control is not visible / active, then it won't interfere...    
     //but "if (!isDetachable)" here causes problems.
     
-    headerItems.children.forEach(o => o.interaction.update(inputObjects));
-    //detachButtonInteraction.update( inputObjects );
+    //headerItems should now have their own updateControl and be in globalControllers list
+    //headerItems.children.forEach(o => o.interaction.update(inputObjects));
     interaction.update( inputObjects );
     grabInteraction.update( inputObjects );
     paletteInteraction.update( inputObjects );
@@ -796,11 +811,14 @@ export default function createFolder({
   //sub-folders that are detached while moving remain attached to parent object (the controller that's moving them)
   //& kept in semiDetached until beingMoved is set to false, at which point they shift attachment to oldParent
   group.userData.semiDetached = [];
+
   Object.defineProperties(group, {
     hitscan: {
       get: () => {
         //don't need to filter visible here, this'll be done in index.js getVisibleHitscanObjects()
-        let hits = [...headerItems.children, panel, grabber];
+        //(implementation note 31/7/19; ...headerItems.children here being removed as each headerItem
+        //should now be closer to 'fully fledged' controller)
+        let hits = [ panel, grabber ];
         if (group.modalEditor) hits = hits.concat(...group.modalEditor.hitscan);
         return hits;
       }
@@ -816,7 +834,7 @@ export default function createFolder({
           const newParent = group.userData.oldParent; //newParent to attach to is oldParent of the folder before it was beingMoved
           //assertion... this should never happen (and doesn't AFAICT).
           if (getTopLevelFolder(group) !== group) {
-            console.log("look here");
+            console.log("Housekeeping problem in dat.GUIVR...");
           }
           
           group.userData.semiDetached.forEach(child => {

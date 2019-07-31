@@ -5,7 +5,14 @@ export function isControllerVisible(control) {
   //note: the basis on which a controller is considered visible revised for 'header' objects.
   //for now, this should allow header controllers to update while folder is collapsed.
   //only applies to checkbox, pending design revision & fuller implementation...
-  if (control.isShownInFolderHeader) return isControllerVisible(folder);
+  
+  //---- isShownInFolderHeader no longer relevant, but ending up with something that looks similar....
+  //isHeaderObject will apply to the actual control appearing in the folder header, whereas
+  //isShownInFolderHeader was when such objects weren't so fully-fledged
+  //if (control.isShownInFolderHeader) return isControllerVisible(folder); //<<<<< still hitting folded button??? (also, try npm audit)
+  if (control.isHeaderObject) return isControllerVisible(folder);
+
+  //XXX having some definite bugs e.g. missing events over 'pictures / materials' folder header in demo.
   
   if (!control.visible) return false;
   

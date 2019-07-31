@@ -560,6 +560,7 @@ const GUIVR = (function DATGUIVR(){
         addKeyboard: addKeyboard,
         addTextbox: addTextbox
       },
+      globalControllers: controllers,
       //???
       addHeaderFuncs: {
         

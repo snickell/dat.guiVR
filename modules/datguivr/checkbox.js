@@ -70,6 +70,34 @@ export default function createCheckbox( {
     return group;
   };
 
+  let checkmark, borderBox, interaction;
+  
+  function handleOnPress( p ){
+    if( group.visible === false ){
+      return;
+    }
+
+    state.value = !state.value;
+
+    object[ propertyName ] = state.value;
+
+    if( onChangedCB ){
+      onChangedCB( state.value );
+    }
+
+    p.locked = true;
+  }
+
+  function updateView(){
+    checkmark.visible = state.value;
+    borderBox.visible = interaction.hovering();
+    if (_header) {
+      _header.checkmark.visible = state.value;
+      _header.borderBox.visible = _header.interaction.hovering();
+    }
+  }
+  
+
   let isShownInFolderHeader = false;
   group.showInFolderHeader = (value=true) => {
     if (value !== isShownInFolderHeader) {
@@ -116,9 +144,21 @@ export default function createCheckbox( {
     interaction.events.on('onPressed', handleHeaderPress);
     _header.interaction = interaction;
 
+    //add updateControl method here - attempt to make generic version in folder was inadequate
+    _header.updateControl = inputObjects => {
+      if (state.listen) {
+        state.value = object[propertyName];
+      }
+      //nb: interaction will be from getFolderHeaderObject() scope, 
+      //not the main one that applies that applies to the ordinary control.
+      interaction.update(inputObjects);
+      updateView();
+    }
+
     return _header;
   }
 
+  //TODO review need for separate header version of this function
   function handleHeaderPress(p){
     if (group.folder.visible === false || _header.visible === false) return;
     state.value = !state.value;
@@ -172,12 +212,12 @@ export default function createCheckbox( {
     const controllerID = Layout.createControllerIDBox( newHeight, Colors.CONTROLLER_ID_CHECKBOX );
     controllerID.position.z = depth;
   
-    const borderBox = Layout.createPanel( CHECKBOX_WIDTH + Layout.BORDER_THICKNESS, CHECKBOX_HEIGHT + Layout.BORDER_THICKNESS, CHECKBOX_DEPTH, true );
+    borderBox = Layout.createPanel( CHECKBOX_WIDTH + Layout.BORDER_THICKNESS, CHECKBOX_HEIGHT + Layout.BORDER_THICKNESS, CHECKBOX_DEPTH, true );
     borderBox.material.color.setHex( 0x1f7ae7 );
     borderBox.position.x = -Layout.BORDER_THICKNESS * 0.5 + width * 0.5;
     borderBox.position.z = depth * 0.5;
   
-    const checkmark = Graphic.checkmark( CHECKMARK_SIZE );
+    checkmark = Graphic.checkmark( CHECKMARK_SIZE );
     checkmark.position.z = depth * 0.51;
     hitscanVolume.add( checkmark );
   
@@ -185,36 +225,11 @@ export default function createCheckbox( {
   
     // group.add( filledVolume, outline, hitscanVolume, descriptorLabel );
   
-    const interaction = createInteraction( hitscanVolume );
+    interaction = createInteraction( hitscanVolume );
     interaction.events.on( 'onPressed', handleOnPress );
   
     updateView();
   
-    ///need to move these around to allow access from header versions
-    function handleOnPress( p ){
-      if( group.visible === false ){
-        return;
-      }
-  
-      state.value = !state.value;
-  
-      object[ propertyName ] = state.value;
-  
-      if( onChangedCB ){
-        onChangedCB( state.value );
-      }
-  
-      p.locked = true;
-    }
-  
-    function updateView(){
-      checkmark.visible = state.value;
-      borderBox.visible = interaction.hovering();
-      if (_header) {
-        _header.checkmark.visible = state.value;
-        _header.borderBox.visible = _header.interaction.hovering();
-      }
-    }
   
     group.interaction = interaction;
     group.hitscan = [ hitscanVolume, panel ];

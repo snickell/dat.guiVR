@@ -245,6 +245,7 @@ export default function createFolder({
     obj.isHeaderObject = true;
 
     //also need to add to global controllers list etc. NB:: make sure that they will get removed as well
+    //--- this generic interaction.update doesn't make listen() work properly.
     if (!obj.updateControl) obj.updateControl = inputObjects => obj.interaction.update(inputObjects);
     obj.hitscan = [ obj ]; //hacky hacky
     globalControllers.push(obj);
@@ -413,8 +414,8 @@ export default function createFolder({
     const topFolder = getTopLevelFolder(group);
     group.folder.detachChild(group);
     
-    //adding to topFolder.parent, not oldParent, pending working out transform later if beingMoved...
-    topFolder.parent.add(group); //apparently topFolder can be null, see "exception with attach/detach modes to hand"
+    //adding to topFolder.parent IF AVAILABLE, not oldParent, pending working out transform later if beingMoved...
+    const par = topFolder.parent || group.parent; par.add(group);
     const m = topFolder.matrix.clone();
 
     group.applyMatrix(m);
@@ -520,6 +521,7 @@ export default function createFolder({
 
   group.addFolder = function( ...args ){
     args.forEach( function (obj) {
+      //TODO if obj is string, make a new gui and add / return it... but what about varargs?
       collapseGroup.add( obj );
       obj.folder = group;
       obj.matrix.identity();

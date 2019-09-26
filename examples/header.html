@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HeaderObject Example</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui" name="viewport" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+
+    <script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/three.js/r82/build/three.min.js"></script>
+    <script type="text/javascript" src="../build/datguivr.js"></script>
+
+
+    <script type="text/javascript">
+
+/*
+ *  This is an example for testing showInFolderHeader() option on checkboxes. 
+ * This is a feature that may be re-implemented at some point & is not very well designed at present.
+ * So the purpose of this example at the time of writing is more for testing than as an example of how to use the library.
+ */
+
+
+
+      var camera, scene, renderer;
+      var settings = {
+        'speed':20,
+        'friction':0.1,
+        toggle: false
+      }
+
+      initThreeJS();
+      initApp();
+      animate();
+
+      function initThreeJS() {
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 15 );
+        camera.position.set(0,0,1.0);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor(0xbbbbbb);
+        document.body.appendChild( renderer.domElement );
+      }
+      
+      function initApp(){
+
+        const gui = dat.GUIVR.create( 'Empty GUI' );
+        gui.position.set(-0.5, 0.3, 0);
+
+        let test = dat.GUIVR.create('test');
+        gui.add(test);
+        test.add(settings, 'toggle').listen().showInFolderHeader();
+        
+        //nb, there was a bug at some stage meaning that when 'test' folder was folded away, 
+        //the invisible toggle box would interfere with interaction on the 'speed' slider.
+        gui.add(settings, 'speed');
+        gui.add(settings, 'friction');
+        //there was another bug meaning that if the 'test' folder was collapsed,
+        //the header version of the checkbox wouldn't update the displayed value when something else changed it.
+        gui.add(settings, 'toggle').listen();
+        
+        scene.add( gui );
+
+        dat.GUIVR.enableMouse( camera );
+      }
+
+
+      function animate() {
+
+        renderer.render( scene, camera );
+
+        requestAnimationFrame( animate );
+      }
+    </script>
+  </body>
+</html>

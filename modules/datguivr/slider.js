@@ -385,6 +385,7 @@ function numDecimals(x) {
 }
 
 function roundToDecimal(value, decimals) {
+  if (Math.abs(value) < 0.01 && value !== 0) return value.toExponential(3);
   const tenTo = Math.pow(10, decimals);
   return Math.round(value * tenTo) / tenTo;
 }

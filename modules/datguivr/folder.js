@@ -415,7 +415,9 @@ export default function createFolder({
     group.folder.detachChild(group);
     
     //adding to topFolder.parent IF AVAILABLE, not oldParent, pending working out transform later if beingMoved...
-    const par = topFolder.parent || group.parent; par.add(group);
+    const par = topFolder.parent || group.parent; 
+    if (!par) return; //SJPT change from CSynth, not carefully reviewed but probably right.
+    par.add(group);
     const m = topFolder.matrix.clone();
 
     group.applyMatrix(m);

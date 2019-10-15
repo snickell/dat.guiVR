@@ -34,20 +34,15 @@ export function createMaterial( color ){
   texture.magFilter = THREE.LinearFilter;
   texture.generateMipmaps = false;
 
-  //TODO: try to patch this to use logarithmic depth... or just re-write different version...
-  //nb look for logDepthBuf (case insensitive) & logarithmicDepthBuffer in three.js code...
-  let material = new THREE.RawShaderMaterial(SDFShader({
+  //NB::: somewhat experimental replacement of RawShader code from bmfont with variation of MeshBasic shader
+  //this should allow for logdepth, fog is also anticipated to work reasonably well... 
+  //tonemapping etc may conceivably be improved... YMMV.
+  let material = new THREE.ShaderMaterial(SDFShader({
     side: THREE.DoubleSide,
     transparent: true,
     color: color,
     map: texture
   }));
-  material.onBeforeCompile = (shader, renderer) => {
-    //logDepthBuf---
-    //what is a better approach: to continue to use RawShader, patch in here
-    //or use non-RawShader and attempt to make it compactible in the source?
-    //shader.fragmentShader = shader.fragmentShader.replace('//change_me', 'gl_FragColor.r = 0.;');
-  }
   return material;
 }
 

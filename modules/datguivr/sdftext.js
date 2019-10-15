@@ -17,7 +17,7 @@
 * limitations under the License.
 */
 
-import SDFShader from 'three-bmfont-text/shaders/sdf';
+import SDFShader from './sdfshader_logdepth';
 import createGeometry from 'three-bmfont-text';
 import parseASCII from 'parse-bmfont-ascii';
 import * as Layout from './layout';
@@ -34,12 +34,21 @@ export function createMaterial( color ){
   texture.magFilter = THREE.LinearFilter;
   texture.generateMipmaps = false;
 
-  return new THREE.RawShaderMaterial(SDFShader({
+  //TODO: try to patch this to use logarithmic depth... or just re-write different version...
+  //nb look for logDepthBuf (case insensitive) & logarithmicDepthBuffer in three.js code...
+  let material = new THREE.RawShaderMaterial(SDFShader({
     side: THREE.DoubleSide,
     transparent: true,
     color: color,
     map: texture
   }));
+  material.onBeforeCompile = (shader, renderer) => {
+    //logDepthBuf---
+    //what is a better approach: to continue to use RawShader, patch in here
+    //or use non-RawShader and attempt to make it compactible in the source?
+    //shader.fragmentShader = shader.fragmentShader.replace('//change_me', 'gl_FragColor.r = 0.;');
+  }
+  return material;
 }
 
 const textScale = Layout.TEXT_SCALE;
@@ -113,7 +122,7 @@ export function creator(){
 
   return {
     create,
-    getMaterial: ()=> material
+    getMaterial: ()=> material //XXX: this dates back quite a long way, not sure it was ever right.
   }
 
 }

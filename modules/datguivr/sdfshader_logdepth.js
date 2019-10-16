@@ -12,6 +12,7 @@ var assign = require('object-assign');
  */
 const meshbasic_vert = `
 #define USE_MAP
+#define USE_UV
 #include <common>
 #include <uv_pars_vertex>
 //#include <color_pars_vertex>
@@ -35,6 +36,7 @@ void main() {
 
 const meshbasic_frag = `
 #define USE_MAP
+#define USE_UV
 uniform vec3 color;
 uniform float opacity;
 

@@ -26,9 +26,8 @@ import * as Font from './font';
 
 export function createMaterial( color ){
 
-  const texture = new THREE.Texture();
   const image = Font.image();
-  texture.image = image;
+  const texture = new THREE.Texture(image);
   texture.needsUpdate = true;
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
@@ -41,7 +40,8 @@ export function createMaterial( color ){
     side: THREE.DoubleSide,
     transparent: true,
     color: color,
-    map: texture
+    map: texture,
+    type: 'SDF Text'
   }));
   return material;
 }

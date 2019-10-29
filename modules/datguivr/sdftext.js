@@ -92,7 +92,10 @@ export function creator(){
     group.add( mesh );
     group.layout = mesh.geometry.layout;
     group.computeWidth = () => {
-      return group.layout.width * Layout.TEXT_SCALE;
+      return group.layout.width * scale * Layout.TEXT_SCALE;
+    }
+    group.computeHeight = () => {
+      return group.layout.height * scale * Layout.TEXT_SCALE;
     }
 
     group.constrainBounds = (w, h) => {

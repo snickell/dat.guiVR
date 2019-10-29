@@ -31,6 +31,7 @@ import createTextbox from './textbox';
 import createColorPicker from './colorpicker';
 import * as SDFText from './sdftext';
 import { isControllerVisible } from './utils';
+import { globalEvents } from './interaction';
 
 const GUIVR = (function DATGUIVR(){
 
@@ -730,6 +731,7 @@ const GUIVR = (function DATGUIVR(){
     enableMouse,
     disableMouse,
     textCreator, //cheap way of exposing this so it can be used by host application.
+    globalEvents,
     clearAll,
     update
   };

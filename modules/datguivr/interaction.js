@@ -19,6 +19,8 @@
 import Emitter from 'events';
 import { getTopLevelFolder } from './utils';
 
+export const globalEvents = new Emitter();
+
 export default function createInteraction( hitVolume ){
   const events = new Emitter();
 
@@ -144,6 +146,8 @@ export default function createInteraction( hitVolume ){
 
       promoteZOrder(hitObject);
       
+      //emit global click event as well...
+      globalEvents.emit( downName, payload );
       events.emit( downName, payload );
 
       if( payload.locked ){
@@ -225,3 +229,4 @@ export default function createInteraction( hitVolume ){
 
   return interaction;
 }
+

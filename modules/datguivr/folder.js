@@ -42,17 +42,22 @@ function orthographicFolderLayout() {
   const cam = topFolderStack[0].userData.isOrthographic;
   if (!cam || topFolderStack.length <= 1) return;
   //camBoxSetup(cam);
-  const near = cam.near, far = cam.far, n = topFolderStack.length;
+  const tfs = topFolderStack.filter(x => x.visible);
+  const near = cam.near, far = cam.far, n = tfs.length;
+  const zs = tfs.map(f => f.position.z).sort((a,b)=>a-b);
+  zs[-1] = -9999; // I suppose this is to deal with accessing zs[i-1] below ¯\_(ツ)_/¯
+  zs.forEach( (z,i) => zs[i] = Math.max(zs[i], zs[i-1] + 10*Layout.PANEL_DEPTH)); // in case of equals
   
-  topFolderStack.forEach((f, i) => {
-    let z = -0.9*far + i*10*Layout.PANEL_DEPTH;
+  tfs.forEach((f, i) => {
+    //let z = -0.9*far + i*10*Layout.PANEL_DEPTH;
+    const z = zs[i];
     if (z !== f.position.z) {
       f.position.z = z;
       f.updateMatrix();
       f.fixFolderPosition();
     }
   });
-  if (topFolderStack[n-1].position.z >= near - Layout.PANEL_DEPTH) {
+  if (tfs[n-1].position.z >= near - Layout.PANEL_DEPTH) {
     console.log("GUIVR Warning: likely problem with z-order in orthographicFolderLayout");
   }
   //console.log(`[${topFolderStack.map(f=>f.folderName + '\t: ' + f.position.z).join('\n')}]`);
@@ -345,7 +350,8 @@ export default function createFolder({
 
 
   /* 
-  Removes the given controllers from the GUI.  Once removed, the controllers will effectively be invalid for use
+  Removes the given controllers from the GUI.  >>>Once removed, the controllers will effectively be invalid for use<<<
+  >>> so dispose of them as well? Need to be careful about textures / anything shared... <<<
   as they will also be removed from the global list of all dat.GUIVR controllers.  Use 'detach' instead if it is
   desired to reuse GUI elements elsewhere.
 

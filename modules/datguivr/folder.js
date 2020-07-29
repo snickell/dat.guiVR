@@ -511,7 +511,6 @@ export default function createFolder({
       }
       //XXX: hacking in some universal tooltip support
       obj.setToolTip = tip => {
-        obj._tip = tip;
         //TODO: pay more attention to layout config / make createToolTip have simpler arguments
         const tipObj = createToolTip(textCreator, tip, Layout.FOLDER_WIDTH, obj.spacing, Layout.BUTTON_DEPTH);
         //associate event with hover on appropriate hitscan...
@@ -523,8 +522,6 @@ export default function createFolder({
           });
         }
       }
-
-      obj.getToolTip = () => obj._tip;
     });
 
     group.requestLayout();

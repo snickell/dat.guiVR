@@ -25,7 +25,7 @@ import * as Graphic from './graphic';
 import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
 
-export default function createCheckbox( {
+export default function createDropdown( {
   textCreator,
   object,
   propertyName = 'undefined',

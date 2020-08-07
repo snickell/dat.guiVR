@@ -54,12 +54,12 @@
         gui.position.set(0, 0.03, -0.02);
         gui.scale.set(0.8, 0.8, 0.8);
 
-        gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader();
+        gui.add({check: false}, 'check').name('test check').setHeight(0.2).showInFolderHeader().setToolTip('check box, also shown in folder header (API subject to change...)');
         
-        gui.addDropdown(["abcdefg", "option 2 has a very very very long label"]).name("dropdown"); //TODO: fix this.
-        gui.addDropdown([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2]).name("Scale").onChange(s => gui.scale.set(s, s, s));
+        gui.addDropdown(["abcdefg", "option 2 has a very very very long label"]).name("dropdown").setToolTip('the whole dropdown has a tip, but what about sub-items?');
+        gui.addDropdown([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2]).name("Scale").onChange(s => gui.scale.set(s, s, s)).setToolTip('sets the scale of this GUI');
         gui.add(settings, 'myColor').onChange(c=>renderer.setClearColor(c)).listen();
-        gui.add(settings, 'color2');
+        gui.add(settings, 'color2').setToolTip('does nothing');
         gui.add(settings, 'friction', 0, 1);
 
         //creating lots of stuff just to take up space and test layout.

@@ -68,7 +68,8 @@ export default function createTextLabel( textCreator, str, width = 0.4, depth = 
   return group;
 }
 
-export function createToolTip( textCreator, tip, parentWidth, parentHeight, parentDepth ) {
+const defaultParentHeight = Layout.PANEL_HEIGHT + Layout.PANEL_SPACING;
+export function createToolTip( textCreator, tip, parentWidth, parentHeight = defaultParentHeight, parentDepth ) {
   const tipText = textCreator.create(tip);
   
   const tipGroup = new THREE.Group();

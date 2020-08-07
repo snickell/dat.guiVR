@@ -510,21 +510,30 @@ export default function createFolder({
         obj.folder = group;
       }
       //XXX: hacking in some universal tooltip support
+      if (obj.setToolTip) return; //but not if a more specific implementation already exists (see dropdown...)
       obj.setToolTip = tip => {
-        obj._tip = tip;
+        obj.userData.tip = tip;
         //TODO: pay more attention to layout config / make createToolTip have simpler arguments
         const tipObj = createToolTip(textCreator, tip, Layout.FOLDER_WIDTH, obj.spacing, Layout.BUTTON_DEPTH);
+        obj.userData.tipObj = tipObj;
         //associate event with hover on appropriate hitscan...
+
         if (obj.interaction) {
-          //TODO: events.off() if replacing old tooltip.
+          //TODO: events.off() if replacing old tooltip (or not repeating on()).
           obj.interaction.events.on('tick', () => {
             //don't just set visibility; add/remove as these are killing framerate in large VR guis.
+            //REVIEW... considering making tooltips work when hovering on label as well,
+            // but of course this would mean changing more about the interaction setup,
+            // and having more objects to test in scene hierarchy.
+            // Leaving for now, if working more on the library, hopefully fix hover event etc.
             if (obj.visible) setVisibility(obj, tipObj, obj.interaction.hovering());
           });
+        } else {
+          console.error(`can't create tooltip for ${obj.guiType} because there's no obj.interaction property...`);
         }
       }
 
-      obj.getToolTip = () => obj._tip;
+      obj.getToolTip = () => obj.userData.tip;
     });
 
     group.requestLayout();

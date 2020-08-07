@@ -17,13 +17,13 @@
 * limitations under the License.
 */
 
-import createTextLabel from './textlabel';
+import createTextLabel, {createToolTip} from './textlabel';
 import createInteraction from './interaction';
 import * as Colors from './colors';
 import * as Layout from './layout';
 import * as Graphic from './graphic';
-import * as SharedMaterials from './sharedmaterials';
 import * as Grab from './grab';
+import {setVisibility} from "./utils";
 
 export default function createDropdown( {
   textCreator,
@@ -257,6 +257,12 @@ export default function createDropdown( {
     });
 
     state.open = modalDropdown.visible; //as of this writing, this is believed to be reliable, but beware dragons, future reader.
+    if (group.userData.tipObj) {
+      if (labelInteractions[0].hovering()) {
+        console.log(group.userData.tip);
+      }
+      setVisibility(panel, group.userData.tipObj, labelInteractions[0].hovering());
+    }
     if( labelInteractions[0].hovering() || state.open ){
       borderBox.visible = true;
     }
@@ -300,6 +306,16 @@ export default function createDropdown( {
     descriptorLabel.updateLabel( str );
     return group;
   };
+
+  group.setToolTip = tip => {
+    const obj = group;
+    obj.userData.tip = tip;
+    //TODO: pay more attention to layout config / make createToolTip have simpler arguments
+    //nb, obj.spacing may be undefined, but should now have sensible default.
+    obj.userData.tipObj = createToolTip(textCreator, tip, Layout.FOLDER_WIDTH, obj.spacing, Layout.BUTTON_DEPTH);
+    ////--- see labelInteractions[0] above for handling update...
+  }
+  group.getToolTip = () => group.userData.tip;
 
 
   return group;

@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "parse-bmfont-ascii": "^1.0.6",
-    "three-bmfont-text": "^3.0.1"
+    "three-bmfont-text": "^3.0.1",
+    "three-buffer-vertex-data": "github:mikehenrty/three-buffer-vertex-data#remove-setarray"
   },
   "devDependencies": {
     "babel-preset-es2015": "*",

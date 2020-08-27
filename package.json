@@ -8,9 +8,8 @@
     "dev": "./node_modules/.bin/grunt"
   },
   "dependencies": {
-    "parse-bmfont-ascii": "^1.0.6",
-    "three-bmfont-text": "^3.0.1",
-    "three-buffer-vertex-data": "github:mikehenrty/three-buffer-vertex-data#remove-setarray"
+    "aframe": "*",
+    "parse-bmfont-ascii": "^1.0.6"
   },
   "devDependencies": {
     "babel-preset-es2015": "*",
